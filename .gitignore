@@ -1,0 +1,27 @@
+# Archivos auxiliares de LaTeX
+*.aux
+*.log
+*.toc
+*.out
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+
+# Archivos temporales
+*.tmp
+*.bak
+
+# Archivos generados
+*.pdf
+*.dvi
+*.ps
+
+# VS Code
+.vscode/

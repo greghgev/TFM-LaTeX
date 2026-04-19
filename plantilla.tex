@@ -1,0 +1,123 @@
+\documentclass[11pt,a4paper,spanish]{book}
+\usepackage{estilo_unir-1}
+\usepackage{apacite}
+
+\usepackage{amsmath}
+\usepackage{amssymb}   
+
+\let\rank\undefined % Forzamos que \rank quede libre
+\usepackage{physics}
+\usepackage{hyperref}
+\numberwithin{equation}{chapter}
+%\usepackage{caption}
+\numberwithin{figure}{chapter}
+%\usepackage{chngcntr}
+%\counterwithin{equation}{chapter}
+%\counterwithin{figure}{chapter}
+%\counterwithin{table}{chapter}
+%\renewcommand\theequation{\thechapter.\arabic{equation}}
+%\renewcommand\thefigure{\thechapter.\arabic{figure}}
+%\renewcommand\thetable{\thechapter.\arabic{table}}
+%\renewcommand\theequation{\thechapter.\arabic{equation}}
+%\counterwithin{figure}{chapter}
+%\counterwithin{table}{chapter}
+%\renewcommand\thefigure{\thechapter.\arabic{figure}}
+%\renewcommand\thetable{\thechapter.\arabic{table}}
+%\renewcommand\thefigure{\thechapter.\arabic{figure}}
+%\makeatletter
+%\renewcommand\p@figure{\thechapter..\arabic{figure}}
+%\makeatother
+
+
+
+
+%---------------------------
+%título del trabajo y autor
+%---------------------------
+\title{Escribir el título del documento}
+\titulacion{Máster en en Inteligencia Artificial}
+\author{Gregory Harutyunyan Gevorgyan}
+\date{\today}
+\director{Pablo Abellan Galiana}
+\nombreciudad{ Granada}
+
+%---------------------------
+%marges
+%---------------------------
+%\usepackage[margin=1.9cm]{geometry}
+%---------------------------
+%---------------------------
+%---------------------------
+%---------------------------
+\begin{document}
+\renewcommand{\listfigurename}{Índice de Ilustraciones}
+\renewcommand{\listtablename}{Índice de Tablas}
+\renewcommand{\contentsname}{Índice de Contenidos}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla} 
+
+\maketitle
+ 
+\frontmatter
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter{Resumen}
+{\bf Nota:} En este apartado se introducirá un breve resumen en español del trabajo realizado (extensión máxima: 150 palabras). Este resumen debe incluir el objetivo o propósito de la investigación, la metodología, los resultados y las conclusiones.
+
+
+{\bf Palabras Clave:} Se deben incluir de 3 a 5 palabras claves en español
+
+\chapter{Abstract}
+{\bf Nota:} En este apartado se introducirá un breve resumen en español del trabajo realizado (extensión máxima: 150 palabras). Este resumen debe incluir el objetivo o propósito de la investigación, la metodología, los resultados y las conclusiones.
+
+
+{\bf Palabras Clave:} Se deben incluir de 3 a 5 palabras claves en inglés
+
+
+
+
+\mainmatter
+\include{capitulos/cap0/01_Introduccion}
+\include{capitulos/cap0/02_Estado_Arte}
+\include{capitulos/cap0/03_Requisitos}
+\include{capitulos/cap0/04_Objetivos}
+\include{capitulos/cap0/05_Desarrollo}
+\include{capitulos/cap0/06_Conclusiones}
+
+
+\nocite{*}
+%\begin{thebibliography}{a}
+%\bibitem{etiqueta} \textsc{Autores},
+%\textit{nombre referencia.}
+%Información addicional
+%\end{thebibliography}
+\bibliographystyle{apacite}
+\bibliography{bibliografia}
+
+\appendix
+\chapter{Apendices}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
