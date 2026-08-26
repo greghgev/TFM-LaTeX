@@ -21,6 +21,7 @@
 
 # Archivos generados
 *.pdf
+!logo_unir.pdf
 *.dvi
 *.ps
 

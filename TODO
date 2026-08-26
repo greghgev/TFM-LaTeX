@@ -1,3 +1,35 @@
+Ideas para el TFM:
+    ☐ Hacer una explicación de la familias de chips cuánticos que hay (Falcon de 27 qubits, Eagle de 127 qubits, Osprey de 433 qubits, Condor de 1121 qubits):
+        ☐ Justificar la elección del Eagle de 127 qubits para este proyecto.
+        ☐ Explicar el peso computacional de los chips cuánticos.
+        ☐ Justiifcar la elección del sub-grafo de 5,7,10 y como máximo 15 qubits
+    ☐ Explicar los tipos de circuitos a los que se puede enfocar:
+        - Opción 1: Circuitos Aleatorios (Random Clifford / Random Unitary)
+            - Qué son: Se escogen puertas cuánticas al azar.
+            - Trade-off: Exploran matemáticamente todo el espacio de Hilbert. Obligan a la IA a aprender la "física general" del ruido, evitando que memorice un patrón. El contra es que no resuelven ningún problema real.
+        - Opción 2: Circuitos Estructurados (QAOA, QFT, Grover)
+            - Qué son: Algoritmos con una lógica estricta. QAOA se usa para optimización financiera/logística; QFT para criptografía.
+            - Trade-off: Demuestran que tu TFM sirve para casos de uso reales de la industria. El contra es que si solo entrenas con QAOA, la red neuronal se sobreajusta (overfitting) a ese tipo de circuitos y fallará si le pasas un Grover.
+        ☐ Explicar la toma de decisión: 80% - 20%
+    ☐ Explicar acerca de las decisiones del origen del dataset:
+        ☐ Por qué no usamos el dataset directamente de IBM
+        ☐ Por qué hemos creado nosotros mismo una forma de crear dataset en lugar de buscar algo de la SOTA
+        ☐ Mirar **00_Justificaciones.md**
+    ☐ Cuestionarse la utilidad de mi modelo frente a la ejeccion manual de circuitos cuánticos.
+    ☐ Mostrar que el trabajo está orientado a los nuevos chips de Heron, comenzados en abril.
+    ☐ Justificar como hacemos para reproducir un circuito tan largo en nuestro modelo haciendolo por subconjuntos:
+        - Dónde entra "lo grande": en la inferencia/generalización. La idea es entrenar en pequeño y que el modelo extrapole a circuitos mayores que nunca vio. Eso está respaldado:
+            - [HECHO — Liu et al., Frontiers 2026] entrenado en 3–7 qubits, testeado en 16, R²≥0.92.
+            - [HECHO — Liao 2024, Nature MI] escala hasta 100 qubits en hardware IBM real.
+    
+    ☐ Explicar bien los modelos cómo funcionan
+    ☐ Mostrar que hay dos enfoque de realizar esto:
+        - Enfoque 1: Entrenar con cicuitos near-Clifford --> restricgir los angulos --> más qubits
+        - Enfoque 2: Entrenar con circuitos no near-Clifford --> todo los angulos posibles --> menos qubits
+
+    ☐ Nosotros para el dataset hemos optado por circuitos random, luego se puede usar el modelo para hacer un finetunig para modelo más concretos que se necesites predecir.
+
 
 Extensiones:
    ☐ Mirar LaTeX Utilities para Zotero
+   ☐ Fijarse con la plantilla inicial y compara que falta

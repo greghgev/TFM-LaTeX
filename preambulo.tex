@@ -1,0 +1,68 @@
+% --- Codificación y Lenguaje ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+
+% --- Geometría y Diseño ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing % Interlineado 1.5
+
+% --- Matemáticas Avanzadas (Crucial para Cuántica) ---
+\usepackage{amsmath, amsfonts, amssymb, amsthm}
+\usepackage{physics} % Proporciona macros para brakets: \bra{}, \ket{}, \braket{}
+\usepackage{bm}      % Negritas en símbolos matemáticos
+
+% --- Gráficos y Tablas ---
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=black
+}
+
+% --- Algoritmos y Código ---
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\lstset{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{purple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    language=Python
+}
+
+\usepackage{apacite}
+
+
+\let\rank\undefined % Forzamos que \rank quede libre
+
+\numberwithin{equation}{chapter}
+%\usepackage{caption}
+\numberwithin{figure}{chapter}
+%\usepackage{chngcntr}
+%\counterwithin{equation}{chapter}
+%\counterwithin{figure}{chapter}
+%\counterwithin{table}{chapter}
+%\renewcommand\theequation{\thechapter.\arabic{equation}}
+%\renewcommand\thefigure{\thechapter.\arabic{figure}}
+%\renewcommand\thetable{\thechapter.\arabic{table}}
+%\renewcommand\theequation{\thechapter.\arabic{equation}}
+%\counterwithin{figure}{chapter}
+%\counterwithin{table}{chapter}
+%\renewcommand\thefigure{\thechapter.\arabic{figure}}
+%\renewcommand\thetable{\thechapter.\arabic{table}}
+%\renewcommand\thefigure{\thechapter.\arabic{figure}}
+%\makeatletter
+%\renewcommand\p@figure{\thechapter..\arabic{figure}}
+%\makeatother

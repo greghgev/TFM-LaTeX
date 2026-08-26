@@ -28,6 +28,8 @@
 %\renewcommand\p@figure{\thechapter..\arabic{figure}}
 %\makeatother
 
+%\include{preambulo}
+
 
 
 
@@ -79,12 +81,15 @@
 
 
 \mainmatter
-\include{capitulos/cap0/01_Introduccion}
-\include{capitulos/cap0/02_Estado_Arte}
-\include{capitulos/cap0/03_Requisitos}
-\include{capitulos/cap0/04_Objetivos}
-\include{capitulos/cap0/05_Desarrollo}
-\include{capitulos/cap0/06_Conclusiones}
+\include{capitulos/01_intro}
+\include{capitulos/02_fundamentos}
+\include{capitulos/03_problematica_ruido}
+\include{capitulos/04_sota}
+\include{capitulos/05_data_engineering}  
+\include{capitulos/06_arquitecturas_ia}    % Transformer + GNN
+\include{capitulos/07_aprendizaje_refuerzo}% El salto a RL
+\include{capitulos/08_mlops_experimentacion}
+\include{capitulos/09_resultados_conclusiones}
 
 
 \nocite{*}
