@@ -81,7 +81,11 @@ magnitud coincide con el $\sigma$ medido.
 \label{sec:transpilador}
 % Fuente: doc/changes/2026-08_regeneracion_v2.md seccion 3.5
 Con la semilla del transpilador fijada, \texttt{transpile()} \textbf{no produce siempre el
-mismo circuito}: afecta a $\sim$4\,\% de las muestras.
+mismo circuito}: medido sobre 13.217 muestras, afecta al \textbf{12,65\,\%}, con una
+divergencia en el valor ruidoso de hasta $1{,}45\times10^{-2}$.
+
+% ⚠️ NO citar las cifras de la primera estimacion (4 % y 1,6e-4): salian de una prueba
+% de 24 muestras y se quedaban cortas por un factor de 3 y de 90 respectivamente.
 
 \textbf{Es benigno, y la explicación es física:} el valor exacto sale \textbf{idéntico bit a
 bit} —los dos circuitos implementan la misma unitaria— y solo el ruidoso difiere, porque

@@ -107,9 +107,22 @@ aleatoriedad**, y hacerlo **en todo el rango de parámetros**, no en un punto c�
 
 ### El límite de reproducibilidad del transpilador `[REPO]`
 
-**`transpile()` con `seed_transpiler` fijado NO produce siempre el mismo circuito.** Afecta a
-~4 % de las muestras. Es **benigno**: el `exacto` sale idéntico bit a bit (misma unitaria) y
-solo el `ruidoso` difiere entre 2×10⁻⁵ y 1,6×10⁻⁴, porque el ruido no conmuta con la unitaria.
+**`transpile()` con `seed_transpiler` fijado NO produce siempre el mismo circuito.**
+
+⚠️ **Cifras corregidas (ago-2026).** Las primeras salían de una prueba de **24 muestras** y se
+quedaban muy cortas. Medido sobre **13.217 muestras** de n ≤ 9 comparables con el v1:
+
+| | primera estimación (24 muestras) | **medido (13.217 muestras)** |
+|---|---|---|
+| muestras afectadas | ~4 % | **12,65 %** |
+| divergencia en `ruidoso` | 2×10⁻⁵ – 1,6×10⁻⁴ | **hasta 1,45×10⁻²** (mediana 0 · p90 3×10⁻⁵ · p99 5,9×10⁻⁴) |
+| divergencia en `exacto` | idéntico | **idéntico** (máx 1,2×10⁻⁶, ruido de float32) |
+
+🔴 **En la memoria citar 12,65 % y 1,45×10⁻², NUNCA 4 % ni 1,6×10⁻⁴.**
+
+**Sigue siendo benigno**, y que el `exacto` sea idéntico es justamente la prueba: las dos
+transpilaciones implementan **la misma unitaria**. Solo el `ruidoso` difiere, porque el ruido
+no conmuta con la unitaria.
 
 **Lo que hay que matizar en la memoria:** el dataset es reproducible a partir de las semillas
 para el **plan** (qué tipo, cuántos qubits, qué día, qué región), pero **no al bit** para el
@@ -199,14 +212,26 @@ del grafo, donde la agregación no lo hace?**
 Con los 5 del v1 la correlación máxima entre dos Δ era 0,19. Con los **8** del v2 aparece un
 bloque muy correlado `[REPO]` `[v2]`:
 
-```
-std_X ↔ std_Y   +0,85       std_Z ↔ std_X   +0,77
-std_Z ↔ std_Y   +0,80       mean_X ↔ mean_Y −0,56
-```
+Matriz medida sobre **8.000 muestras del v2**, con el signo (importa, ver abajo):
 
-**No escribir en la memoria «los observables son independientes».** Lo son los cinco
-originales; el bloque `std_*` no. La justificación de los ocho es de **simetría de diseño**
-—no dejar ninguna elección arbitraria sin explicar— no de independencia estadística.
+| pareja | r | lectura |
+|---|---|---|
+| `std_X` – `std_Y` | **+0,840** | ┐ |
+| `std_Z` – `std_Y` | **+0,786** | ├ el bloque de **dispersiones**: miden lo mismo en tres bases |
+| `std_Z` – `std_X` | **+0,777** | ┘ |
+| `mean_X` – `mean_Y` | **−0,552** | ⚠️ **anticorreladas**, no redundantes |
+| `mean_X` – `std_X` | **−0,484** | ⚠️ ídem |
+
+🔴 **Cuidado con el signo — cambia el argumento.** «Redundante» significa *miden lo mismo,
+sobra uno*. **Anticorrelado significa que llevan información opuesta**, y eso es un argumento
+**a favor** de conservar las dos, no en contra. Dos de las cinco parejas son negativas.
+
+Solo **3 de las 28 parejas** llegan a 0,6. Hay **dos bloques** con estructura, no uno.
+
+**No escribir en la memoria «los observables son independientes».** Decir cuáles: las tres
+dispersiones son casi la misma magnitud en tres bases; `mean_X` y `mean_Y` están
+anticorreladas. La justificación de los ocho es de **simetría de diseño** —no dejar ninguna
+elección arbitraria sin explicar— no de independencia estadística.
 
 ---
 

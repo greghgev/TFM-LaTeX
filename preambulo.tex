@@ -22,8 +22,19 @@
 
 % --- Tablas y espaciado -----------------------------------------------------------
 \usepackage{booktabs}    % \toprule, \midrule, \bottomrule
+
+% `setspace` se carga pero NO se invoca \onehalfspacing.
+%
+% ⚠️ NO AÑADIR \onehalfspacing. Pese al nombre, en un documento de 11 pt equivale a un
+%    factor de 1,213 — NO de 1,5 — y PISA el \renewcommand{\baselinestretch}{1.5} que fija
+%    `estilo_unir-1.sty`. Medido sobre el PDF: con \onehalfspacing la separación entre
+%    líneas baja de 20,4 pt a 16,5 pt, un 19 % más denso que la plantilla oficial.
+%    La plantilla de la UNIR va a 1,5 y la memoria debe ir a 1,5.
+%
+%    Se deja `setspace` cargado porque sus entornos locales sí son útiles
+%    (p. ej. \begin{singlespace} en una tabla larga), pero el interlineado global
+%    lo manda el estilo institucional.
 \usepackage{setspace}
-\onehalfspacing
 
 % --- Bibliografía -----------------------------------------------------------------
 \usepackage{apacite}
@@ -57,9 +68,12 @@
 }
 
 % --- Numeración por capítulo ------------------------------------------------------
+% Las mismas dos líneas que la plantilla oficial, ni una más.
+% (La clase `book` ya numera ecuaciones, figuras y tablas por capítulo, así que las dos
+%  son redundantes; se mantienen solo para no separarnos de la plantilla. La tercera,
+%  \numberwithin{table}{chapter}, se retiró: no estaba en la plantilla y no hacía nada.)
 \numberwithin{equation}{chapter}
 \numberwithin{figure}{chapter}
-\numberwithin{table}{chapter}
 
 % --- Rutas de figuras -------------------------------------------------------------
 % Las figuras del proyecto se generan en TFM-Quantum/figures/ y se copian a figuras/.
