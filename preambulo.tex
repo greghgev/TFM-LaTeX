@@ -1,68 +1,66 @@
-% --- Codificación y Lenguaje ---
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[spanish,es-tabla]{babel}
+% =====================================================================================
+% PREÁMBULO — se carga desde main.tex con \input, DESPUÉS de estilo_unir-1.sty
+%
+% ⚠️ NO añadir aquí paquetes que ya carga estilo_unir-1.sty:
+%      babel · inputenc · amsmath · amssymb · amsthm · amsfonts · mathabx
+%      graphicx · color · colortbl · hyperref · vmargin · fancyhdr · titling · titlesec
+%
+% ⚠️ NO usar `geometry`: el estilo institucional fija los márgenes con `vmargin` y los dos
+%    paquetes son incompatibles. Los márgenes de la UNIR no se tocan.
+%
+% ⚠️ Se carga con \input y NO con \include: \include fuerza un salto de página y es ilegal
+%    dentro del preámbulo.
+% =====================================================================================
 
-% --- Geometría y Diseño ---
-\usepackage[margin=2.5cm]{geometry}
+% --- Matemáticas para notación cuántica -------------------------------------------
+% `physics` da \bra{}, \ket{}, \braket{}, \Tr{}, etc.
+% El \let de abajo es OBLIGATORIO y va antes: `mathabx` (cargado por el estilo de la UNIR)
+% define \rank, y `physics` lo define otra vez. Sin liberarlo, la compilación falla.
+\let\rank\undefined
+\usepackage{physics}
+\usepackage{bm}          % negrita en símbolos matemáticos
+
+% --- Tablas y espaciado -----------------------------------------------------------
+\usepackage{booktabs}    % \toprule, \midrule, \bottomrule
 \usepackage{setspace}
-\onehalfspacing % Interlineado 1.5
+\onehalfspacing
 
-% --- Matemáticas Avanzadas (Crucial para Cuántica) ---
-\usepackage{amsmath, amsfonts, amssymb, amsthm}
-\usepackage{physics} % Proporciona macros para brakets: \bra{}, \ket{}, \braket{}
-\usepackage{bm}      % Negritas en símbolos matemáticos
+% --- Bibliografía -----------------------------------------------------------------
+\usepackage{apacite}
 
-% --- Gráficos y Tablas ---
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=cyan,
-    citecolor=black
-}
-
-% --- Algoritmos y Código ---
+% --- Código -----------------------------------------------------------------------
 \usepackage{listings}
 \definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegris}{rgb}{0.5,0.5,0.5}
 \lstset{
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{gray},
+    numberstyle=\tiny\color{codegris},
     stringstyle=\color{purple},
     basicstyle=\ttfamily\small,
     breaklines=true,
     captionpos=b,
     keepspaces=true,
     showspaces=false,
+    showstringspaces=false,
     language=Python
 }
 
-\usepackage{apacite}
+% --- Enlaces ----------------------------------------------------------------------
+% `hyperref` ya viene del estilo institucional; aquí solo se configura su aspecto.
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=black
+}
 
-
-\let\rank\undefined % Forzamos que \rank quede libre
-
+% --- Numeración por capítulo ------------------------------------------------------
 \numberwithin{equation}{chapter}
-%\usepackage{caption}
 \numberwithin{figure}{chapter}
-%\usepackage{chngcntr}
-%\counterwithin{equation}{chapter}
-%\counterwithin{figure}{chapter}
-%\counterwithin{table}{chapter}
-%\renewcommand\theequation{\thechapter.\arabic{equation}}
-%\renewcommand\thefigure{\thechapter.\arabic{figure}}
-%\renewcommand\thetable{\thechapter.\arabic{table}}
-%\renewcommand\theequation{\thechapter.\arabic{equation}}
-%\counterwithin{figure}{chapter}
-%\counterwithin{table}{chapter}
-%\renewcommand\thefigure{\thechapter.\arabic{figure}}
-%\renewcommand\thetable{\thechapter.\arabic{table}}
-%\renewcommand\thefigure{\thechapter.\arabic{figure}}
-%\makeatletter
-%\renewcommand\p@figure{\thechapter..\arabic{figure}}
-%\makeatother
+\numberwithin{table}{chapter}
+
+% --- Rutas de figuras -------------------------------------------------------------
+% Las figuras del proyecto se generan en TFM-Quantum/figures/ y se copian a figuras/.
+\graphicspath{{figuras/}{doc/imgs/}}

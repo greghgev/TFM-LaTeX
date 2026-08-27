@@ -1,14 +1,43 @@
-\chapter{Fundamentos de Computación Cuántica}
+\chapter{Fundamentos de computación cuántica}
 \label{cap:fundamentos}
 
-\section{Postulados Matemáticos}
-\subsection{Espacios de Hilbert y Qubits}
-Representación de estados cuánticos como vectores en $\mathbb{C}^2$. Notación de Dirac.
-\subsection{Evolución Unitaria}
-Representación de puertas cuánticas mediante matrices unitarias $U \in \mathcal{U}(2^n)$.
+% GUION. Objetivo: lo MINIMO para que el capitulo 3 y el 5 se entiendan.
+% No convertirlo en un libro de texto: el TFM es de mitigacion, no de introduccion a la
+% computacion cuantica. Todo lo que no se use despues, fuera.
 
-\section{Operadores y Circuitos}
-Explicación de puertas de un qubit y puertas de entrelazamiento (CNOT, CZ).
+\section{El qubit y el espacio de estados}
+\label{sec:qubit}
+Estado como vector en $\mathbb{C}^2$, notación de Dirac, superposición y normalización.
+Extensión a $n$ qubits mediante producto tensorial, y el crecimiento $2^n$ del espacio.
 
-\section{Medición Cuántica}
-El proceso de colapso del estado y la obtención de bitstrings clásicos a partir de amplitudes de probabilidad.
+\section{Evolución unitaria}
+\label{sec:unitaria}
+Las puertas como matrices unitarias $U \in \mathcal{U}(2^n)$. Reversibilidad. Puertas de un
+qubit y puertas de entrelazamiento.
+
+\subsection{La base nativa de IBM Heron}
+% Fuente: src/config.py::BASIS_GATES
+El conjunto $\{cz, id, rz, sx, x\}$ y por qué importa: \textbf{cualquier circuito acaba
+traducido a él}. La puerta de dos qubits nativa es \texttt{cz}, no \texttt{cx}, y es
+\textbf{simétrica} —no existe control ni objetivo físico—, lo que obliga a una convención al
+construir el grafo.
+
+\section{Medición y valores esperados}
+\label{sec:medicion}
+El colapso del estado. Diferencia entre \textbf{muestrear} (obtener cadenas de bits) y
+\textbf{estimar un valor esperado} $\langle O \rangle = \bra{\psi} O \ket{\psi}$.
+
+\subsection{Qué es un observable}
+% Fuente: doc/02_Los_Observables.md
+Operadores de Pauli, sus autovalores $\pm 1$, y qué significa un valor esperado intermedio.
+
+\subsection{Por qué este trabajo predice observables y no distribuciones}
+Una distribución completa tiene $2^n$ entradas y no se puede usar como objetivo de tamaño
+fijo. Un observable es \textbf{un número}, es lo que un algoritmo real devuelve, y permite
+una salida del mismo tamaño para cualquier circuito.
+
+\section{Circuitos como grafos acíclicos dirigidos}
+\label{sec:dag}
+Un circuito \textbf{es} un DAG: cada puerta es un nodo, las dependencias son las aristas.
+Profundidad como camino más largo. Es la representación que consume el modelo del
+capítulo~\ref{cap:modelos}.

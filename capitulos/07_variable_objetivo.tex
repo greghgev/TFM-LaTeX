@@ -1,0 +1,98 @@
+\chapter{La variable objetivo}
+\label{cap:objetivo}
+
+% GUION. CAPITULO DIFERENCIAL: es el resultado central del trabajo.
+% Fuente: TFM-Quantum/doc/hallazgo_objetivo.md + doc/memoria/materiales.md seccion 4.
+% APROBADO POR EL DIRECTOR (ago-2026).
+%
+% ATENCION: todas las cifras de este capitulo son del dataset v1. HAY QUE REHACERLAS
+% con el v2 antes de escribirlas. Ver doc/memoria/pendientes.md.
+
+\section{Lo que se quería predecir}
+\label{sec:delta}
+El objetivo natural: $\Delta = \langle O \rangle_{\text{exacto}} - \langle O
+\rangle_{\text{ruidoso}}$, la degradación que sufre el observable. Predecirla permitiría
+restarla del resultado medido.
+
+\section{La medida: no es predecible}
+\label{sec:no_predecible}
+% Tabla de R2 sobre los tres objetivos. REHACER con el v2.
+Se ajustó \textbf{el mismo modelo, con las mismas variables y la misma partición}, cambiando
+únicamente el objetivo.
+
+\textbf{$\Delta$ con signo da $R^2 \approx 0$ en validación.} Y el detalle importa: en
+\textbf{validación}, no en test. No es un problema de generalización, ni de arquitectura, ni
+de cantidad de datos.
+
+\section{Por qué: la causa es aritmética}
+\label{sec:causa}
+\begin{equation}
+\Delta = (1 - f)\cdot\langle O \rangle_{\text{exacto}}, \qquad
+f = \frac{\langle O \rangle_{\text{ruidoso}}}{\langle O \rangle_{\text{exacto}}}
+\end{equation}
+
+$\Delta$ es el producto de dos cosas de naturaleza distinta:
+\begin{itemize}
+    \item $(1-f)$ — \textbf{cuánta señal destruye el ruido}. Es física del hardware: depende
+          del circuito y de la calibración, y por tanto \textbf{es aprendible}.
+    \item $\langle O \rangle_{\text{exacto}}$ — \textbf{cuánta señal había}. Depende del
+          algoritmo, y es justamente la incógnita para la que haría falta un ordenador
+          cuántico. \textbf{No es aprendible.}
+\end{itemize}
+
+\subsection{La excepción que confirma la explicación}
+% Argumento fuerte: no depender solo de la formula.
+Hay un observable cuyo $\Delta$ tiene signo sistemático —positivo el 99,9\,\% de las veces—.
+\textbf{Es el único con $R^2$ positivo sobre $\Delta$}: donde no hay signo que adivinar, el
+problema se vuelve aprendible.
+
+\section{La reformulación}
+\label{sec:reformulacion}
+Predecir $f$ y reconstruir $\Delta$ con el valor \textbf{medido}:
+\begin{equation}
+\hat\Delta = \langle O \rangle_{\text{ruidoso}}\cdot\frac{1 - \hat f}{\hat f}
+\end{equation}
+
+\subsection{Por qué NO rompe el paradigma pre-ejecución}
+% ESTE es el punto que hay que defender ante el tribunal. Redactarlo con cuidado.
+\begin{itemize}
+    \item \textbf{La entrada del modelo no cambia}: sigue siendo solo el circuito y la
+          telemetría del chip. El modelo nunca ve el resultado de la ejecución.
+    \item \textbf{El valor medido entra solo en la aritmética final} de la corrección —
+          exactamente donde ya entraba en $\langle O \rangle_{\text{mitigado}} = \langle O
+          \rangle_{\text{ruidoso}} - \Delta$.
+    \item QEMFormer necesita el valor ruidoso \textbf{como variable de entrada del modelo}.
+          La diferencia sigue siendo real.
+\end{itemize}
+
+\subsection{Una ventaja añadida}
+El caso degenerado se resuelve solo: si el valor medido es $\approx 0$, entonces
+$\hat\Delta \approx 0$ — que es la respuesta correcta cuando no hay señal que corregir. En la
+formulación original ese caso era ruido puro, y afecta a una fracción grande del conjunto.
+
+\section{El límite honesto de la solución}
+\label{sec:limite}
+% NO adornar esto. Es lo que hace creible el resto.
+En validación el esquema funciona en los ocho observables. \textbf{En test solo transfiere
+uno.} En el resto, el $R^2$ se hunde pese al buen ajuste en validación.
+
+\textbf{Las variables agregadas aprenden la física, pero no la transfieren a tipos de circuito
+nunca vistos.}
+
+\subsection{Por qué esto no es un fracaso}
+Es el resultado que el conjunto de datos fue \textbf{diseñado para medir}, y deja a la
+comparativa del capítulo~\ref{cap:modelos} una pregunta real:
+
+\begin{quote}
+¿Transfiere el \textit{Graph Transformer}, que ve la estructura del circuito, donde el
+resumen agregado no lo hace?
+\end{quote}
+
+Con $\Delta$ como objetivo único, los tres modelos habrían dado $R^2 \approx 0$ en validación
+\textbf{y} en test, y la comparativa habría sido entre tres formas de no predecir nada.
+
+\section{Alternativas descartadas}
+\label{sec:alternativas_objetivo}
+Mantener $\Delta$ (sin señal que comparar), eliminar $\Delta$ de la memoria (pierde la métrica
+física que conecta con la literatura), o añadir el valor ruidoso como entrada (es el enfoque
+de QEMFormer y elimina el diferenciador del trabajo).

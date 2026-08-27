@@ -1,0 +1,66 @@
+\chapter{Introducción}
+\label{cap:intro}
+
+% GUION. Fuentes: doc/memoria/estructura.md, doc/00_Justificaciones.md
+% Escribir este capitulo AL FINAL, cuando el resto este cerrado: las contribuciones
+% solo se pueden enunciar bien cuando se sabe que se ha demostrado.
+
+\section{Contexto: la era NISQ}
+\label{sec:nisq}
+Qué son los dispositivos \textit{Noisy Intermediate-Scale Quantum}: decenas o centenares de
+qubits, sin corrección de errores, con resultados degradados por el ruido. Por qué la
+corrección completa (QEC) no es viable hoy —requiere muchos qubits físicos por cada qubit
+lógico— y por qué eso deja a la \textbf{mitigación por software} como única vía práctica.
+
+\section{El problema: el ruido invalida el resultado}
+\label{sec:problema}
+Las tres fuentes de error (decoherencia, puertas, lectura) y su efecto acumulado sobre el
+valor esperado que el usuario mide. Un circuito de unos centenares de puertas puede perder la
+mayor parte de su señal.
+
+\section{Limitaciones de los enfoques actuales}
+\label{sec:limitaciones}
+Los métodos clásicos (ZNE, PEC) \textbf{cuestan ejecuciones adicionales} sobre un recurso
+escaso. Los métodos basados en aprendizaje automático del estado del arte
+\textbf{necesitan haber ejecutado ya el circuito} para poder corregirlo.
+
+\section{La pregunta de este trabajo}
+\label{sec:pregunta}
+¿Se puede predecir la degradación que sufrirá un circuito \textbf{antes de ejecutarlo},
+mirando solo su estructura y la calibración del procesador?
+
+\section{Objetivos}
+\label{sec:objetivos}
+% ATENCION: los objetivos del esqueleto anterior eran del alcance antiguo (hablaban de
+% mitigacion de lectura y de validacion en hardware real). El alcance vigente, acordado
+% con el director, es el modulo GEM planteado como comparativa de tres modelos.
+\subsection{Objetivo general}
+Determinar si la estructura de un circuito cuántico, combinada con la telemetría real del
+procesador, permite predecir la degradación por ruido antes de la ejecución.
+
+\subsection{Objetivos específicos}
+\begin{enumerate}
+    \item Construir un conjunto de datos con calibración real y tres ejes de generalización
+          independientes: tipo de circuito, tamaño y tiempo.
+    \item Definir una representación del circuito que no dependa del número de qubits.
+    \item Comparar tres modelos —Ridge, Random Forest y un \textit{Graph Transformer}— con
+          un protocolo de evaluación idéntico.
+    \item Cuantificar qué aporta la estructura del circuito frente a un resumen agregado.
+\end{enumerate}
+
+\section{Contribuciones}
+\label{sec:contribuciones}
+% Fuente: doc/memoria/materiales.md. Redactar AL FINAL.
+\begin{enumerate}
+    \item Un conjunto de datos de 20.000 circuitos con \textbf{42 días de calibración real}
+          y tres ejes OOD separables.
+    \item La demostración medida de que \textbf{el objetivo natural del problema no es
+          predecible antes de ejecutar}, con su explicación y una reformulación que sí lo es.
+    \item La detección, medición y corrección de \textbf{un error en las propias etiquetas},
+          junto con la razón metodológica por la que la comprobación original no lo detectó.
+    \item Una comparativa controlada de tres arquitecturas sobre el mismo problema.
+\end{enumerate}
+
+\section{Estructura de la memoria}
+\label{sec:estructura}
+Recorrido breve por los once capítulos.

@@ -1,0 +1,74 @@
+\chapter{Protocolo experimental}
+\label{cap:protocolo}
+
+% GUION. Fuentes: src/particion.py, doc/plan_eda.md, doc/memoria/materiales.md seccion 5.
+% ATENCION: el esqueleto anterior hablaba de validacion en hardware Eagle/Osprey.
+% Eagle esta RETIRADA y el plan abierto da 10 min/mes: esa validacion no forma parte
+% del alcance vigente. Si se menciona, que sea como trabajo futuro.
+
+\section{La partición}
+\label{sec:particion}
+% Fuente: src/particion.py (modulo compartido por los tres modelos)
+\subsection{Por qué la validación es temporal y no aleatoria}
+El test es OOD en el tiempo: sus días de calibración son posteriores y disjuntos. Una
+validación aleatoria compartiría días con el entrenamiento y daría una métrica
+\textbf{optimista que no anticipa} lo que pasará en test.
+
+Reservando los últimos días se obtiene una validación que \textbf{imita la relación real}
+entre entrenamiento y test. Es más pequeña y más difícil, y esa es justamente la gracia.
+
+\subsection{Una sola definición para los tres modelos}
+La partición vive en un \textbf{único módulo} que importan tanto la vía tabular como el
+cargador de grafos. \textbf{Es lo que convierte «protocolo idéntico» en algo demostrable} en
+vez de en una afirmación.
+
+Comprobación explícita: ningún día se comparte entre entrenamiento, validación y test.
+
+\section{El preprocesado}
+\label{sec:preprocesado}
+% Fuente: las 17 directrices de notebooks/eda/04_directrices.ipynb seccion 4
+Cada decisión sale de una medida del análisis exploratorio, no del criterio:
+\begin{itemize}
+    \item \textbf{normalización} obligatoria para Ridge (las variables abarcan diez órdenes de
+          magnitud), innecesaria para Random Forest;
+    \item \textbf{logaritmos}, porque la fidelidad cae de forma multiplicativa con el número
+          de puertas;
+    \item \textbf{poda} de las dimensiones constantes o duplicadas;
+    \item \textbf{envoltura de ángulos}, porque una rotación y la misma más una vuelta
+          completa son la misma operación física;
+    \item \textbf{exclusión del día}, porque cae fuera del rango visto el 100\,\% del tiempo.
+\end{itemize}
+
+\textbf{Regla que no se negocia:} todo se ajusta \textbf{solo con el conjunto de
+entrenamiento}. Normalizar antes de particionar introduciría información del test.
+
+\section{Métricas}
+\label{sec:metricas}
+MAE, RMSE, $R^2$ y mejora relativa frente a no mitigar.
+
+\subsection{Cómo hay que reportarlas}
+% Fuente: las 17 directrices. Varias salen de trampas detectadas.
+\begin{itemize}
+    \item \textbf{desglosadas por los tres ejes OOD} y por observable — un promedio global
+          quedaría dominado por un solo tipo de circuito;
+    \item \textbf{mediana y percentiles además de la media}, porque las distribuciones tienen
+          colas muy pesadas;
+    \item \textbf{también restringidas a las muestras con señal}, porque una fracción grande
+          del conjunto no tiene nada que predecir e infla artificialmente cualquier promedio;
+    \item en el eje de tamaño, \textbf{acompañadas de una métrica relativa}, porque el MAE baja
+          solo porque el objetivo se encoge.
+\end{itemize}
+
+\subsection{El listón}
+\textbf{No mitigar} es el baseline que da sentido al trabajo. Un modelo que no lo bata no
+sirve, por bueno que sea su $R^2$.
+
+\section{Reproducibilidad y trazabilidad}
+\label{sec:mlops}
+Semillas globales, versionado del conjunto de datos, registro de experimentos con MLflow, y el
+manifiesto que acompaña al conjunto con versiones y configuración.
+
+\section{Infraestructura de cómputo}
+\label{sec:infra}
+Generación en máquinas virtuales de Google Cloud —necesaria, no cómoda: las muestras de 15
+qubits piden 17,2\,GB por proceso—. Entrenamiento del \textit{Graph Transformer} en GPU.

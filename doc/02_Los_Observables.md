@@ -1,3 +1,11 @@
+> ✅ **Este fichero NO está desactualizado** (nota añadida ago-2026): la física de los
+> observables de Pauli no cambia. Cubre bien X, Y y Z sobre un qubit.
+>
+> ⚠️ **Pero está incompleto respecto al dataset actual**, que usa **ocho observables**
+> agregados sobre todo el registro, no solo los de un qubit. La sección final los recoge.
+
+---
+
 # Observables en Computación Cuántica
 
 En mecánica cuántica, un **observable** es cualquier magnitud física que puede medirse en un sistema cuántico. Matemáticamente, un observable se representa mediante una **matriz hermítica**.  
@@ -222,3 +230,58 @@ Por eso Pauli‑Z es el observable estándar para medir qubits en hardware real.
 - Es el observable más usado en hardware cuántico porque mide directamente el estado computacional del qubit.
 
 ---
+
+---
+
+# 🎯 Los ocho observables del dataset (añadido ago-2026)
+
+Todo lo anterior describe observables sobre **un qubit**. El dataset del TFM no predice eso:
+predice **ocho magnitudes agregadas sobre el registro entero**, que es lo que un usuario mide
+de verdad al ejecutar un algoritmo.
+
+| # | Observable | Qué mide | Por qué está |
+|---|---|---|---|
+| 1 | `mean_Z` | ⟨ΣZᵢ⟩/n — magnetización media | la magnitud global más usada; comparable entre tamaños |
+| 2 | `mean_X` | ídem en la base X | captura errores de **fase**, invisibles en la base Z |
+| 3 | `mean_Y` | ídem en la base Y | cierra las tres bases de Pauli |
+| 4 | `std_Z` | dispersión de los ⟨Zᵢ⟩ | **heterogeneidad**: ¿sufren todos los qubits igual? |
+| 5 | `std_X` | ídem en X | |
+| 6 | `std_Y` | ídem en Y | |
+| 7 | `paridad` | ⟨Z₀Z₁…Z_{n−1}⟩ | correlación global; **un solo fallo la rompe** |
+| 8 | `corr_vecinos` | ⟨ΣZᵢZᵢ₊₁⟩/(n−1) | errores de dos qubits, que son los caros |
+
+## Por qué ocho y no uno
+
+Porque **un solo observable dejaría ciegos a varios tipos de circuito**. No es una cuestión de
+preferencia: hay estados en los que un observable vale **cero por construcción física**.
+
+* Un **GHZ** produce `|00…0⟩` y `|11…1⟩` al 50 %: la magnetización media **se cancela
+  siempre**, valga lo que valga el ruido.
+* Un **QFT** sobre `|0…0⟩` deja todos los ⟨Zᵢ⟩ a cero y **toda** su señal en `mean_X`.
+
+Con un target escalar basado en Z, esos circuitos no tendrían nada que predecir. Sería una
+elección arbitraria imposible de defender.
+
+## Por qué hacen falta los valores por qubit
+
+Una **desviación típica no se puede calcular a partir de una media**. Para obtener `std_Z`
+hay que conocer los ⟨Zᵢ⟩ **individuales**, no su promedio.
+
+Por eso el simulador evalúa **3n + 2** valores esperados —los ⟨Zᵢ⟩, ⟨Xᵢ⟩ y ⟨Yᵢ⟩ de cada
+qubit, más la paridad y el correlador— y de ahí reduce a los ocho fijos. Cada muestra guarda
+además `por_qubit [3, n]` con los valores individuales exactos.
+
+**El tamaño fijo de la salida es innegociable:** si el objetivo creciera con el número de
+qubits, no se podría entrenar una sola red para todos los tamaños.
+
+## ⚠️ Un matiz medido que hay que declarar
+
+Las tres dispersiones **no son independientes entre sí**:
+
+```
+std_X ↔ std_Y   +0,85       std_Z ↔ std_X   +0,77       std_Z ↔ std_Y   +0,80
+```
+
+Los cinco observables originales sí son casi ortogonales (|r| ≤ 0,19), pero el bloque `std_*`
+mide en buena parte lo mismo en tres bases. **La justificación de los ocho es de simetría de
+diseño —no dejar ninguna elección arbitraria sin explicar— no de independencia estadística.**

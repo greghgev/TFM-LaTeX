@@ -1,0 +1,99 @@
+\chapter{Rigor metodológico}
+\label{cap:rigor}
+
+% GUION. CAPITULO DIFERENCIAL: es un resultado propio, no relleno.
+% Fuente: TFM-Quantum/doc/changes/2026-08_regeneracion_v2.md (registro completo)
+%         doc/memoria/materiales.md seccion 3
+% Tono: honesto y sin dramatismo. Un trabajo que encuentra y corrige sus propios errores
+% vale mas que uno donde todo salio a la primera.
+
+\section{Por qué este capítulo existe}
+\label{sec:porque_rigor}
+Durante el análisis exploratorio se descubrió que \textbf{las etiquetas del conjunto de datos
+estaban contaminadas}. Se midió el alcance, se corrigió y se regeneró. Documentarlo no es un
+gesto de transparencia: la razón por la que el error \textbf{pasó inadvertido} es un resultado
+metodológico aprovechable.
+
+\section{El error: degradación silenciosa del simulador}
+\label{sec:bug}
+El estimador ruidoso no fijaba el método de simulación, así que Qiskit Aer usaba
+\texttt{automatic} y elegía \textbf{según la memoria libre de la máquina}: matriz de densidad
+—exacta— mientras cupiera, y \textbf{trayectorias de Kraus} —Montecarlo— en cuanto dejaba de
+caber. Sin ningún aviso.
+
+En una máquina de 11\,GB el cambio ocurría en $n = 10$.
+
+\subsection{Alcance medido}
+% Tabla: ver materiales.md seccion 3
+Ruido introducido $\sigma \approx 1{,}5\times10^{-3}$, frente a un $|\Delta|$ típico de
+0,007--0,019. Afectaba al \textbf{33,9\,\%} del conjunto y al \textbf{56,3\,\%} del test.
+
+\subsection{Por qué importaba, y por qué no tanto como parece}
+Para el $R^2$ no era grave: el techo seguía en 0,98--0,997. \textbf{Para el MAE sí}: imponía
+un suelo de 0,0012, el \textbf{40\,\%} del listón en el observable más pequeño. Ni un modelo
+perfecto habría bajado de ahí.
+
+\section{La lección: qué demuestra realmente una comprobación}
+\label{sec:leccion}
+% ESTA es la seccion que da valor al capitulo. Redactarla con cuidado.
+La documentación afirmaba que las etiquetas eran analíticas, \textit{«verificado ejecutando el
+mismo circuito 5 veces con resultado idéntico bit a bit»}.
+
+\textbf{Esa comprobación no demostraba lo que decía demostrar.} Repetir con la \textbf{misma
+semilla} prueba \textbf{reproducibilidad}, no ausencia de ruido: un simulador estocástico con
+semilla fija devuelve siempre el mismo número, y ese número puede estar igual de equivocado
+las cinco veces.
+
+\subsection{Y el mismo error se repitió al investigarlo}
+La primera comprobación con semillas \textbf{distintas} se hizo en $n = 8$, donde el método
+todavía era exacto, y dio «sin dispersión». Solo al repetirla en $n = 10$ y $n = 12$ apareció
+el problema.
+
+\subsection{La regla que queda}
+Para afirmar que un cálculo es exacto hay que variar \textbf{la fuente de aleatoriedad}, y
+hacerlo \textbf{en todo el rango de parámetros}, no en un punto cómodo.
+
+\section{La corrección}
+\label{sec:correccion}
+\begin{itemize}
+    \item Método \textbf{forzado} a matriz de densidad: si no cabe en memoria,
+          \textbf{falla ruidosamente} en vez de degradar la exactitud en silencio.
+    \item Cada muestra registra el método usado. \textbf{Es lo que habría delatado el error en
+          dos segundos.}
+    \item Un manifiesto con versiones, semilla y configuración.
+\end{itemize}
+
+\textbf{Consecuencia operativa:} con matriz de densidad forzada, 15 qubits piden 17,2\,GB por
+proceso. Las muestras de ese tamaño \textbf{no se pueden generar en la máquina de desarrollo}
+—no es lentitud, es imposibilidad— y hubo que generarlas en la nube.
+
+\section{Validación de la corrección}
+\label{sec:validacion}
+La firma esperada, y que efectivamente aparece: el valor \textbf{exacto no cambia en ninguna
+muestra} —nunca fue estocástico—, las diferencias aparecen \textbf{solo} en $n \geq 10$, y su
+magnitud coincide con el $\sigma$ medido.
+
+\section{Un segundo límite: el transpilador no es determinista}
+\label{sec:transpilador}
+% Fuente: doc/changes/2026-08_regeneracion_v2.md seccion 3.5
+Con la semilla del transpilador fijada, \texttt{transpile()} \textbf{no produce siempre el
+mismo circuito}: afecta a $\sim$4\,\% de las muestras.
+
+\textbf{Es benigno, y la explicación es física:} el valor exacto sale \textbf{idéntico bit a
+bit} —los dos circuitos implementan la misma unitaria— y solo el ruidoso difiere, porque
+\textbf{el ruido no conmuta con la unitaria}.
+
+\textbf{Lo que hay que matizar:} el conjunto es reproducible desde las semillas para el
+\textbf{plan}, pero \textbf{no al bit} para el circuito transpilado.
+
+\section{Dos trampas de medición detectadas}
+\label{sec:trampas}
+% Fuente: doc/memoria/materiales.md seccion 5
+\subsection{Confundir el eje temporal con el eje de tipo}
+Sobre el conjunto completo, la correlación del error con el día es $-0{,}26$/$-0{,}39$ y
+parece deriva fuerte. \textbf{Dentro del grupo de entrenamiento cae a $-0{,}03$/$-0{,}08$}:
+casi todo era el eje de tipo disfrazado, porque los días tardíos pertenecen solo al test.
+
+\subsection{Soporte escaso disfrazado de tendencia}
+Una curva por número de qubits parecía caer a partir de 10 qubits. El tramo se sostenía sobre
+73, 3 y 2 muestras. \textbf{Publicar siempre el tamaño de la muestra.}

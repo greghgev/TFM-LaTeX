@@ -1,3 +1,23 @@
+> ⚠️ **QUÉ ES ESTE FICHERO (nota añadida ago-2026).**
+>
+> Son **apuntes de estudio sobre literatura externa** — principalmente el trabajo de Liao
+> et al. (Nature Machine Intelligence, 2024) sobre ML-QEM. **No describen este TFM**, y esa
+> distinción importa al redactar la memoria.
+>
+> **La diferencia clave:** lo que se describe aquí es mitigación **en tiempo de ejecución** —
+> el modelo recibe el valor ruidoso ya medido y lo corrige. **Este TFM opera antes de
+> ejecutar**: la entrada del modelo es solo el circuito y la calibración del chip, nunca el
+> resultado. Ese es precisamente el hueco que el trabajo ataca.
+>
+> **Cómo usarlo:** como fuente para el capítulo 4 (Estado del arte), citando a los autores
+> originales. **Nada de aquí es un resultado propio.** Los resultados propios están en
+> `memoria/materiales.md`.
+>
+> ⚠️ Las cifras que aparecen abajo son **de los papers**, no medidas por nosotros. Etiquetar
+> como `[EXTERNO]` cualquiera que se lleve a la memoria.
+
+---
+
 # Pipeline de Introducción
 
 ## 1. Introducción general de los ordenadores cúanticos. Era NISQ.

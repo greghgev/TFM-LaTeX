@@ -1,128 +1,115 @@
+% =====================================================================================
+% TFM — Mitigación de Ruido Cuántico en Hardware NISQ mediante Deep Learning
+% Gregory Harutyunyan Gevorgyan · Máster en Inteligencia Artificial · UNIR
+%
+% Estructura y estado de cada capítulo: doc/memoria/estructura.md
+% Hallazgos y cifras, con su origen:     doc/memoria/materiales.md
+% Qué falta y qué NO se puede citar aún: doc/memoria/pendientes.md
+% =====================================================================================
 \documentclass[11pt,a4paper,spanish]{book}
+
+% --- Paquetes que DEBEN ir ANTES del estilo institucional --------------------------
+% `estilo_unir-1` carga babel e inputenc SIN opciones. Si se cargasen después pidiendo
+% opciones, LaTeX lanzaría "Option clash". Cargándolos antes, su recarga posterior sin
+% opciones es inocua.
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+
+% --- Estilo institucional de la UNIR ----------------------------------------------
+% Define \titulacion, \director y \nombreciudad, y fija los márgenes con `vmargin`.
 \usepackage{estilo_unir-1}
-\usepackage{apacite}
 
-\usepackage{amsmath}
-\usepackage{amssymb}   
+% --- El resto del preámbulo -------------------------------------------------------
+\input{preambulo}
 
-\let\rank\undefined % Forzamos que \rank quede libre
-\usepackage{physics}
-\usepackage{hyperref}
-\numberwithin{equation}{chapter}
-%\usepackage{caption}
-\numberwithin{figure}{chapter}
-%\usepackage{chngcntr}
-%\counterwithin{equation}{chapter}
-%\counterwithin{figure}{chapter}
-%\counterwithin{table}{chapter}
-%\renewcommand\theequation{\thechapter.\arabic{equation}}
-%\renewcommand\thefigure{\thechapter.\arabic{figure}}
-%\renewcommand\thetable{\thechapter.\arabic{table}}
-%\renewcommand\theequation{\thechapter.\arabic{equation}}
-%\counterwithin{figure}{chapter}
-%\counterwithin{table}{chapter}
-%\renewcommand\thefigure{\thechapter.\arabic{figure}}
-%\renewcommand\thetable{\thechapter.\arabic{table}}
-%\renewcommand\thefigure{\thechapter.\arabic{figure}}
-%\makeatletter
-%\renewcommand\p@figure{\thechapter..\arabic{figure}}
-%\makeatother
-
-%\include{preambulo}
-
-
-
-
-%---------------------------
-%título del trabajo y autor
-%---------------------------
-\title{Escribir el título del documento}
-\titulacion{Máster en en Inteligencia Artificial}
+% =====================================================================================
+% Portada
+% =====================================================================================
+\title{Mitigación de Ruido Cuántico en Hardware NISQ mediante Deep Learning}
+\titulacion{Máster Universitario en Inteligencia Artificial}
 \author{Gregory Harutyunyan Gevorgyan}
+\director{Pablo Abellán Galiana}
+\nombreciudad{Granada}
 \date{\today}
-\director{Pablo Abellan Galiana}
-\nombreciudad{ Granada}
 
-%---------------------------
-%marges
-%---------------------------
-%\usepackage[margin=1.9cm]{geometry}
-%---------------------------
-%---------------------------
-%---------------------------
-%---------------------------
+% =====================================================================================
 \begin{document}
+
 \renewcommand{\listfigurename}{Índice de Ilustraciones}
 \renewcommand{\listtablename}{Índice de Tablas}
 \renewcommand{\contentsname}{Índice de Contenidos}
 \renewcommand{\figurename}{Figura}
-\renewcommand{\tablename}{Tabla} 
+\renewcommand{\tablename}{Tabla}
 
 \maketitle
- 
+
 \frontmatter
 \tableofcontents
 \listoffigures
 \listoftables
 
+% -------------------------------------------------------------------------------------
 \chapter{Resumen}
-{\bf Nota:} En este apartado se introducirá un breve resumen en español del trabajo realizado (extensión máxima: 150 palabras). Este resumen debe incluir el objetivo o propósito de la investigación, la metodología, los resultados y las conclusiones.
+% PENDIENTE. Máximo 150 palabras. Escribir AL FINAL, cuando estén los resultados.
+% Debe cubrir: propósito, metodología, resultados y conclusiones.
+%
+% El hilo, para cuando toque redactarlo:
+%   - los ordenadores cuánticos actuales dan resultados degradados por el ruido;
+%   - se estudia si esa degradación se puede predecir ANTES de ejecutar el circuito;
+%   - se construye un conjunto de 20.000 circuitos con calibración real y tres ejes de
+%     generalización, y se comparan tres modelos con protocolo idéntico;
+%   - hallazgo central: la magnitud que se quería predecir no es predecible, y se explica
+%     por qué; la reformulación sí lo es.
 
+\textbf{Nota:} pendiente de redactar.
 
-{\bf Palabras Clave:} Se deben incluir de 3 a 5 palabras claves en español
+\textbf{Palabras clave:} computación cuántica, mitigación de errores, NISQ, \textit{deep
+learning}, \textit{graph transformer}
 
+% -------------------------------------------------------------------------------------
 \chapter{Abstract}
-{\bf Nota:} En este apartado se introducirá un breve resumen en español del trabajo realizado (extensión máxima: 150 palabras). Este resumen debe incluir el objetivo o propósito de la investigación, la metodología, los resultados y las conclusiones.
+% PENDIENTE. Traducción del resumen. Escribir DESPUÉS del resumen en español.
 
+\textbf{Note:} pending.
 
-{\bf Palabras Clave:} Se deben incluir de 3 a 5 palabras claves en inglés
+\textbf{Keywords:} quantum computing, error mitigation, NISQ, deep learning, graph
+transformer
 
-
-
-
+% =====================================================================================
 \mainmatter
-\include{capitulos/01_intro}
+
+% --- Parte I · Contexto -----------------------------------------------------------
+\include{capitulos/01_introduccion}
 \include{capitulos/02_fundamentos}
-\include{capitulos/03_problematica_ruido}
-\include{capitulos/04_sota}
-\include{capitulos/05_data_engineering}  
-\include{capitulos/06_arquitecturas_ia}    % Transformer + GNN
-\include{capitulos/07_aprendizaje_refuerzo}% El salto a RL
-\include{capitulos/08_mlops_experimentacion}
-\include{capitulos/09_resultados_conclusiones}
+\include{capitulos/03_ruido_cuantico}
+\include{capitulos/04_estado_del_arte}
 
+% --- Parte II · Aportación ---------------------------------------------------------
+\include{capitulos/05_dataset}
+\include{capitulos/06_rigor_metodologico}   % ⭐ resultado propio
+\include{capitulos/07_variable_objetivo}    % ⭐ resultado propio
 
-\nocite{*}
-%\begin{thebibliography}{a}
-%\bibitem{etiqueta} \textsc{Autores},
-%\textit{nombre referencia.}
-%Información addicional
-%\end{thebibliography}
+% --- Parte III · Experimentación ---------------------------------------------------
+\include{capitulos/08_modelos}
+\include{capitulos/09_protocolo}
+\include{capitulos/10_resultados}      % ⏳ BLOQUEADO: faltan datos y modelos
+\include{capitulos/11_conclusiones}    % ⏳ BLOQUEADO: depende del capítulo 10
+
+% =====================================================================================
+% Bibliografía
+% =====================================================================================
+% ⚠️ Sin \nocite{*}: solo deben aparecer las obras REALMENTE citadas en el texto.
+% Incluir referencias no citadas es un error que un tribunal detecta.
 \bibliographystyle{apacite}
 \bibliography{bibliografia}
 
+% =====================================================================================
 \appendix
-\chapter{Apendices}
+\chapter{Apéndices}
+% PENDIENTE. Candidatos:
+%   A. Catálogo completo de las variables agregadas
+%   B. Tablas de resultados desglosadas
+%   C. Detalles de la infraestructura de generación
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

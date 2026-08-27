@@ -1,0 +1,83 @@
+\chapter{Estado del arte}
+\label{cap:sota}
+
+% GUION. Fuentes: doc/SoTA/comparative_analysis.md y doc/memoria/materiales.md seccion 6.
+% REGLA: ninguna cita sin DOI verificado. Los preprints se citan indicando que lo son.
+% Excluidos por no citables: Wang/Zhengzhou, Stirbu, Al Farib.
+
+\section{Mitigación clásica de errores}
+\label{sec:qem_clasico}
+\subsection{Zero Noise Extrapolation (ZNE)}
+Amplificar el ruido de forma controlada y extrapolar al límite de ruido cero.
+\textbf{Su coste: varias ejecuciones por cada resultado.}
+
+\subsection{Probabilistic Error Cancellation (PEC)}
+Muestreo de una cuasi-distribución. Insesgado, pero con un coste que \textbf{crece
+exponencialmente} con el ruido.
+
+\subsection{Mitigación de lectura (M3)}
+Inversión de la matriz de asignación sin construirla explícitamente.
+
+\subsection{El denominador común}
+Todos gastan ejecuciones sobre un recurso escaso, y todos actúan \textbf{después} de ejecutar.
+
+\section{Aprendizaje automático aplicado a la mitigación}
+\label{sec:ml_qem}
+\subsection{Modelos sustitutos entrenados sobre resultados ruidosos}
+Liao et al. (2024) como referencia central: redes que aprenden a corregir a partir del valor
+ruidoso, reduciendo el coste de ZNE. \textbf{Dato que este trabajo aprovecha:} su ablación
+señala a \textbf{Random Forest} como el mejor baseline tabular, lo que justifica incluirlo en
+la comparativa del capítulo~\ref{cap:modelos}.
+
+\subsection{Arquitecturas de grafo}
+GTraQEM (Bao et al., ICLR 2025): \textit{Graph Transformer} \textbf{sin paso de mensajes} y
+\textbf{nodo virtual QCR}. Es la arquitectura base de este trabajo — explicar por qué.
+
+Liu et al. (2026): GNN sobre el DAG con un vector de nodo comparable al nuestro
+(31 dimensiones frente a 25). Útil para justificar GNN sobre CNN.
+
+\subsection{El techo actual de rendimiento}
+QEMFormer (Bao et al., ICML 2025) y el banco QEM-Bench. \textbf{Y aquí está el contraste
+central de esta memoria:} QEMFormer necesita el valor ruidoso \textbf{como entrada del
+modelo}, es decir, hay que ejecutar el circuito antes de poder mitigarlo. Además su
+codificación \textit{multi-hot} de qubits lo ata al tamaño con el que se entrenó.
+
+\section{El paradigma pre-ejecución}
+\label{sec:preejecucion}
+% Esta seccion es la que situa la contribucion. Redactarla con cuidado.
+\subsection{Heurísticas: mapomatic}
+Nation \& Treinish (2023), la herramienta oficial de IBM: puntúa \textbf{layouts alternativos
+del mismo circuito} con la calibración del día y elige el mejor. Sin aprendizaje.
+
+\textbf{Distinción que hay que hacer explícita:} mapomatic \textbf{elige}; este trabajo
+\textbf{estima una magnitud} para poder corregir. Son objetivos distintos.
+
+\subsection{Ranking aprendido: Q-CTRL}
+Hartnett et al. (2024): ML que ordena circuitos equivalentes antes de ejecutar. Predice
+\textbf{orden}, no magnitud, así que tampoco permite corregir.
+
+\section{Variabilidad temporal del hardware}
+\label{sec:drift}
+Hirasaki et al. (2023): las tasas de error cambian de forma \textbf{escalonada}, no gradual.
+Es la evidencia empírica que justifica el eje temporal del dataset —y que invalida el modelo
+de deriva lineal que tenía el diseño original.
+
+Huo et al. (2026): la misma variabilidad vista desde el resultado del usuario.
+
+\section{Paradigmas alternativos}
+\label{sec:alternativas}
+Q-Cluster (Patil et al., 2025): mitigación \textbf{no supervisada}, sin etiquetas ideales.
+Liao et al. (2025): mitigación sin \textit{ground truth}. Ambos van también en limitaciones,
+porque nuestro pipeline \textbf{sí} depende de un valor exacto simulable.
+
+\section{El hueco}
+\label{sec:gap}
+% El argumento del capitulo. Fuente: doc/memoria/materiales.md seccion 6.
+Nadie predice la \textbf{magnitud} de la degradación \textbf{antes de ejecutar} combinando
+estructura del circuito y telemetría del chip. Los cuatro diferenciadores concretos:
+\begin{enumerate}
+    \item opera pre-ejecución: la entrada del modelo nunca incluye el resultado;
+    \item no codifica la identidad del qubit, así que generaliza a cualquier tamaño;
+    \item modela el drift temporal con calibración real de 42 días;
+    \item evalúa QFT de forma sistemática, algo que ningún trabajo de ML-QEM hace.
+\end{enumerate}

@@ -1,0 +1,68 @@
+\chapter{El ruido cuántico}
+\label{cap:ruido}
+
+% GUION. Fuente principal: doc/03_Ruido_Cuantico.md (desarrollado ago-2026).
+% Cifras medidas sobre nuestro chip: doc/memoria/materiales.md seccion 2.
+
+\section{Estados mixtos y matriz de densidad}
+\label{sec:densidad}
+Por qué un vector de estado deja de bastar cuando hay ruido: el sistema pasa a ser una
+\textbf{mezcla estadística}. Definición de $\rho$ y cálculo del valor esperado como
+$\mathrm{Tr}(\rho O)$.
+
+\textbf{Consecuencia práctica que se usa en el capítulo~\ref{cap:rigor}:} el coste de memoria
+pasa de $2^n$ a $4^n$. Para 15 qubits son 17,2\,GB por proceso.
+
+\section{Canales cuánticos y operadores de Kraus}
+\label{sec:kraus}
+Formalismo $\mathcal{E}(\rho) = \sum_k E_k \rho E_k^\dagger$ y por qué permite componer el
+ruido puerta a puerta.
+
+\textbf{Sutileza relevante:} el ruido \textbf{no conmuta} con la unitaria. Dos descomposiciones
+equivalentes del mismo circuito acumulan decoherencia de forma distinta —lo que explica un
+resultado del capítulo~\ref{cap:rigor}.
+
+\section{Las tres fuentes de error}
+\label{sec:fuentes}
+
+\subsection{Decoherencia: T1 y T2}
+Relajación de energía y pérdida de coherencia de fase. La cota física $T_2 \leq 2T_1$.
+Lo que importa no es $T_1$ en absoluto, sino \textbf{cuánto dura el circuito comparado con
+$T_1$}.
+
+% Fuente: src/features.py, familia F
+\textbf{Y la duración no es la suma de las puertas:} las que actúan sobre qubits distintos se
+ejecutan simultáneamente. Lo que cuenta es el \textbf{camino crítico del DAG}, entre 2 y 3
+veces menor que la suma.
+
+\subsection{Errores de puerta}
+Imperfección de los pulsos. Dos hallazgos que solo se ven mirando datos reales:
+\begin{itemize}
+    \item la \texttt{rz} tiene error \textbf{exactamente cero} porque es \textbf{virtual}
+          —cambia la fase de referencia y no emite pulso—;
+    \item \texttt{id}, \texttt{sx} y \texttt{x} traen valores \textbf{idénticos}, porque IBM
+          las deriva del mismo pulso calibrado.
+\end{itemize}
+
+\subsection{Errores de lectura}
+Confusión entre $\ket{0}$ y $\ket{1}$ al medir. \textbf{Es asimétrico}, porque relajarse es
+más fácil que excitarse.
+
+\section{El modelo de ruido de este trabajo}
+\label{sec:modelo_ruido}
+% Fuente: src/quantum_gen.py, HardwareTelemetrics
+Los tres canales canónicos de Qiskit Aer, \textbf{calibrados contra el error medido de cada
+puerta física de cada día}. Validación: la infidelidad efectiva del modelo iguala el
+\texttt{gate\_error} que reporta IBM.
+
+\subsection{Qué no se modela: el crosstalk}
+% Fuente: doc/03_Ruido_Cuantico.md seccion 4
+Los tres canales son \textbf{puramente locales}. Declararlo como limitación, y contar el
+experimento del grado de conectividad: se propuso como \textit{feature}, se midió
+($\rho = +0{,}025$, $p = 0{,}62$) y se descartó, porque \textbf{sin crosstalk no existe camino
+causal} entre el grado del qubit y la etiqueta.
+
+\section{Mitigar frente a corregir}
+\label{sec:qem_vs_qec}
+QEC necesita qubits que no hay; QEM estima el error y lo descuenta. Dónde se sitúa este
+trabajo: mitigación, y en la variante \textbf{pre-ejecución}.

@@ -1,0 +1,198 @@
+% =====================================================================================
+% BIBLIOGRAFÍA — TFM Mitigación de Ruido Cuántico
+%
+% ⚠️ REGLA: ninguna entrada sin DOI o identificador verificado.
+%    Cada entrada lleva su estado:
+%      [REVISADO] publicado con revisión por pares, DOI comprobado — citar sin reservas
+%      [PREPRINT] solo arXiv, sin revisión externa — al citarlo, indicarlo en el texto
+%
+% ⚠️ Referencias EXCLUIDAS por no ser citables: Wang/Zhengzhou, Stirbu, Al Farib.
+%
+% ⚠️ Pendientes de VERIFICAR antes de añadirlas (aparecían en doc/00_Justificaciones.md
+%    sin DOI comprobado):
+%      - "Scalable Quantum Error Mitigation with Physically Informed GNN" (2026)
+%      - "QML-PipeGuard: Drift-Aware Behavioral Fingerprinting..." (2026)
+%    NO añadirlas hasta comprobar el DOI. Ver doc/memoria/pendientes.md §7.
+%
+% ⚠️ CUATRO ENTRADAS LLEVAN "and others" en la lista de autores:
+%      bao2025gtraqem · liu2026output · placidi2026deep · hartnett2024learning
+%    Se dejó así a propósito: NO se inventan nombres de coautores. Pero APA exige la
+%    lista completa, y BibTeX avisa de ello en cada compilación.
+%    ➡️ Completar los autores consultando el paper ANTES de entregar.
+% =====================================================================================
+
+
+% =====================================================================================
+% 1. ML aplicado a la mitigación de errores — el núcleo del estado del arte
+% =====================================================================================
+
+% [REVISADO] Referencia central de ML-QEM. Su ablación señala a Random Forest como el
+% mejor baseline tabular: es la razón de incluirlo en la comparativa.
+@article{liao2024machine,
+  author  = {Liao, Haoran and Wang, Derek S. and Sitdikov, Iskandar and
+             Salcedo, Ciro and Seif, Alireza and Minev, Zlatko K.},
+  title   = {Machine learning for practical quantum error mitigation},
+  journal = {Nature Machine Intelligence},
+  volume  = {6},
+  pages   = {1478--1486},
+  year    = {2024},
+  doi     = {10.1038/s42256-024-00927-2}
+}
+
+% [REVISADO] La arquitectura base de este trabajo: Graph Transformer SIN paso de mensajes
+% + nodo virtual QCR.
+@inproceedings{bao2025gtraqem,
+  author    = {Bao, Yuanhang and others},
+  title     = {Beyond Circuit Connections: A Non-Message Passing Graph Transformer
+               Approach for Quantum Error Mitigation},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025}
+}
+
+% [REVISADO] El techo de rendimiento actual, Y el contraste principal de esta memoria:
+% QEMFormer necesita el valor ruidoso COMO ENTRADA del modelo.
+@inproceedings{bao2025qemformer,
+  author    = {Bao, Yuanhang and Zhong, Yifan and Ye, Kai and Tang, Xin and Yan, Junchi},
+  title     = {{QEM-Bench}: Benchmarking Learning-based Quantum Error Mitigation and
+               {QEMFormer} as a Multi-ranged Context Learning Baseline},
+  booktitle = {Proceedings of the 42nd International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {267},
+  pages     = {2953--2967},
+  year      = {2025}
+}
+
+% [REVISADO] GNN sobre el DAG con vector de nodo comparable (31 dims frente a nuestras 25).
+% Útil para justificar GNN sobre CNN.
+@article{liu2026output,
+  author  = {Liu, Yu and others},
+  title   = {Output prediction of quantum circuits based on graph neural networks},
+  journal = {Frontiers of Physics},
+  volume  = {21},
+  number  = {6},
+  pages   = {063201},
+  year    = {2026},
+  doi     = {10.15302/frontphys.2026.063201}
+}
+
+% [PREPRINT] Comparativa sistemática de arquitecturas DL para QEM (Quantinuum).
+% AL CITARLO, INDICAR QUE ES UN PREPRINT.
+@misc{placidi2026deep,
+  author       = {Placidi, Lorenzo and others},
+  title        = {Deep Learning Approaches to Quantum Error Mitigation},
+  year         = {2026},
+  eprint       = {2601.14226},
+  archivePrefix= {arXiv},
+  primaryClass = {quant-ph},
+  note         = {Preprint, sin revisión por pares}
+}
+
+
+% =====================================================================================
+% 2. El paradigma pre-ejecución — donde se sitúa la contribución
+% =====================================================================================
+
+% [REVISADO] mapomatic: la herramienta oficial de IBM. Puntúa layouts ALTERNATIVOS DEL
+% MISMO CIRCUITO. Nuestra variable `log_fidelidad_total` es su score.
+% ⚠️ Al citarla, dejar clara la distinción: mapomatic ELIGE, este trabajo ESTIMA para
+%    poder CORREGIR. Son objetivos distintos.
+@article{nation2023suppressing,
+  author  = {Nation, Paul D. and Treinish, Matthew},
+  title   = {Suppressing Quantum Circuit Errors Due to System Variability},
+  journal = {PRX Quantum},
+  volume  = {4},
+  number  = {1},
+  pages   = {010327},
+  year    = {2023},
+  doi     = {10.1103/PRXQuantum.4.010327}
+}
+
+% [REVISADO] ML pre-ejecución que RANKEA circuitos equivalentes. Predice orden, no
+% magnitud, así que no permite corregir.
+@article{hartnett2024learning,
+  author  = {Hartnett, Gavin S. and Barbosa, Andrea and Mundada, Pranav S. and
+             Hush, Michael J. and others},
+  title   = {Learning to rank quantum circuits for hardware-optimized performance
+             enhancement},
+  journal = {Quantum},
+  volume  = {8},
+  pages   = {1542},
+  year    = {2024},
+  doi     = {10.22331/q-2024-11-14-1542}
+}
+
+
+% =====================================================================================
+% 3. Variabilidad temporal del hardware — justifica el eje OOD temporal
+% =====================================================================================
+
+% [REVISADO] LA evidencia empírica de que la deriva es ESCALONADA, no gradual.
+% Es lo que invalidó el modelo de deriva lineal del diseño original.
+% (Kanazawa es de IBM Research, desarrollador de Qiskit.)
+@article{hirasaki2023detection,
+  author  = {Hirasaki, Yuta and Daimon, Shunsuke and Itoko, Toshinari and
+             Kanazawa, Naoki and Saitoh, Eiji},
+  title   = {Detection of temporal fluctuation in superconducting qubits for quantum
+             error mitigation},
+  journal = {Applied Physics Letters},
+  volume  = {123},
+  number  = {18},
+  pages   = {184002},
+  year    = {2023},
+  doi     = {10.1063/5.0166739}
+}
+
+% [REVISADO] La misma variabilidad vista desde el RESULTADO del usuario, no desde la
+% física. Complementa a Hirasaki: evidencia operacional frente a evidencia física.
+@inproceedings{huo2026anchor,
+  author    = {Huo, Siyuan and Leeds, Connor and Ludmir, Eli and DiBrita, Nicholas S.
+               and Patel, Tirthak},
+  title     = {Anchor: Reducing Temporal and Spatial Output Performance Variability on
+               Quantum Computers},
+  booktitle = {Proceedings of the ACM on Measurement and Analysis of Computing Systems
+               (SIGMETRICS)},
+  year      = {2026},
+  eprint    = {2510.06172},
+  archivePrefix = {arXiv}
+}
+
+
+% =====================================================================================
+% 4. Paradigmas alternativos — van también en la sección de limitaciones
+% =====================================================================================
+
+% [REVISADO] QEM NO SUPERVISADO: sin ground truth. Contraste de paradigma con el nuestro,
+% que sí depende de un valor exacto simulable.
+@inproceedings{patil2025qcluster,
+  author    = {Patil, Sourav and Baron, Emma and Zhou, Zhenyu},
+  title     = {{Q-Cluster}: Quantum Error Mitigation Through Noise-Aware Unsupervised
+               Learning},
+  booktitle = {IEEE International Conference on Quantum Computing and Engineering (QCE)},
+  pages     = {849--860},
+  year      = {2025},
+  doi       = {10.1109/QCE65121.2025.00097}
+}
+
+% [REVISADO] Mitigación sin ground truth mediante aumento de datos cuántico.
+% Relevante para la sección de limitaciones.
+@article{liao2025noise,
+  author  = {Liao, Haoran and Zhu, Yuxuan and Chiribella, Giulio and Yang, Yuxiang},
+  title   = {Noise-agnostic quantum error mitigation with data augmented neural models},
+  journal = {npj Quantum Information},
+  volume  = {11},
+  pages   = {8},
+  year    = {2025},
+  doi     = {10.1038/s41534-025-00960-y}
+}
+
+
+% =====================================================================================
+% 5. PENDIENTES — completar antes de cerrar la memoria
+% =====================================================================================
+% Faltan las referencias fundacionales que aún no están verificadas con DOI:
+%   - NISQ (Preskill 2018, Quantum 2, 79)
+%   - Qiskit / Qiskit Aer (cita oficial del software)
+%   - ZNE (Temme et al. 2017 / Li & Benjamin 2017)
+%   - PEC (Endo, Benjamin & Li 2018)
+%   - M3 (Nation et al. 2021)
+% ⚠️ Verificar cada DOI antes de añadirlas. No copiarlas de memoria.

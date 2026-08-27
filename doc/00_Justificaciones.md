@@ -1,27 +1,122 @@
-### 1. Justificación Arquitectónica: Diseño del "Gemelo Digital" Cuántico
+# Justificaciones de diseño
 
-La generación de un dataset robusto para el entrenamiento de modelos de Deep Learning en el contexto de la computación cuántica presenta desafíos inherentes relacionados con la disponibilidad y el formato de los datos físicos. Por ello, en lugar de depender exclusivamente de ejecuciones iterativas en el hardware real de IBM, este proyecto implementa un "Gemelo Digital" (orquestado en el módulo `quantum_gen.py`) basado en las siguientes justificaciones técnicas:
+> **Reescrito en ago-2026.** La versión anterior describía el alcance original del proyecto
+> (mitigación de lectura con GNN, drift sintético, dos módulos GEM+REM). Ese alcance cambió:
+> el vigente, acordado con el director, es **el módulo GEM planteado como comparativa de tres
+> modelos**. La corrección de lectura vive únicamente en `IDEAS_FUTURAS.md`.
+>
+> Estado real del proyecto: `TFM-Quantum/ESTADO_ACTUAL.md`.
 
-* **Viabilidad Computacional y Económica:** El entrenamiento de Redes Neuronales de Grafos (GNN) requiere decenas de miles de muestras. La ejecución directa de este volumen de circuitos parametrizados en hardware cuántico público (NISQ) resulta prohibitiva por las latencias en las colas de ejecución y las restricciones de cuotas de IBM Quantum.
-* **Obtención del *Ground Truth* Ideal:** Para que el modelo aprenda a mitigar los errores físicos, requiere un objetivo de entrenamiento u observable perfecto ($Y$). La ejecución en hardware físico devuelve inherentemente resultados ruidosos. El simulador permite extraer el vector de estado ideal (`ideal_statevector`) como *Ground Truth*, emparejándolo con la inyección sintética de ruido físico real.
-* **Traducción Topológica (Grafos):** Los *backends* de IBM devuelven los resultados en formatos estadísticos (conteos o diccionarios). Para alimentar una GNN, es necesario un traductor (`QuantumGraphExtractor`) que mapee las operaciones lógicas a un Grafo Acíclico Dirigido (DAG), donde los nodos y aristas contengan las características del ruido físico en formato de tensores.
-* **Inyección de *Concept Drift* Controlado:** Los procesadores cuánticos sufren fluctuaciones temporales en su calibración (deriva de hardware). Extraer datos en un único instante de tiempo limitaría la capacidad de generalización del modelo. El pipeline diseñado permite simular el paso de los días (`day_index`), degradando progresivamente las métricas de coherencia ($T_1$, $T_2$) y los errores de lectura para evaluar la resiliencia temporal de la red neuronal.
-
-### 2. Revisión del Estado del Arte (SOTA) y Soporte Bibliográfico
-
-El diseño de esta arquitectura se alinea con las investigaciones más recientes (2025-2026) en la intersección del Machine Learning Cuántico (QML) y la Mitigación de Errores Cuánticos (QEM). La metodología adoptada encuentra respaldo en la siguiente literatura científica:
-
-* **Representación de Circuitos como Grafos Informados por la Física:** El uso de características físicas ($T_1$, $T_2$, *readout error*) como atributos de los nodos y aristas en una GNN ha sido validado recientemente como el estándar óptimo. El estudio *"Scalable Quantum Error Mitigation with Physically Informed Graph Neural Networks"* (2026) demuestra que mapear la propagación del ruido sobre la topología del chip a través de GNNs mejora drásticamente la escalabilidad de la mitigación frente a métodos estadísticos tradicionales.
-* **Modelos Sustitutos para Predicción de Salidas:** La transformación de circuitos parametrizados en grafos para predecir observables sin requerir ejecuciones físicas repetitivas está respaldada por trabajos como *"Output Prediction of Quantum Circuits based on Graph Neural Networks"* (2025). Esto justifica nuestra decisión de aislar la extracción de características ($X$) frente al vector puro ($Y$) para entrenar el modelo predictivo.
-* **Vulnerabilidad frente a la Deriva del Hardware (*Hardware Drift*):** La necesidad de contemplar la dimensión temporal en la calibración del chip es un problema activo en la literatura. La investigación *"QML-PipeGuard: Drift-Aware Behavioral Fingerprinting for Quantum Machine Learning Pipeline Integrity"* (Mayo 2026) oficializa que las variaciones benignas y la degradación natural del hardware corrompen los modelos estáticos. Nuestra implementación del *Concept Drift* aborda directamente esta carencia, introduciendo tolerancia a la deriva temporal directamente en el origen del dataset.
-
-### 3. Justificación Arquitectónica: Modelos de Mitigación (GEM y REM)
-
-El diseño del *pipeline* de inferencia de este proyecto aborda la mitigación de errores separando el ruido dinámico de las compuertas lógicas (Concept Drift y decoherencia) del ruido estocástico de las mediciones finales. Para ello, se propone una arquitectura secuencial y desacoplada formada por dos módulos independientes:
-
-* **Gate Error Mitigation (GEM) mediante Graph Transformers:** Para mitigar los errores de las operaciones cuánticas, el circuito se modela como un Grafo Acíclico Dirigido (DAG). Se ha optado por una arquitectura *Graph Transformer* en lugar de GNNs convolucionales clásicas (como GCN o GraphSAGE) debido a la naturaleza de los circuitos cuánticos: las correlaciones y el entrelazamiento pueden generar dependencias profundas entre nodos espacialmente alejados en el grafo. El mecanismo de atención permite al modelo ponderar globalmente la propagación del error, actuando como un regresor que estima la desviación continua ($\Delta$) respecto al valor esperado puro.
-* **Readout Error Mitigation (REM) escalable mediante Inversión Matrix-Free:**
-El enfoque clásico para corregir los errores de lectura (aplicar la matriz inversa de asignación o *A-matrix*) no es escalable, dado que la matriz crece exponencialmente ($2^n \times 2^n$). Para superar el límite de la memoria RAM en circuitos de 15 qubits, este TFM implementa un modelo basado en GNN para predecir las matrices locales marginales, acoplado a un solucionador iterativo *Matrix-Free* (GMRES). Esta técnica restringe la inversión matricial exclusivamente al subespacio de los *shots* empíricamente observados (complejidad lineal $O(N)$), garantizando la viabilidad computacional del sistema en hardware clásico estándar.
-* **Desacoplamiento MLOps (Evitar Contaminación de Distribuciones):**
-Ambos módulos (GEM y REM) se entrenan de forma independiente y paralela. Este diseño evita que el modelo de grafos del GEM intente compensar indirectamente los sesgos de lectura (que le corresponden al REM), asegurando que cada red neuronal se especialice exclusivamente en su dominio de ruido físico, mejorando la interpretabilidad de las métricas registradas en MLflow.
 ---
+
+## 1. Por qué un gemelo digital y no hardware real
+
+El entrenamiento necesita decenas de miles de muestras etiquetadas. Ejecutarlas en hardware
+cuántico público es inviable por tres motivos independientes, y el tercero es el que de
+verdad cierra la puerta:
+
+* **Cuota.** El Open Plan de IBM da **10 minutos de QPU al mes**. Generar 20 000 circuitos
+  ahí es imposible por varios órdenes de magnitud.
+* **Latencia.** Las colas de ejecución hacen que un barrido de este tamaño tarde meses.
+* **No existe la etiqueta.** Y este es el argumento decisivo: el modelo aprende la
+  **diferencia** entre el resultado ideal y el ruidoso. El hardware real devuelve **solo el
+  ruidoso**. El valor exacto no se puede medir en un ordenador cuántico — si se pudiera, no
+  haría falta mitigar nada.
+
+El simulador resuelve las tres: calcula el valor exacto de forma analítica y el ruidoso con un
+modelo calibrado contra datos reales del chip.
+
+⚠️ **Y tiene un coste que hay que declarar en la memoria:** el modelo de ruido incluye los
+tres canales canónicos (despolarización calibrada, relajación térmica y lectura asimétrica)
+pero **no incluye crosstalk**. Las conclusiones son válidas dentro de ese modelo; extrapolar a
+hardware real requeriría validación adicional.
+
+## 2. Por qué la calibración es real y no simulada
+
+Los procesadores cuánticos se recalibran a diario y sus parámetros fluctúan. Un modelo
+entrenado con la calibración de un solo instante no generalizaría al día siguiente.
+
+El diseño original **simulaba** esa deriva degradando T1/T2 progresivamente. Se sustituyó por
+**42 días de calibración real** de `ibm_kingston`, descargados con `BackendProperties`.
+
+**Por qué importa el cambio:** la deriva real **no es gradual**. Hirasaki et al. (2023)
+demuestran que las tasas de error cambian de forma **escalonada**, con saltos bruscos. Una
+degradación lineal simulada habría enseñado al modelo un patrón que no existe.
+
+Además, los datos reales traen cosas que nadie simularía: **puertas 100 % averiadas que IBM no
+repara en 42 días**, y qubits cuya calibración viola la cota física T2 ≤ 2·T1.
+
+## 3. Por qué el circuito se representa como grafo
+
+Un circuito cuántico **es** un grafo acíclico dirigido: cada puerta es un nodo y las
+dependencias entre puertas son las aristas. Esa representación conserva lo que importa —qué
+opera sobre qué, y en qué orden— sin imponer una linealización artificial.
+
+Cada nodo lleva **25 dimensiones**: el tipo de puerta, su ángulo, su posición en la
+profundidad, el grado en el DAG, y **la telemetría real de los qubits físicos concretos sobre
+los que actúa** ese día.
+
+**Decisión de diseño deliberada: no se codifica la identidad del qubit**, solo su telemetría.
+Así el modelo generaliza a cualquier número de qubits — que es justamente la crítica que se
+le hace a QEMFormer, cuyo *multi-hot* de qubits lo ata al tamaño con el que se entrenó.
+
+## 4. Por qué tres modelos y no uno
+
+El TFM no busca demostrar que un modelo concreto es excelente, sino **medir si la estructura
+del circuito aporta información real**. Eso exige una comparación controlada:
+
+| Modelo | Qué consume | Qué representa |
+|---|---|---|
+| **Ridge** | una fila de features agregadas | el baseline lineal |
+| **Random Forest** | la misma fila | el mejor baseline tabular según Liao et al. (2024) |
+| **GEM** (Graph Transformer) | **el grafo entero** | la hipótesis del trabajo |
+
+La agregación circuito → fila **pierde el orden y la estructura**: dos circuitos con las
+mismas puertas en distinto orden dan la misma fila, y son físicamente distintos. **La
+comparativa mide exactamente cuánto vale esa información que el GEM conserva y la tabla
+tira.** Con protocolo idéntico para los tres, la diferencia no puede atribuirse a otra cosa.
+
+## 5. Por qué un Graph Transformer y no una GNN convolucional
+
+Las GNN clásicas (GCN, GraphSAGE) propagan información **entre vecinos**. En un circuito
+cuántico, el entrelazamiento crea dependencias entre puertas que están **muy separadas en el
+grafo**, y una GNN necesitaría tantas capas como distancia haya entre ellas.
+
+El mecanismo de atención relaciona cualquier par de nodos **en una sola capa**. Se añade
+además un **nodo virtual QCR** conectado a todos los demás: su embedding final resume el
+circuito entero y es el que produce la predicción, en lugar de un promedio sobre nodos.
+
+Arquitectura respaldada empíricamente por GTraQEM (Bao et al., ICLR 2025).
+
+## 6. Por qué se predice *f* y no Δ
+
+Esta es la decisión menos evidente del trabajo, y está medida, no supuesta.
+
+El objetivo natural era **Δ = ⟨O⟩exacto − ⟨O⟩ruidoso**. Se midió que **no es predecible antes
+de ejecutar**: R² ≈ 0 incluso en validación, o sea que no es un problema de generalización.
+
+La causa es aritmética: **Δ = (1 − f)·⟨O⟩exacto**. Es el producto de un factor **aprendible**
+—cuánta señal destruye el ruido, que es física del hardware— por uno que **no lo es**: cuánta
+señal había, que depende del algoritmo.
+
+La solución, **aprobada por el director**: predecir el factor de supervivencia *f* y
+reconstruir Δ con el valor medido. **No rompe el paradigma pre-ejecución**, porque la entrada
+del modelo no cambia — el valor medido entra solo en la aritmética final de la corrección.
+
+Detalle completo en `TFM-Quantum/doc/hallazgo_objetivo.md`.
+
+## 7. Por qué ocho observables
+
+Un target escalar único habría sido una elección arbitraria imposible de justificar: para
+varios tipos de circuito, algunos observables valen **cero por construcción física** — un
+estado GHZ tiene magnetización media nula siempre.
+
+La batería cubre las tres bases de Pauli (Z, X, Y), sus tres dispersiones, la paridad global y
+el correlador de vecinos. **Con ocho no queda ninguna asimetría que explicar.**
+
+**Y no cuesta nada:** el simulador calcula el estado una vez y proyecta cada observable sobre
+él. Medido: 5 observables y 100 tardan lo mismo. Lo caro es el estado, no las proyecciones.
+
+⚠️ **Matiz honesto para la memoria:** las tres dispersiones **correlacionan fuertemente entre
+sí** (hasta 0,85). La justificación de las ocho es de **simetría de diseño**, no de
+independencia estadística.
