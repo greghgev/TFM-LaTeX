@@ -1,0 +1,171 @@
+\chapter{Desarrollo de la comparativa: modelos y protocolo}
+\label{cap:comparativa}
+
+% GUION. Fusion de los antiguos capitulos 8 (Los tres modelos) y 9 (Protocolo
+% experimental). Corresponde al capitulo 5 de la estructura del tipo 3:
+% «Desarrollo de la comparativa — con todo detalle, con todos los resultados y
+%  mediciones obtenidos».
+%
+% Fuentes: TFM-Quantum/src/features.py, src/particion.py, doc/plan_eda.md,
+%          configs/gem_config.yaml, doc/memoria/materiales.md seccion 5.
+% ATENCION: el esqueleto anterior describia un modulo REM por GNN que esta FUERA DE
+% ALCANCE, y una validacion en hardware Eagle/Osprey que tampoco lo esta —Eagle esta
+% retirada y el plan abierto da 10 min/mes—. Si se mencionan, que sea como trabajo futuro.
+
+\section{El problema de la representación}
+\label{sec:representacion_modelos}
+% ESTA seccion es el nucleo conceptual de la comparativa: es lo que hace que comparar
+% estos tres modelos y no otros tres tenga sentido.
+Cada muestra es una \textbf{matriz de altura variable} —de una decena a varios miles de
+filas, una por puerta—. Un \textit{Graph Transformer} acepta esa entrada tal cual. Ridge y
+Random Forest \textbf{no}: exigen que todas las filas tengan las mismas columnas.
+
+\subsection{La agregación, y qué se pierde con ella}
+Resumir el circuito en una fila \textbf{tira el orden y la estructura}: dos circuitos con las
+mismas puertas en distinto orden dan \textbf{la misma fila}, y son físicamente distintos.
+
+\textbf{Ahí está el núcleo de este trabajo:} la comparativa mide exactamente cuánto vale esa
+información que el grafo conserva y la tabla pierde.
+
+\subsection{Las variables agregadas}
+\label{sec:features}
+% Fuente: src/features.py (modulo de produccion, catalogo cerrado)
+Ocho familias. Describir cada una en una frase y detallar solo las que resultaron
+predictivas:
+\begin{enumerate}
+    \item tamaño y forma del circuito;
+    \item composición en tipos de puerta;
+    \item ángulos de rotación;
+    \item calidad de las puertas ejecutadas;
+    \item telemetría del hardware que le tocó;
+    \item cocientes físicos: duración frente a decoherencia;
+    \item la heurística del estado del arte (el score de mapomatic como una variable más);
+    \item tiempo.
+\end{enumerate}
+
+\subsection{Dos decisiones de diseño que importan}
+% Fuente: src/features.py, docstrings de _telemetria_por_uso y _profundidad_y_camino
+\textbf{Telemetría ponderada por uso:} un qubit malo que interviene en 200 puertas debe pesar
+más que uno bueno usado dos veces.
+
+\textbf{Duración crítica, no suma de duraciones:} las puertas sobre qubits distintos se
+ejecutan simultáneamente. Lo que vive el estado es el \textbf{camino crítico del DAG}.
+
+\subsection{Qué se excluye a propósito}
+El \textbf{tipo de circuito} no es una variable: en entrenamiento es constante, y en test le
+daría al modelo la respuesta al eje que precisamente se quiere medir.
+
+% =====================================================================================
+% LAS TRES SOLUCIONES COMPARADAS
+% =====================================================================================
+
+\section{Solución 1: Ridge}
+\label{sec:ridge}
+\subsection{Por qué Ridge y no mínimos cuadrados}
+% Fuente: doc/plan_eda.md seccion 4. Cifras del v1: REHACER sobre el v2.
+Medido: la colinealidad entre variables es \textbf{extrema} —un bloque entero es «el tamaño»
+escrito de ocho maneras—. Con columnas casi idénticas, mínimos cuadrados no puede decidir a
+cuál atribuir el mérito: produce coeficientes enormes que \textbf{solo se cancelan dentro del
+rango visto}. Y nuestro test es OOD en tres ejes.
+
+\section{Solución 2: Random Forest}
+\label{sec:rf}
+El mejor baseline tabular según Liao et al. (2024). \textbf{Y sirve para algo más:} es inmune
+a la colinealidad —cada árbol elige una columna y sigue—, así que la diferencia con Ridge no
+es un problema a resolver, sino \textbf{parte de lo que la comparativa mide}.
+
+\textbf{Su limitación, que hay que declarar:} \textbf{no puede extrapolar}. Satura en el valor
+de la hoja más extrema que aprendió, y este conjunto de datos activa ese caso a propósito.
+
+\section{Solución 3: el GEM, un \textit{Graph Transformer}}
+\label{sec:gem}
+\subsection{Por qué atención y no paso de mensajes}
+El entrelazamiento crea dependencias entre puertas \textbf{muy separadas} en el grafo. Una GNN
+convolucional necesitaría tantas capas como distancia; la atención las relaciona en una sola.
+
+\subsection{El nodo virtual QCR}
+Un nodo ficticio conectado a todos los demás: su embedding final resume el circuito entero y
+produce la predicción, en lugar de un promedio sobre nodos. Respaldado por GTraQEM.
+
+\subsection{La decisión sobre los grafos grandes}
+% Fuente: doc/memoria/pendientes.md seccion 4
+La atención es cuadrática y el peor caso no cabe en memoria. Presentar las tres opciones
+—truncar, GPU grande, atención eficiente— y \textbf{justificar la elegida con la medida de a
+cuántas muestras afecta}.
+
+% =====================================================================================
+% EL PROTOCOLO IDENTICO
+% =====================================================================================
+
+\section{El objetivo común}
+\label{sec:objetivo_comun}
+Los tres modelos predicen $f$ y reportan sobre $\Delta$ reconstruido, según el
+capítulo~\ref{cap:variable}. \textbf{Es lo que hace que la comparación sea justa.}
+
+\section{La partición}
+\label{sec:particion}
+% Fuente: src/particion.py (modulo compartido por los tres modelos)
+\subsection{Por qué la validación es temporal y no aleatoria}
+El test es OOD en el tiempo: sus días de calibración son posteriores y disjuntos. Una
+validación aleatoria compartiría días con el entrenamiento y daría una métrica
+\textbf{optimista que no anticipa} lo que pasará en test.
+
+Reservando los últimos días se obtiene una validación que \textbf{imita la relación real}
+entre entrenamiento y test. Es más pequeña y más difícil, y esa es precisamente su utilidad.
+
+\subsection{Una sola definición para los tres modelos}
+La partición vive en un \textbf{único módulo} que importan tanto la vía tabular como el
+cargador de grafos. \textbf{Es lo que convierte «protocolo idéntico» en algo demostrable} en
+vez de en una afirmación.
+
+Comprobación explícita: ningún día se comparte entre entrenamiento, validación y test.
+
+\section{El preprocesado}
+\label{sec:preprocesado}
+% Fuente: las 17 directrices de notebooks/eda/04_directrices.ipynb seccion 4
+Cada decisión sale de una medida del análisis exploratorio, no del criterio:
+\begin{itemize}
+    \item \textbf{normalización} obligatoria para Ridge (las variables abarcan diez órdenes de
+          magnitud), innecesaria para Random Forest;
+    \item \textbf{logaritmos}, porque la fidelidad cae de forma multiplicativa con el número
+          de puertas;
+    \item \textbf{poda} de las dimensiones constantes o duplicadas;
+    \item \textbf{envoltura de ángulos}, porque una rotación y la misma más una vuelta
+          completa son la misma operación física;
+    \item \textbf{exclusión del día}, porque cae fuera del rango visto el 100\,\% del tiempo.
+\end{itemize}
+
+\textbf{Regla que no se negocia:} todo se ajusta \textbf{solo con el conjunto de
+entrenamiento}. Normalizar antes de particionar introduciría información del test.
+
+\section{Métricas}
+\label{sec:metricas}
+MAE, RMSE, $R^2$ y mejora relativa frente a no mitigar.
+
+\subsection{Cómo hay que reportarlas}
+% Fuente: las 17 directrices. Varias salen de trampas detectadas.
+\begin{itemize}
+    \item \textbf{desglosadas por los tres ejes OOD} y por observable — un promedio global
+          quedaría dominado por un solo tipo de circuito;
+    \item \textbf{mediana y percentiles además de la media}, porque las distribuciones tienen
+          colas muy pesadas;
+    \item \textbf{también restringidas a las muestras con señal}, porque una fracción grande
+          del conjunto no tiene nada que predecir e infla artificialmente cualquier promedio;
+    \item en el eje de tamaño, \textbf{acompañadas de una métrica relativa}, porque el MAE baja
+          solo porque el objetivo se encoge.
+\end{itemize}
+
+\subsection{El listón}
+% ESTE es el criterio de exito del objetivo general del capitulo 5. Enlazarlos.
+\textbf{No mitigar} es el baseline que da sentido al trabajo. Un modelo que no lo bata no
+sirve, por bueno que sea su $R^2$.
+
+\section{Reproducibilidad y trazabilidad}
+\label{sec:mlops}
+Semillas globales, versionado del conjunto de datos, registro de experimentos con MLflow, y el
+manifiesto que acompaña al conjunto con versiones y configuración.
+
+\section{Infraestructura de cómputo}
+\label{sec:infra}
+Generación en máquinas virtuales de Google Cloud —necesaria, no cómoda: las muestras de 15
+qubits piden 17,2\,GB por proceso—. Entrenamiento del \textit{Graph Transformer} en GPU.

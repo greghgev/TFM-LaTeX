@@ -10,6 +10,12 @@
 %
 % Ver doc/memoria/pendientes.md.
 % =====================================================================================
+%
+% ⚠️ REGLA DE ESTE CAPITULO, tomada de las Instrucciones seccion 2.6:
+%    «Es una exposicion OBJETIVA, sin valorar los resultados ni justificarlos».
+%    Aqui van tablas, graficas y datos. Toda interpretacion —por que un modelo gana,
+%    que significa, ventajas y desventajas— va al capitulo 11.
+%    Si al redactar aparece un «porque» o un «esto sugiere», va en el 11, no aqui.
 
 \section{Comparativa global}
 \label{sec:comparativa}
@@ -17,18 +23,22 @@ Los tres modelos sobre el mismo protocolo. Tabla principal de la memoria.
 
 \section{Desglose por eje OOD}
 \label{sec:desglose}
+% Un parrafo introductorio antes de las subsecciones: la norma prohibe dos encabezados
+% consecutivos sin texto entre medias.
 \subsection{Eje de tipo: generalización a algoritmos nunca vistos}
 \subsection{Eje de tamaño: extrapolación}
 \subsection{Eje temporal: robustez a la deriva del hardware}
 
 \section{Desglose por observable}
 \label{sec:por_observable}
-Qué observables se predicen bien y cuáles no, y si eso depende del tipo de circuito.
+Qué observables se predicen bien y cuáles no. Reportar el $n$ de cada celda.
 
-\section{¿Aporta algo la estructura del circuito?}
-\label{sec:aporta}
-% LA pregunta del TFM. Comparar GEM contra los baselines tabulares.
+\section{Comportamiento frente al listón}
+\label{sec:vs_baseline}
+% Mejora relativa frente a NO MITIGAR, que es el criterio de exito declarado en el
+% objetivo general del capitulo 5. Cifras, sin valoracion.
 
-\section{Análisis de errores}
+\section{Distribución del error}
 \label{sec:errores}
-Dónde falla cada modelo y si los tres fallan en las mismas muestras.
+Dónde falla cada modelo y si los tres fallan en las mismas muestras. Medianas y
+percentiles además de las medias, por las colas pesadas.

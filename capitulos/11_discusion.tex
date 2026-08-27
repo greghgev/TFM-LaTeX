@@ -1,0 +1,60 @@
+\chapter{Discusión y análisis de resultados}
+\label{cap:discusion}
+
+% =====================================================================================
+% CAPITULO NUEVO (ago-2026). Corresponde al capitulo 6 de la estructura del tipo 3:
+% «Discusion y analisis de resultados».
+%
+% ⚠️ LA DIVISION DE TRABAJO CON EL CAPITULO 10 NO ES NEGOCIABLE. La norma dice del
+%    capitulo de resultados: «Es una exposicion objetiva, SIN valorar los resultados ni
+%    justificarlos». Toda la interpretacion vive AQUI.
+%
+% ⚠️ La rubrica pesa este capitulo mas que ningun otro: «Desarrollo especifico de la
+%    contribucion» vale el 20 %, y nombra «Discusion correcta de los resultados» en las
+%    bandas de notable y sobresaliente.
+%
+% CAPITULO BLOQUEADO hasta que existan los resultados del capitulo 10.
+% =====================================================================================
+
+\section{¿Aporta algo la estructura del circuito?}
+\label{sec:aporta_discusion}
+% LA pregunta del TFM, planteada en el capitulo 9 y respondida aqui.
+% Interpretar la diferencia entre el GEM y los dos tabulares: si existe, a que se debe;
+% si no existe, que dice eso sobre el problema.
+
+\section{Ventajas y desventajas de cada solución}
+\label{sec:ventajas}
+% La norma del tipo 3 lo pide con estas palabras: «el analisis de las ventajas y
+% desventajas de las distintas soluciones evaluadas». Una subseccion por modelo, y no
+% solo en terminos de error: coste de entrenamiento, interpretabilidad, y comportamiento
+% fuera de distribucion.
+\subsection{Ridge}
+\subsection{Random Forest}
+\subsection{El \textit{Graph Transformer}}
+
+\section{Qué transfiere y qué no, eje por eje}
+\label{sec:transferencia}
+% Enlazar con el limite honesto del capitulo 8: en validacion funcionaba y en test solo
+% transferia un observable. ¿Cambia eso con el modelo de grafo?
+\subsection{Generalización a tipos de circuito nunca vistos}
+\subsection{Extrapolación en tamaño}
+\subsection{Robustez frente a la deriva del hardware}
+
+\section{Datos anómalos y casos de fallo}
+\label{sec:anomalos}
+% La norma menciona explicitamente «presentar posibles explicaciones para los datos
+% anomalos». Candidatos ya conocidos: las muestras sin señal que perder, las colas
+% pesadas que dominan el MAE, y el label shift de std_Z.
+
+\section{Contraste con el estado del arte}
+\label{sec:contraste}
+% Volver al capitulo 4 y cerrar el circulo: los cuatro diferenciadores anunciados alli,
+% ¿se sostienen con los numeros en la mano?
+
+\section{Amenazas a la validez}
+\label{sec:validez}
+% Distinto de las limitaciones del capitulo 12: aqui van las que afectan a la LECTURA de
+% estos resultados concretos.
+%   - el modelo de ruido no incluye crosstalk;
+%   - el eje de tamaño llega hasta 15 qubits, no mas;
+%   - un solo backend simulado, no varios.

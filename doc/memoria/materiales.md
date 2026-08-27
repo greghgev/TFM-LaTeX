@@ -66,7 +66,7 @@ los n=15). Truncar a 2 000 nodos afecta al **10,16 %** de las muestras y divide 
 
 ---
 
-## 3. 🔴 El bug de las etiquetas (capítulo 6)
+## 3. 🔴 El bug de las etiquetas (capítulo 7)
 
 **Qué pasaba.** El estimador ruidoso no fijaba `method`, así que Aer usaba `automatic` y
 elegía según **la RAM libre**: `density_matrix` (exacto) mientras cupiera, y **trayectorias
@@ -80,7 +80,7 @@ cambio ocurría en **n = 10**.
 | Techo de R² que imponía | 0,98–0,997 (no era grave) | `[REPO]` |
 | Suelo de MAE que imponía | 0,0012 → **el 40 % del listón** en `mean_Z` (sí era grave) | `[REPO]` |
 
-### La lección metodológica — el corazón del capítulo 6
+### La lección metodológica — el corazón del capítulo 7
 
 La documentación afirmaba que las etiquetas eran analíticas, *"verificado ejecutando el mismo
 circuito 5 veces con resultado idéntico bit a bit"*.
@@ -117,7 +117,7 @@ circuito transpilado.
 
 ---
 
-## 4. 🔴 La variable objetivo (capítulo 7)
+## 4. 🔴 La variable objetivo (capítulo 8)
 
 **El hallazgo:** Δ con signo **no es predecible antes de ejecutar**. R² ≈ 0 **en validación**,
 o sea que no es un problema de generalización.
@@ -186,7 +186,7 @@ del grafo, donde la agregación no lo hace?**
    Random Forest, además, **no puede extrapolar**.
 10. **Label shift en `std_Z`**: la media de train es **3,2× peor** que no mitigar.
 
-### Dos trampas metodológicas detectadas — van al capítulo 6
+### Dos trampas metodológicas detectadas — van al capítulo 7
 
 * **El eje TIEMPO está confundido con el eje TIPO.** Sobre el dataset completo, la
   correlación de |Δ| con el día es −0,26/−0,39 y parece drift fuerte; **dentro de `train_val`

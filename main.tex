@@ -51,7 +51,11 @@
 
 % -------------------------------------------------------------------------------------
 \chapter{Resumen}
-% PENDIENTE. Máximo 150 palabras. Escribir AL FINAL, cuando estén los resultados.
+% PENDIENTE. Escribir AL FINAL, cuando estén los resultados.
+%
+% ⚠️ EXTENSIÓN: la plantilla oficial y las Instrucciones §1.2 dicen «máximo 150 palabras»;
+%    las Instrucciones §2.1 dicen «de 150 a 300 palabras». Los dos documentos oficiales se
+%    contradicen. Escribir ~150 palabras es lo único que cumple ambos.
 % Debe cubrir: propósito, metodología, resultados y conclusiones.
 %
 % El hilo, para cuando toque redactarlo:
@@ -79,22 +83,36 @@ transformer
 % =====================================================================================
 \mainmatter
 
-% --- Parte I · Contexto -----------------------------------------------------------
+% =====================================================================================
+% Estructura: tipo de trabajo 3 — COMPARATIVA DE SOLUCIONES.
+% Cada bloque corresponde a un apartado de la estructura oficial (Instrucciones §2.6).
+% =====================================================================================
+
+% --- Introducción -------------------------------------------------------------------
 \include{capitulos/01_introduccion}
+
+% --- Contexto y estado del arte (10–15 páginas en total, es el tope de la norma) ------
 \include{capitulos/02_fundamentos}
 \include{capitulos/03_ruido_cuantico}
 \include{capitulos/04_estado_del_arte}
 
-% --- Parte II · Aportación ---------------------------------------------------------
-\include{capitulos/05_dataset}
-\include{capitulos/06_rigor_metodologico}   % ⭐ resultado propio
-\include{capitulos/07_variable_objetivo}    % ⭐ resultado propio
+% --- Objetivos y metodología de trabajo ---------------------------------------------
+\include{capitulos/05_objetivos_metodologia}
 
-% --- Parte III · Experimentación ---------------------------------------------------
-\include{capitulos/08_modelos}
-\include{capitulos/09_protocolo}
+% --- Planteamiento de la comparativa ------------------------------------------------
+\include{capitulos/06_dataset}
+\include{capitulos/07_rigor_metodologico}   % ⭐ resultado propio
+\include{capitulos/08_variable_objetivo}    % ⭐ resultado propio
+
+% --- Desarrollo de la comparativa ---------------------------------------------------
+\include{capitulos/09_comparativa}
 \include{capitulos/10_resultados}      % ⏳ BLOQUEADO: faltan datos y modelos
-\include{capitulos/11_conclusiones}    % ⏳ BLOQUEADO: depende del capítulo 10
+
+% --- Discusión ----------------------------------------------------------------------
+\include{capitulos/11_discusion}       % ⏳ BLOQUEADO: depende del capítulo 10
+
+% --- Conclusiones -------------------------------------------------------------------
+\include{capitulos/12_conclusiones}    % ⏳ BLOQUEADO: depende de los capítulos 10 y 11
 
 % =====================================================================================
 % Bibliografía
@@ -105,11 +123,29 @@ transformer
 \bibliography{bibliografia}
 
 % =====================================================================================
+% Los anexos NO computan a efectos de extensión (Instrucciones §2.9).
 \appendix
-\chapter{Apéndices}
-% PENDIENTE. Candidatos:
-%   A. Catálogo completo de las variables agregadas
-%   B. Tablas de resultados desglosadas
-%   C. Detalles de la infraestructura de generación
+
+\chapter{Código fuente y datos analizados}
+% ⚠️ Instrucciones §2.9: «Es recomendable que el estudiante incluya en su memoria la URL
+%    del repositorio donde tiene alojado el código fuente desarrollado durante el TFE. El
+%    estudiante debe ser el único autor del código y único propietario del repositorio.
+%    En el repositorio no debe haber commit de ningún otro usuario del repositorio.»
+% PENDIENTE: URL del repositorio, una vez esté limpio.
+
+\chapter{Catálogo completo de las variables agregadas}
+% PENDIENTE.
+
+\chapter{Tablas de resultados desglosadas}
+% PENDIENTE. Aquí van las tablas largas que no caben en el capítulo 10.
+
+% =====================================================================================
+% Índice de acrónimos — opcional según Instrucciones §2.10, pero muy recomendable en
+% este trabajo: NISQ, QEC, QEM, ZNE, PEC, M3, GEM, QCR, DAG, OOD, GNN, MAE, RMSE, QPU…
+% =====================================================================================
+% Sin numerar: es un apartado propio (§2.10), no un anexo más.
+\chapter*{Índice de acrónimos}
+\addcontentsline{toc}{chapter}{Índice de acrónimos}
+% PENDIENTE.
 
 \end{document}

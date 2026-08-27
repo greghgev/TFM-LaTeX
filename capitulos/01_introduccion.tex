@@ -4,49 +4,53 @@
 % GUION. Fuentes: doc/memoria/estructura.md, doc/00_Justificaciones.md
 % Escribir este capitulo AL FINAL, cuando el resto este cerrado: las contribuciones
 % solo se pueden enunciar bien cuando se sabe que se ha demostrado.
+%
+% EXTENSION: 3-5 paginas (Instrucciones seccion 2.3). No mas.
+%
+% ⚠️ ESTRUCTURA FIJADA POR LA NORMA (seccion 2.3): Motivacion · Planteamiento del
+%    problema · Estructura del trabajo. Aqui los objetivos van «a grandes rasgos»; los
+%    objetivos formales, SMART, viven en el capitulo 5.
 
-\section{Contexto: la era NISQ}
+\section{Motivación}
+\label{sec:motivacion}
+% La norma pide responder a tres preguntas: ¿cual es el problema? ¿cuales son sus
+% causas? ¿por que es relevante? Y exige que haya ya referencias a investigacion previa,
+% aunque se profundice despues.
+
+\subsection{Contexto: la era NISQ}
 \label{sec:nisq}
 Qué son los dispositivos \textit{Noisy Intermediate-Scale Quantum}: decenas o centenares de
 qubits, sin corrección de errores, con resultados degradados por el ruido. Por qué la
 corrección completa (QEC) no es viable hoy —requiere muchos qubits físicos por cada qubit
 lógico— y por qué eso deja a la \textbf{mitigación por software} como única vía práctica.
 
-\section{El problema: el ruido invalida el resultado}
+\subsection{El ruido invalida el resultado}
 \label{sec:problema}
 Las tres fuentes de error (decoherencia, puertas, lectura) y su efecto acumulado sobre el
 valor esperado que el usuario mide. Un circuito de unos centenares de puertas puede perder la
 mayor parte de su señal.
 
-\section{Limitaciones de los enfoques actuales}
+\section{Planteamiento del problema}
+\label{sec:planteamiento}
+% La norma pide responder: ¿como se podria solucionar? ¿que es lo que se propone?
+% Los objetivos, aqui, solo «en terminos generales».
+
+\subsection{Limitaciones de los enfoques actuales}
 \label{sec:limitaciones}
 Los métodos clásicos (ZNE, PEC) \textbf{cuestan ejecuciones adicionales} sobre un recurso
 escaso. Los métodos basados en aprendizaje automático del estado del arte
 \textbf{necesitan haber ejecutado ya el circuito} para poder corregirlo.
 
-\section{La pregunta de este trabajo}
+\subsection{La pregunta de este trabajo}
 \label{sec:pregunta}
 ¿Se puede predecir la degradación que sufrirá un circuito \textbf{antes de ejecutarlo},
 mirando solo su estructura y la calibración del procesador?
 
-\section{Objetivos}
-\label{sec:objetivos}
-% ATENCION: los objetivos del esqueleto anterior eran del alcance antiguo (hablaban de
-% mitigacion de lectura y de validacion en hardware real). El alcance vigente, acordado
-% con el director, es el modulo GEM planteado como comparativa de tres modelos.
-\subsection{Objetivo general}
-Determinar si la estructura de un circuito cuántico, combinada con la telemetría real del
-procesador, permite predecir la degradación por ruido antes de la ejecución.
-
-\subsection{Objetivos específicos}
-\begin{enumerate}
-    \item Construir un conjunto de datos con calibración real y tres ejes de generalización
-          independientes: tipo de circuito, tamaño y tiempo.
-    \item Definir una representación del circuito que no dependa del número de qubits.
-    \item Comparar tres modelos —Ridge, Random Forest y un \textit{Graph Transformer}— con
-          un protocolo de evaluación idéntico.
-    \item Cuantificar qué aporta la estructura del circuito frente a un resumen agregado.
-\end{enumerate}
+\subsection{Qué se propone}
+\label{sec:propuesta}
+% Solo a grandes rasgos: construir el conjunto de datos y comparar tres soluciones
+% —dos de aprendizaje automatico y una de aprendizaje profundo— bajo un protocolo
+% identico. El detalle formal esta en el capitulo 5.
 
 \section{Contribuciones}
 \label{sec:contribuciones}
@@ -63,4 +67,15 @@ procesador, permite predecir la degradación por ruido antes de la ejecución.
 
 \section{Estructura de la memoria}
 \label{sec:estructura}
-Recorrido breve por los once capítulos.
+% ⚠️ Escribir aqui el recorrido por los doce capitulos Y, ademas, decir explicitamente a
+%    que bloque de la estructura oficial del tipo 3 corresponde cada uno. Es gratis y le
+%    ahorra al tribunal tener que reconstruirlo:
+%
+%      cap. 1            → Introduccion
+%      caps. 2, 3 y 4    → Contexto y estado del arte
+%      cap. 5            → Objetivos y metodologia de trabajo
+%      caps. 6, 7 y 8    → Planteamiento de la comparativa
+%      caps. 9 y 10      → Desarrollo de la comparativa
+%      cap. 11           → Discusion y analisis de resultados
+%      cap. 12           → Conclusiones y trabajo futuro
+Recorrido breve por los doce capítulos.

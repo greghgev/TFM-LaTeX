@@ -1,0 +1,107 @@
+\chapter{Objetivos y metodología de trabajo}
+\label{cap:objetivos}
+
+% GUION. CAPITULO NUEVO (ago-2026), exigido por Instrucciones para la redaccion del TFE
+% seccion 2.5. Los tres elementos son OBLIGATORIOS: (1) objetivo general, (2) objetivos
+% especificos, (3) metodologia de trabajo.
+%
+% ⚠️ Los objetivos DEBEN ser SMART. La norma lo llama "imprescindible":
+%      S especifico · M medible · A alcanzable · R relevante · T con plazo
+%    Un objetivo sin criterio de exito medible es el fallo que la rubrica penaliza en
+%    "Alcance" (10 %) y en "Relacion entre objetivos, planteamiento, desarrollo y
+%    conclusiones" (10 %).
+%
+% ⚠️ Los objetivos que habia en el capitulo 1 eran del alcance antiguo (hablaban de
+%    mitigacion de lectura y de validacion en hardware real). El alcance vigente,
+%    acordado con el director, es el modulo GEM planteado como COMPARATIVA DE TRES
+%    MODELOS — tipo de trabajo 3 de la titulacion.
+
+\section{Objetivo general}
+\label{sec:objetivo_general}
+% Redactar en UNA frase que contenga el criterio de exito medible y el plazo.
+% BORRADOR PROPUESTO — pendiente de confirmar con el director:
+%
+%   «Determinar, en el transcurso del presente curso academico, si la estructura de un
+%    circuito cuantico combinada con la telemetria real del procesador permite predecir
+%    la degradacion por ruido antes de ejecutarlo, evaluando el resultado sobre un
+%    conjunto de test fuera de distribucion en tres ejes y considerando el objetivo
+%    alcanzado si al menos uno de los tres modelos comparados reduce el error absoluto
+%    medio frente a no mitigar.»
+%
+% Desglose SMART para justificarlo en el texto:
+%   S — predecir la degradacion pre-ejecucion a partir de circuito + calibracion.
+%   M — mejora del MAE frente al baseline de NO MITIGAR, medida en test OOD.
+%   A — el conjunto de datos ya esta generado y los tres modelos son estandar.
+%   R — sin mitigacion, los resultados de un procesador NISQ no son utilizables.
+%   T — un cuatrimestre, el que dura la asignatura.
+
+\section{Objetivos específicos}
+\label{sec:objetivos_especificos}
+% Verbos tomados de la lista aprobada por la norma: Construir/Definir/Comparar/
+% Cuantificar/Determinar/Medir/Verificar. Cada uno con su criterio de exito.
+\begin{enumerate}
+    \item Construir un conjunto de datos de circuitos cuánticos con calibración real y
+          tres ejes de generalización independientes —tipo de circuito, tamaño y tiempo—
+          verificando que ningún día de calibración se comparte entre particiones.
+    \item Definir una representación del circuito que no dependa del número de qubits,
+          comprobando que el mismo modelo acepta circuitos de tamaño no visto en
+          entrenamiento.
+    \item Determinar qué magnitud del error es predecible antes de ejecutar, midiendo el
+          $R^2$ en validación sobre cada candidata a variable objetivo.
+    \item Comparar Ridge, Random Forest y un \textit{Graph Transformer} bajo un protocolo
+          idéntico, reportando las métricas desglosadas por los tres ejes.
+    \item Cuantificar qué aporta la estructura del circuito frente a un resumen agregado,
+          mediante la diferencia de error entre el modelo de grafo y los tabulares.
+\end{enumerate}
+
+% ⚠️ Cada uno de estos objetivos debe cerrarse con una conclusion en el capitulo 12.
+%    La norma lo pide explicitamente: «cada objetivo del trabajo se enlazara con una
+%    conclusion».
+
+\section{Metodología de trabajo}
+\label{sec:metodologia}
+% La norma pide: que pasos se dan, el PORQUE de cada paso, que instrumentos se usan y
+% como se analizan los resultados.
+
+\subsection{Tipo de trabajo y encaje en la titulación}
+\label{sec:tipo_trabajo}
+% Declararlo explicitamente: el tribunal lee los capitulos contra la estructura esperada
+% del tipo elegido.
+Comparativa de soluciones (tipo 3). Líneas de trabajo: aprendizaje automático —Ridge y
+Random Forest— y aprendizaje profundo —el \textit{Graph Transformer}—.
+
+\subsection{Fases del trabajo}
+\label{sec:fases}
+% Una fase por bloque de capitulos, para que se vea la trazabilidad con el resto de la
+% memoria. Enunciar el porque de cada fase, no solo el que.
+Revisión de la literatura y localización del hueco · diseño y generación del conjunto de
+datos · análisis exploratorio y validación de las etiquetas · determinación de la variable
+objetivo · entrenamiento de los tres modelos bajo protocolo común · análisis comparativo.
+
+\subsection{Herramientas empleadas}
+\label{sec:herramientas}
+% La norma pide declarar QUE INSTRUMENTOS se utilizan. Aqui van TODOS, en pie de
+% igualdad: el stack tecnico y las herramientas de IA.
+Simulación y modelo de ruido, entrenamiento de los modelos, seguimiento de experimentos e
+infraestructura de cómputo. Citar cada herramienta en formato APA.
+
+\subsubsection{Declaración de uso de herramientas de inteligencia artificial}
+\label{sec:declaracion_ia}
+% ⚠️ OBLIGATORIO. Guia del TFE seccion 4.4: el uso «debe quedar explicitamente reflejado
+%    en el documento incluyendo las referencias especificas a las herramientas de IA
+%    utilizadas segun las normas de citacion oportunas», y «el director de TFE debe
+%    validar su uso adecuado y etico».
+%    Sancion en caso de uso no declarado o mal citado: NO AUTORIZAR el trabajo y
+%    declararlo no apto para la defensa, con perdida de la convocatoria.
+%
+% ⚠️ La declaracion debe ser COMPLETA. Alcance acordado con el usuario (ago-2026):
+%      - Claude Code — desarrollo del codigo de simulacion con Qiskit y de todo lo
+%        ajeno al aprendizaje automatico;
+%      - Claude Code — generacion de las figuras del trabajo;
+%      - Claude Code — asistencia en la redaccion, estructuracion y revision de esta
+%        memoria;
+%      - Gemini — busqueda bibliografica profunda para el estado del arte.
+%
+% ⚠️ Pendiente: confirmar la validacion con el director y añadir las entradas APA de
+%    cada herramienta a bibliografia.bib.
+Declarar aquí, con detalle y sin ambigüedad, qué herramienta se usó para qué.

@@ -22,8 +22,10 @@
 # Archivos generados
 *.pdf
 !logo_unir.pdf
+!doc/reglas/*.pdf
 *.dvi
 *.ps
 
 # VS Code
 .vscode/
+

@@ -63,9 +63,9 @@ Se están generando en una VM de Google Cloud. **No se pueden generar en local**
 **Qué desbloquean:**
 * el eje OOD de **tamaño** completo (ahora al 76,8 %),
 * los 2 tests que fallan por índices ausentes,
-* el capítulo 10 de la memoria.
+* el capítulo 10 de la memoria (y, en cascada, el 11 y el 12).
 
-**Qué NO bloquean:** absolutamente nada de los capítulos 1–6 y 9. `train_val` está **completo
+**Qué NO bloquean:** absolutamente nada de los capítulos 1–7 y 9. `train_val` está **completo
 (16 000/16 000)** porque los n=15 son todos de test por diseño.
 
 ---
