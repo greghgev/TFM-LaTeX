@@ -10,7 +10,7 @@
 >
 > **Tipo de trabajo:** 3 — *Comparativa de soluciones*
 > **Líneas:** 3 (aprendizaje automático: Ridge y Random Forest) y 4 (aprendizaje
-> profundo: el *Graph Transformer*)
+> profundo: la *red de grafos*)
 >
 > ⚠️ **Reestructurado en ago-2026** para encajar en la estructura oficial del tipo 3
 > (*Instrucciones para la redacción del TFE* §2.6). Cambios: se añadieron los capítulos
@@ -29,7 +29,7 @@
    el circuito y la calibración del chip.
 4. Para responderlo se construye un dataset con **tres ejes de generalización
    independientes** y se comparan **tres modelos** con protocolo idéntico: Ridge, Random
-   Forest y un Graph Transformer.
+   Forest y una red de grafos (MPNN).
 5. La respuesta tiene dos partes, y **la primera obligó a replantear el objetivo**: lo que se
    quería predecir no era predecible, y averiguar por qué es el resultado central.
 
@@ -135,7 +135,8 @@ mitigar**. Incluye además el tipo de trabajo y las líneas, las fases, y la sec
 ### 6 · Planteamiento de la comparativa: el conjunto de datos (7 pp.)
 Gemelo digital de `ibm_kingston` (Heron r2) · **calibración real de 42 días**, no simulada ·
 los siete tipos de circuito · **los tres ejes OOD** y por qué son independientes · la batería
-de **ocho observables** y por qué ocho · el vector de 25 dimensiones por puerta · el grafo
+de observables (**8 en el dataset, 5 como objetivo del modelo** — explicar por qué se retiraron
+las tres dispersiones) · el vector de 25 dimensiones por puerta · el grafo
 como representación · reproducibilidad y sus límites.
 
 ### 7 · Rigor metodológico ⭐ (5 pp.)
@@ -156,13 +157,18 @@ El capítulo 8 **es** la definición de la medida, y el 7 es lo que la hace fiab
 ### 9 · Desarrollo de la comparativa: modelos y protocolo (10 pp.)
 Fusión de los antiguos 8 y 9. La agregación circuito → fila y **qué información pierde** (el
 núcleo de la comparativa) · el catálogo de features · las tres soluciones: Ridge y por qué no
-mínimos cuadrados, Random Forest, el Graph Transformer con nodo virtual QCR · la decisión
+mínimos cuadrados, Random Forest, la red de grafos MPNN con nodo virtual bidireccional (y **por qué NO un Graph Transformer**: la matriz de estructura no informa a nuestra escala) · la decisión
 sobre los grafos grandes · **el protocolo idéntico**: partición temporal, preprocesado,
-métricas desglosadas, el listón · MLflow e infraestructura.
+métricas desglosadas, el listón · **Weights & Biases** e infraestructura.
 
-### 10 · Resultados — ❌ BLOQUEADO (8 pp.)
+### 10 · Resultados — ⏳ (8 pp.)
 Comparativa de los tres modelos · desglose por los tres ejes y por observable · distribución
 del error. **Exposición objetiva, sin valorar.**
+
+> ✅ El dataset ya no lo bloquea: las 369 muestras de n=15 llegaron y el v2 está completo. Y
+> los tres baselines están entrenados. **Lo que falta es evaluar sobre `test`**, cosa que no se
+> ha hecho todavía a propósito: cuantas menos veces se mire el test, menos margen hay para
+> ajustarse a él sin querer. Los capítulos 11 y 12 siguen bloqueados por lo mismo.
 
 ### 11 · Discusión y análisis de resultados — ❌ BLOQUEADO (5 pp.) ⚠️ NUEVO
 ¿Aporta algo la estructura del circuito? · ventajas y desventajas de cada solución · qué

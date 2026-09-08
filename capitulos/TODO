@@ -1,0 +1,83 @@
+Capítulo 1: 
+    ☐
+
+Capítulo 2: 
+    ☐ Hacer una introducción a los subcapítulos de la seccion 2.1.
+    ☐ Explicar que describen cada uno de lo observables y justificar las elecciones.
+    ☐ Poner un ejemplo de los observables y explicar cómo se calculan.
+    ☐ Poner cómo funciona un ordenador cuántico y cómo se ejecuta un circuito en él. Poner un ejemplo de uso y buscarlo en alguna lado realmente (finanzas, investigación farmacéutic, criptografia, logistica mundial).
+    ✔ Añadir una seccion de qubits multiples @done(26-08-31 12:24)
+
+Capítulo 3: 
+    ☐
+
+Capítulo 4: 
+    ☐ Mostrar que en el estado del arte se mide siempre mediante una división porque luego de hacer la predicción les hace falta la parte exacta para luego poder mitigar el ruido. Sin embargo, nuestro enfoque ha ido por otro lado: la idea es no necesitar la parte exacta y ver la calidad de los resultados con los datos de calibración. 
+        La Diferencia: 
+            - Los modelos de los papers: Necesitan ejecutar el circuito en la máquina cuántica real primero. Cogen ese resultado ruidoso que da la máquina, se lo dan a la IA como pista principal, y la IA adivina el resultado limpio.  
+            - Tu modelo: Tiene una restricción mucho más dura porque nunca ve el resultado ruidoso como entrada. Tu IA solo mira los planos del circuito (qué operaciones tiene) y la calibración técnica del chip ese día, y adivina el fallo antes de ejecutar nada. **INCLUIR TABLA**.
+        ¿Qué resuelve cada uno?:
+            - Los demás: Solo sirven para corregir un circuito que ya has ejecutado. Te obligan a gastar tiempo de cola y dinero en el hardware cuántico para poder preguntarle a la IA.
+            - El tuyo: Sirve para decidir y corregir. Como adivina el fallo antes de tocar la máquina, te permite tomar la decisión de si merece la pena ejecutar ese circuito hoy en ese chip, o si la máquina está tan mal que es mejor esperar a mañana. Y si decides ejecutarlo, también te sirve para corregir el resultado final con un solo cálculo.
+    ☐ Comparar nuestros métodos frente a otros e indicar si es una adaptación o una reproducibilidad:
+        ☐ La forma de entrenar el GNN se ha adaptado de los papers
+        ☐ Nombrar lo del vector virtual: https://arxiv.org/pdf/1806.01242
+
+Capítulo 5: 
+    ☐ Respaldar la elección de los observables con la literatura. Y mostrar otras alternativas que tambien se usan en la literatura.
+    ☐ Hacer énfasis que es una buena introducción a que otras lineas puedan investigar con circuitos más grandes y con más qubits, y que el TFM es un primer paso para poder extrapolar a circuitos más grandes.
+    ☐ Mostrar que el objetivo del TFM:
+        - Ver la comparativa de modelos si GNN gana a Ridge y RF
+        - Ver si con el modelo GNN es posible ahorra el tiempo de cola y dinero en el hardware cuántico cuando no sea buena decisión ejecutar un circuito en ese chip ese día.
+    ☐ Mostrar como va usar el usuario el modelo:
+        - Primero mira los observables que le interesa para ver si se degradan demasiado los resultados.
+        - Segundo mitiga el ruido tras ejecucion en hardaware real.
+    ☐ Copiar SMART de ejemplo TFM.
+
+Capítulo 6: 
+    ☐ Explicar la razón de entrenar solamente con circuitos random: Entrenar exclusivamente con circuitos aleatorios obliga al modelo a aprender la física real del hardware (cómo el ruido afecta a las topologías y puertas) en lugar de memorizar la estructura de un algoritmo concreto (como un QAOA). Si el modelo entrena con circuitos aleatorios (donde el entrelazamiento y las interferencias exploran todo el espacio matemático) y logra corregir un algoritmo estructurado en la fase de test, demuestras una generalización real (Zero-Shot)
+    ☐ Mostras al detalle cómo se ha creado: 
+        - Se hizo balanceado.
+    ☐ Detallar `f` muy bien:
+        ☐ Segun el signo que sale y porqué sale
+        ☐ Todos los estadisticos de f y los observables
+        ☐ Cuando se pasa el umbral f = NaN.
+        ☐ Se establece un cota a f ( 0.05 < f < 1.0 ). Ya que se predicen valores negativos pero estos son productos de la ligera traslación del valor del observable exacto que sufre: 
+            - El observable exacto sufre de una tranformación afín (ruidoso = exacto * a + b), pero nosotros no tenemos en cuenta ese b para simplificar nuestro modelo ya que nos interesa solamnte saber qué proporción sobrevive a la degradación del ruido. Por eso, si el observable exacto es muy pequeño, el observable ruidoso puede ser negativo y por tanto f < 0, y descartamos esos casos cuando tras predecir 
+    ☐ Cuestionarse porque no es mejor predecir ruidoso y exacto para luego calcular f = ruidoso/exacto.
+    ☐ Aludir de donde sacamos todas las features y si hemos añadido por nuestra cuenta respecto a un paper.
+    ☐ Añadir los datos de tiempo de generar el dataset.
+
+Capítulo 7: 
+    ☐ Mostar que en un principio se pensó en una GNN fuerte. Luego se redujo a un MPNN
+    ☐ Mostrar que en un principio se pensó en un nodo virtual, pero eso modificaba la topologia de los datos. Ahora se decide un vector (ref. a paper_vector_virtual). Hacer comparación frente al nodo virtual que se ahce en alguno de los papers. Libro de referencia: Graph Representation Learning (2020) de William L. Hamilton
+
+Capítulo 8: 
+    ☐ Explicar que el objetivo del TFM se compone en dos fases: 
+        - Nivel 1: Hallar los valores de f y b de la ecuación r=f⋅e+b, donde r es ruidoso y e es exacto (OJO: se hayan sin hacer falta el resultado ruidoso). Luego con f determinar cuánto puede rentar ejecutar el circuito.
+        - Nivel 2: Ejecutar el circuitos y con los pesos f y b, hayar el valor e. Es decir, calcular 
+    ☐ Justificación de quitar las f < 0: la parametrización $f = r/e$ asume que el ruido escala el observable, y cuando hay un cambio de signo, esa premisa matemática deja de tener sentido. Al mantener los datos en evaluación, el coste de esta decisión se reflejará en las métricas, evitando cualquier acusación de seleccionar datos a medida. 
+    ☐ Mostar el razonamiento: 
+        ☐ Razón de la cota de f > 0.05
+        ☐ Razón de la cosa de |e| > 0.005
+        ☐ Razón de usar Huber Loss
+
+Capítulo 9: 
+    ☐
+
+Capítulo 10: 
+    ☐ Justificar que los resultados son solammente de f > 0.05 y que |e| > umbral. Que la limitación está en que no predecimos los valores extremadamente pequeños.Evaluar solo donde hay señal hace el test más fácil de una forma concreta: quedan fuera precisamente los circuitos cuyo observable es diminuto, que son los más difíciles.
+
+
+
+Capítulo 11: 
+    ☐
+
+Capítulo 12:
+    En trabajo a futuro:
+        ☐ Mostrar que existen formas de extrapolar los entrenamiento a circuitos con más qubits, como los circuitos Clifford.
+    
+    En limitaciones:
+        ☐ No se introdujo crosstalk
+
+    

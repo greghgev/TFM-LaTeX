@@ -2,7 +2,8 @@
 
 > **Reescrito en ago-2026.** La versión anterior describía el alcance original del proyecto
 > (mitigación de lectura con GNN, drift sintético, dos módulos GEM+REM). Ese alcance cambió:
-> el vigente, acordado con el director, es **el módulo GEM planteado como comparativa de tres
+> el vigente, acordado con el director, es **la mitigación de error de puerta planteada
+> como comparativa de tres
 > modelos**. La corrección de lectura vive únicamente en `IDEAS_FUTURAS.md`.
 >
 > Estado real del proyecto: `TFM-Quantum/ESTADO_ACTUAL.md`.
@@ -69,24 +70,49 @@ del circuito aporta información real**. Eso exige una comparación controlada:
 |---|---|---|
 | **Ridge** | una fila de features agregadas | el baseline lineal |
 | **Random Forest** | la misma fila | el mejor baseline tabular según Liao et al. (2024) |
-| **GEM** (Graph Transformer) | **el grafo entero** | la hipótesis del trabajo |
+| **GNN** (red de grafos MPNN) | **el grafo entero** | la hipótesis del trabajo |
 
 La agregación circuito → fila **pierde el orden y la estructura**: dos circuitos con las
 mismas puertas en distinto orden dan la misma fila, y son físicamente distintos. **La
-comparativa mide exactamente cuánto vale esa información que el GEM conserva y la tabla
+comparativa mide exactamente cuánto vale esa información que el GNN conserva y la tabla
 tira.** Con protocolo idéntico para los tres, la diferencia no puede atribuirse a otra cosa.
 
-## 5. Por qué un Graph Transformer y no una GNN convolucional
+## 5. Por qué una red de grafos con nodo virtual, y no un Graph Transformer
 
-Las GNN clásicas (GCN, GraphSAGE) propagan información **entre vecinos**. En un circuito
-cuántico, el entrelazamiento crea dependencias entre puertas que están **muy separadas en el
-grafo**, y una GNN necesitaría tantas capas como distancia haya entre ellas.
+🔴 **Esta decisión cambió el 31-ago-2026, y el cambio está medido.**
 
-El mecanismo de atención relaciona cualquier par de nodos **en una sola capa**. Se añade
-además un **nodo virtual QCR** conectado a todos los demás: su embedding final resume el
-circuito entero y es el que produce la predicción, en lugar de un promedio sobre nodos.
+**El planteamiento inicial** era un *Graph Transformer sin paso de mensajes*, siguiendo a
+GTraQEM (Bao et al., ICLR 2025). Su lógica: las GNN clásicas propagan información **entre
+vecinos**, y en un circuito el entrelazamiento crea dependencias entre puertas **muy
+separadas**, así que harían falta tantas capas como distancia haya. La atención relaciona
+cualquier par de nodos **en una sola capa**.
 
-Arquitectura respaldada empíricamente por GTraQEM (Bao et al., ICLR 2025).
+**El problema, medido sobre nuestros circuitos:** para que la atención sepa que el grafo *es*
+un grafo, esa arquitectura inyecta la topología mediante una **matriz de estructura** —la
+distancia entre cada par de nodos, sumada al score de atención—. Pero en nuestros grafos la
+**distancia mediana entre nodos conectados es de 30 a 70 pasos** (p99 hasta 157), así que con
+el recorte habitual la matriz queda **constante en más del 99 % de sus entradas**. Sin recorte
+no cabe en memoria. **A nuestra escala, el mecanismo no informa.**
+
+Y hay una segunda razón: GTraQEM alimenta su modelo con el **valor ruidoso ya medido**, que
+este trabajo **excluye por diseño**. Quitarle esa entrada *y* dejarla sin una matriz de
+estructura útil deja lo peor de los dos mundos.
+
+**La arquitectura vigente** es un **MPNN con paso de mensajes** —donde la topología entra
+gratis por las aristas, sin matriz ninguna— **más un nodo virtual bidireccional** conectado a
+todos los nodos, cuyo embedding se concatena con el *pooling* de los nodos físicos para
+producir la predicción.
+
+🔴 **El nodo virtual debe ser BIDIRECCIONAL**, y ésta es la diferencia clave con el diseño del
+paper. En un Transformer la atención ya conecta todo con todo, así que un nodo virtual que solo
+*lee* basta. En una red de paso de mensajes **no**: los mensajes viajan un salto por capa y solo
+por aristas, de modo que un nodo virtual sin salidas **acumula pero no devuelve**. Y con 4-6
+capas frente a distancias de 30-70 pasos, la propagación por aristas es **puramente local**:
+el nodo virtual es la **única vía al largo alcance** del modelo.
+
+**Efecto colateral favorable:** con paso de mensajes la memoria es **lineal** en nodos y
+aristas en vez de cuadrática, así que **desaparece la necesidad de truncar los grafos** — y con
+ella un sesgo metodológico que castigaba más al entrenamiento que al test.
 
 ## 6. Por qué se predice *f* y no Δ
 
@@ -105,18 +131,67 @@ del modelo no cambia — el valor medido entra solo en la aritmética final de l
 
 Detalle completo en `TFM-Quantum/doc/hallazgo_objetivo.md`.
 
-## 7. Por qué ocho observables
+## 7. Por qué una batería de observables — y por qué cinco, no ocho
 
 Un target escalar único habría sido una elección arbitraria imposible de justificar: para
 varios tipos de circuito, algunos observables valen **cero por construcción física** — un
 estado GHZ tiene magnetización media nula siempre.
 
-La batería cubre las tres bases de Pauli (Z, X, Y), sus tres dispersiones, la paridad global y
-el correlador de vecinos. **Con ocho no queda ninguna asimetría que explicar.**
+✅ **Confirmado con bootstrap sobre el v2:** 6 de los 7 tipos tienen observable óptimo con
+veredicto sólido y hay **cuatro óptimos distintos**. La cifra citable del QFT es **3,69×**
+(nunca 42,7× ni 45,4×: eran del v1 y se contradecían entre sí).
 
-**Y no cuesta nada:** el simulador calcula el estado una vez y proyecta cada observable sobre
-él. Medido: 5 observables y 100 tardan lo mismo. Lo caro es el estado, no las proyecciones.
+**Y ampliar la batería no cuesta nada:** el simulador calcula el estado una vez y proyecta cada
+observable sobre él. Medido: 5 observables y 100 tardan lo mismo. Lo caro es el estado.
 
-⚠️ **Matiz honesto para la memoria:** las tres dispersiones **correlacionan fuertemente entre
-sí** (hasta 0,85). La justificación de las ocho es de **simetría de diseño**, no de
-independencia estadística.
+### 🔴 El dataset guarda 8; el modelo entrena sobre 5
+
+```
+mean_Z · mean_X · mean_Y · paridad · corr_vecinos
+└── las tres bases de Pauli ──┘  └── dos correladores ──┘
+```
+
+Se retiraron las tres dispersiones (`std_Z`, `std_X`, `std_Y`) en ago-2026, por dos motivos:
+
+1. **Simetría.** «Las tres bases de Pauli y dos correladores»: no queda ninguna dispersión
+   elegida a dedo, que era justamente la asimetría que motivó ampliar de 5 a 8. **El conjunto
+   final es más simétrico que el original.**
+2. **Medido.** El ruido no solo atenúa, también desplaza (`ruidoso = f·exacto + b`), y en ese
+   bloque el desplazamiento vale el **135–149 %** de la degradación que se quiere predecir,
+   además de variar con el tamaño ~14× más que en el resto. Contaminaría un modelo
+   multi-salida con estructura compartida.
+
+⚠️ **Siguen guardadas en el dataset**: retirarlas del objetivo no obligó a regenerar nada y
+permite reactivarlas para un estudio de ablación.
+
+---
+
+## 8. Por qué hay una cola de *f* desmedida, y por qué no es un fallo
+
+Con el umbral de señal en 0,002, el **7,85 %** de las etiquetas de `train` queda por encima
+de 1 y el máximo de |*f*| llega a **6,67**. Un factor de supervivencia mayor que 1 significa
+que el circuito ruidoso da un valor esperado *más grande* que el ideal, que no es lo que uno
+espera del ruido. La explicación no es física: es aritmética.
+
+El ruido de este hardware es **afín**, no solo multiplicativo:
+
+$$\text{ruidoso} = f \cdot \text{exacto} + b$$
+
+donde *b* es el desplazamiento aditivo que introducen sobre todo los errores de lectura. Al
+construir la etiqueta se divide por el valor exacto:
+
+$$\frac{\text{ruidoso}}{\text{exacto}} = f + \frac{b}{\text{exacto}}$$
+
+Es decir, **la etiqueta no es *f*: es *f* más un término *b*/exacto**. Ese segundo término es
+despreciable mientras el denominador sea grande, pero crece sin límite según el observable se
+acerca a cero. Como la mediana de |exacto| en este dataset es **0,0347**, hay bastantes
+circuitos en los que un *b* pequeñísimo se convierte en una contribución enorme.
+
+La cola es, por tanto, **el sesgo aditivo dividido por un denominador diminuto**, y no una
+degradación anómala. Es también lo que justifica el umbral de señal: al exigir
+|exacto| > 0,002 se corta la parte del recorrido donde ese cociente domina por completo a la
+etiqueta. Lo que queda por encima de 1 después del umbral es la cola residual del mismo
+efecto.
+
+⚠️ *b* se ha **medido** pero no se modela: el objetivo del TFM es *f*, y añadir un segundo
+objetivo para *b* no compensaba por lo poco que aporta.

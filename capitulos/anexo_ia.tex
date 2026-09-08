@@ -1,0 +1,84 @@
+\chapter{Declaración de uso de herramientas de inteligencia artificial}
+\label{anexo:ia}
+
+% =====================================================================================
+% ⚠️ ANEXO OBLIGATORIO SI SE HAN USADO HERRAMIENTAS DE IA.
+%
+% «Guía del Trabajo Fin de Estudios», apartado 4.4 «Actividades y entregas», PAGINA 22:
+%
+%   «...en caso de usar alguna de estas herramientas, el director de TFE debe validar
+%    su uso adecuado y ético según las recomendaciones de la universidad. Igualmente,
+%    dicho uso debe quedar explícitamente reflejado en el documento incluyendo las
+%    referencias específicas a las herramientas de IA utilizadas según las normas de
+%    citación oportunas. En el caso de que la universidad detecte un uso inadecuado de
+%    herramientas de IA, o una citación inadecuada de las mismas, podrá NO AUTORIZAR el
+%    trabajo y declararlo no apto para su defensa. En este caso, podrás perder la
+%    convocatoria en curso.»
+%
+% 🔴 DOS COSAS PENDIENTES, Y LAS DOS SON BLOQUEANTES:
+%    1. VALIDACION DEL DIRECTOR. La norma la exige de forma explicita. Hay que
+%       planteárselo en sesión y dejar constancia.
+%    2. REFERENCIAS APA de cada herramienta en bibliografia.bib, y citarlas desde aquí.
+%       Estan añadidas pero SIN VERIFICAR: falta confirmar el nombre exacto del producto,
+%       la version y el periodo de uso. No inventarlos.
+%
+% ⚠️ La declaracion tiene que ser COMPLETA. Omitir una categoria de uso es justo lo que
+%    la norma castiga. Si aparece un uso nuevo, se añade aqui.
+% =====================================================================================
+
+\section{Alcance de la declaración}
+\label{sec:ia_alcance}
+% Parrafo de entrada: por que existe este anexo y a que se compromete.
+Este anexo detalla, de forma exhaustiva, en qué tareas se han empleado herramientas de
+inteligencia artificial generativa durante la realización del trabajo, en cumplimiento de
+lo establecido en la guía de la asignatura.
+
+\section{Herramientas empleadas y uso concreto}
+\label{sec:ia_herramientas}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Herramientas de inteligencia artificial empleadas y tareas en las que se han
+             utilizado.}
+    \label{tab:ia}
+    \begin{tabular}{@{}p{0.28\textwidth}p{0.62\textwidth}@{}}
+        \toprule
+        \textbf{Herramienta} & \textbf{Uso} \\
+        \midrule
+        Claude Code (Anthropic)
+            & Desarrollo del código de generación y simulación de circuitos cuánticos
+              con Qiskit, y del resto de código ajeno al aprendizaje automático. \\[0.4em]
+        Claude Code (Anthropic)
+            & Generación de las figuras e ilustraciones de la memoria. \\[0.4em]
+        Claude Code (Anthropic)
+            & Asistencia en la redacción, la estructuración y la revisión del documento. \\[0.4em]
+        Google Gemini
+            & Búsqueda bibliográfica en profundidad para la elaboración del estado del
+              arte. \\
+        \bottomrule
+    \end{tabular}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}
+
+% ⚠️ Citar aqui las herramientas con \cite{} en cuanto las entradas del .bib esten
+%    confirmadas. La norma pide «las referencias específicas... según las normas de
+%    citación oportunas», asi que una tabla sola no basta.
+
+\section{Trabajo no delegado}
+\label{sec:ia_limites}
+% ESTA seccion es la que da credibilidad a la anterior. Sin ella, la declaracion parece
+% una lista de descargos; con ella, delimita la autoria.
+% Que declarar como propio, y es cierto en este trabajo:
+%   - el planteamiento del problema y la pregunta de investigacion;
+%   - el diseño del conjunto de datos y de los tres ejes de generalizacion;
+%   - la decision de cambiar la variable objetivo, y su justificacion;
+%   - la interpretacion de los resultados y las conclusiones;
+%   - la verificacion de toda cifra y de toda referencia citada.
+
+\section{Verificación de los resultados}
+\label{sec:ia_verificacion}
+% Declarar el procedimiento seguido para no dar por bueno nada sin comprobar:
+%   - toda cifra de la memoria es rastreable hasta un fichero del repositorio;
+%   - ninguna referencia se cita sin DOI comprobado;
+%   - el codigo generado se ha ejecutado y validado con pruebas.

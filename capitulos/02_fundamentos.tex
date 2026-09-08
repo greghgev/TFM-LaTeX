@@ -1,46 +1,625 @@
-% El título completo se sale 3,35 pt del ancho de caja a \Huge y LaTeX lo partía con
-% guion («cuán-tica»). Se fuerza el corte en un punto natural.
-% El título corto entre corchetes es el que va al índice y a la cabecera, en una sola línea.
-\chapter[Fundamentos de computación cuántica]{Fundamentos de computación\\cuántica}
+% El título anterior era «Fundamentos de computación cuántica». Ya no vale: el capítulo
+% cubre ahora también los modelos de aprendizaje automático. De paso desaparece el
+% Overfull \hbox de 3,35 pt que obligaba a partir el título a mano.
+\chapter{Fundamentos}
 \label{cap:fundamentos}
 
-% GUION. Objetivo: lo MINIMO para que el capitulo 3 y el 5 se entiendan.
-% No convertirlo en un libro de texto: el TFM es de mitigacion, no de introduccion a la
-% computacion cuantica. Todo lo que no se use despues, fuera.
+% =====================================================================================
+% GUION. Capitulo de CONTEXTO: recoge conocimiento que YA EXISTE y se cita.
+% Reestructurado en ago-2026 en dos bloques, 2.1 cuantico y 2.2 aprendizaje automatico.
+%
+% 🔴 LA FRONTERA CON EL CAPITULO 9, que es la regla que evita duplicar:
+%
+%      2.2  → QUE ES el metodo. Conocimiento de la literatura. Se CITA.
+%      cap. 9 → POR QUE ese metodo aqui, como se configura, que se midio.
+%               Decisiones propias. Se JUSTIFICA con nuestros datos.
+%
+%    Ejemplo: «que es la regularizacion L2» va en 2.2; «por que Ridge y no minimos
+%    cuadrados, dada la colinealidad extrema que medimos» va en el 9. Si una frase
+%    contiene una cifra nuestra, esta en el capitulo equivocado.
+%
+% 🔴 TONO, y es asimetrico a proposito. El tribunal es de INTELIGENCIA ARTIFICIAL:
+%      2.1 → no saben cuantica. Claro, ameno, con intuicion antes que formalismo.
+%            El tecnicismo entra, pero siempre despues de haberlo hecho comprensible.
+%      2.2 → hablas su idioma. Denso y rapido en Ridge y Random Forest, que conocen
+%            mejor que nadie. Detenerse SOLO en la red de grafos, que es lo que
+%            probablemente no han visto aplicado a esto.
+%
+% ⚠️ Reglamento art. 11.4.a: «no es original el trabajo que contenga un exceso de
+%    informacion de otras fuentes, AUNQUE ESTEN DEBIDAMENTE CITADAS». En un capitulo
+%    de fundamentos es donde mas facil es caer. Defensa: incluir solo lo que los
+%    capitulos 3, 6 y 9 van a usar de verdad, y que cada apartado apunte hacia adelante.
+%
+% ⚠️ Solo se numera hasta \subsection (secnumdepth = 2 en la clase book). Un
+%    \subsubsection saldria SIN numero. Por eso el cuarto nivel va como parrafo con
+%    entradilla en negrita, igual que en el resto de la memoria.
+% =====================================================================================
 
-\section{El qubit y el espacio de estados}
-\label{sec:qubit}
-Estado como vector en $\mathbb{C}^2$, notación de Dirac, superposición y normalización.
-Extensión a $n$ qubits mediante producto tensorial, y el crecimiento $2^n$ del espacio.
+% Parrafo de entrada del capitulo: que hace falta saber para leer el resto y por que
+% este capitulo tiene dos mitades que parecen inconexas y no lo son.
+% ⚠️ La norma prohibe dos encabezados consecutivos sin texto entre medias.
 
-\section{Evolución unitaria}
+
+% =====================================================================================
+\section{Fundamentos de computación cuántica}
+\label{sec:fund_cuantica}
+% =====================================================================================
+% Fuente principal: Nielsen y Chuang (2010). Citar con paginas concretas:
+%   \cite[pp.~13--16]{nielsen2010quantum} · \citeA[cap.~4]{nielsen2010quantum}
+% UNA sola entrada en bibliografia.bib para todo el libro; la pagina va en la cita.
+
+% Parrafo de entrada de la seccion.
+
+\subsection{Del bit al qubit}
+\label{sec:bit_qubit}
+% LA PUERTA DE ENTRADA. Si el tribunal se pierde aqui, se pierde en todo el capitulo.
+% Arrancar por lo que SI conocen: el bit, y de ahi la diferencia.
+%
+% Fuente: Nielsen y Chuang (2010), seccion 1.2, p. 13.
+% ⚠️ VERIFICAR LA PAGINA del ultimo parrafo (el estado |+> y el ejemplo del atomo
+%    iluminado): puede estar en la p. 14 y no en la 13. No citar p. 13 para eso sin
+%    comprobarlo en el libro.
+El bit es el concepto fundamental de la computación y la información clásicas. La
+computación y la información cuánticas se construyen sobre un concepto análogo, el bit
+cuántico o, abreviadamente, el \textbf{qubit} \cite[secc.~1.2, p.~13]{nielsen2010quantum}.
+
+¿Qué es entonces un qubit? Igual que un bit clásico tiene un estado —o 0, o 1—, un qubit
+también tiene un estado. Dos estados posibles para un qubit son $\ket{0}$ y $\ket{1}$, que,
+como cabe suponer, se corresponden con los estados 0 y 1 de un bit clásico. La notación
+$\ket{\ }$ se denomina \textit{notación de Dirac} y es la
+notación estándar para los estados en mecánica cuántica. La diferencia entre bits y qubits
+es que un qubit puede encontrarse en un estado distinto de $\ket{0}$ o $\ket{1}$: también es
+posible formar combinaciones lineales de estados, llamadas habitualmente
+\textbf{superposiciones}:
+\begin{equation}
+\label{eq:superposicion}
+\ket{\psi} = \alpha \ket{0} + \beta \ket{1}.
+\end{equation}
+Los números $\alpha$ y $\beta$ son números complejos.
+
+Esa misma información se puede escribir de forma más simple. Como el estado queda determinado
+por sus dos amplitudes, basta con apilarlas para obtener una \textbf{representación
+vectorial} del qubit, tomando $\ket{0}$ y $\ket{1}$ como los dos vectores de la base:
+\begin{equation}
+\label{eq:vector_estado}
+\ket{0} \equiv \begin{pmatrix} 1 \\ 0 \end{pmatrix},
+\qquad
+\ket{1} \equiv \begin{pmatrix} 0 \\ 1 \end{pmatrix},
+\qquad
+\ket{\psi} = \alpha\ket{0} + \beta\ket{1} \equiv
+\begin{pmatrix} \alpha \\ \beta \end{pmatrix}.
+\end{equation}
+Las dos notaciones son equivalentes y a lo largo del documento se emplean indistintamente:
+la de Dirac resulta más cómoda para razonar, y la vectorial para calcular, porque convierte
+las operaciones sobre qubits en productos de matrices —como se verá en el
+apartado~\ref{sec:puertas}—.
+
+Un bit se puede examinar para determinar si está en el estado 0 o en el 1. Los ordenadores
+lo hacen constantemente, por ejemplo cuando recuperan el contenido de su memoria. Cabe recalcar
+que un qubit no se pueda examinar para determinar su estado cuántico, es decir, los
+valores de $\alpha$ y $\beta$. En su lugar, la mecánica cuántica nos dice que solo podemos
+adquirir una información mucho más restringida sobre el estado cuántico. Al medir un qubit
+obtenemos o bien el resultado $0$, con probabilidad $|\alpha|^2$, o bien el resultado 1, con
+probabilidad $|\beta|^2$. Naturalmente, $|\alpha|^2 + |\beta|^2 = 1$, puesto que las
+probabilidades deben sumar uno \cite[p.~13]{nielsen2010quantum}.
+
+Que un qubit pueda estar en un estado de superposición choca con nuestra comprensión de
+«sentido común» del mundo físico que nos rodea. Un bit clásico es como una moneda: o cara,
+o cruz. En monedas imperfectas puede haber estados intermedios, como quedarse en equilibrio
+sobre el canto, pero en el caso ideal se pueden descartar. Un qubit, por el contrario, puede
+existir en un continuo de estados entre $\ket{0}$ y $\ket{1}$, hasta que se lo observa
+\cite[p.~13]{nielsen2010quantum}.
+
+Aunque los qubits parezcan «raros» o contraintuitivos, son algo físico y real, no una idea
+abstracta. Se han comprobado en muchos experimentos y existen distintas formas de
+construirlos en el mundo real:
+\begin{itemize}
+    \item un qubit puede ser la polarización de un fotón, esto es, dos formas distintas de
+          vibrar la luz;
+    \item puede ser la orientación del espín de un núcleo dentro de un campo magnético;
+    \item puede ser dos estados de un electrón en un átomo: el estado «fundamental»
+          ($\ket{0}$) y el estado «excitado» ($\ket{1}$).
+\end{itemize}
+
+En este último ejemplo, el átomo funciona como un pequeño sistema de dos niveles. Si se le
+ilumina con luz de la energía adecuada, se puede hacer que el electrón pase de $\ket{0}$ a
+$\ket{1}$, o de $\ket{1}$ a $\ket{0}$. Hasta aquí, todo es clásico: dos estados, uno u otro.
+
+Pero lo interesante llega después. Si no se le da suficiente tiempo de luz, el electrón no
+llega completamente a $\ket{1}$, sino que se queda en un estado intermedio, una superposición
+entre $\ket{0}$ y $\ket{1}$. Ese estado intermedio es lo que se denomina $\ket{+}$.
+
+% PENDIENTE en esta misma subseccion, aun sin redactar:
+%   - Definir |+> explicitamente, si se decide dar la formula: (|0> + |1>)/raiz(2).
+%   - El entrelazamiento como segunda propiedad que da la ventaja computacional.
+%   - Por que n qubits necesitan 2^n amplitudes, y por que eso es a la vez el argumento
+%     que hace interesante el campo y el que limita el tamaño de nuestro conjunto de
+%     datos (capitulo~\ref{cap:rigor}).
+%   - La contrapartida que enlaza con el capitulo~\ref{cap:ruido}: el estado cuantico es
+%     fragil, y esa fragilidad es el problema que este trabajo intenta mitigar.
+
+\subsection{La esfera de Bloch y la información que guarda un qubit}
+\label{sec:bloch}
+% Fuente: Nielsen y Chuang (2010), seccion 1.2.
+% ⚠️ VERIFICAR LAS PAGINAS: la esfera de Bloch y la figura 1.3 estan en la seccion 1.2,
+%    pero NO en la p. 13 —caen algo despues, hacia las pp. 14-16—. Se cita por seccion
+%    hasta comprobar el numero exacto en el libro. No inventar la pagina.
+Una imagen útil para pensar en los qubits es la siguiente representación geométrica. Como
+$|\alpha|^2 + |\beta|^2 = 1$, la ecuación~\eqref{eq:superposicion} se puede reescribir como
+\begin{equation}
+\label{eq:bloch_gamma}
+\ket{\psi} = e^{i\gamma}\left( \cos\frac{\theta}{2}\ket{0}
+             + e^{i\varphi} \sin\frac{\theta}{2}\ket{1} \right),
+\end{equation}
+donde $\theta$, $\varphi$ y $\gamma$ son números reales. El factor $e^{i\gamma}$ que aparece
+delante se puede ignorar, porque no tiene efectos observables, y por esa razón se puede
+escribir
+\begin{equation}
+\label{eq:bloch}
+\ket{\psi} = \cos\frac{\theta}{2}\ket{0} + e^{i\varphi} \sin\frac{\theta}{2}\ket{1}.
+\end{equation}
+
+Los números $\theta$ y $\varphi$ definen un punto sobre la esfera unidad tridimensional,
+tal como se muestra en la Figura~\ref{fig:bloch}. Esta esfera se denomina habitualmente
+\textbf{esfera de Bloch}, y nos permite visualizar el estado de un solo
+qubit. Muchas de las operaciones sobre qubits individuales se describen 
+dentro de esta representación. Sin embargo, para varios qubits presenta una limitación
+porque no se conoce ninguna generalización sencilla en la
+esfera de Bloch \cite[secc.~1.2]{nielsen2010quantum}.
+
+% ⚠️ FORMATO EXIGIDO por las Instrucciones, apartado 1.3, PAGINA 6:
+%      «Titulo en la parte superior de la tabla o figura.»
+%      «Fuente de la tabla o figura en la parte inferior.»
+%    Por eso el \caption va ANTES del dibujo. La plantilla oficial lo hace al reves en
+%    su ejemplo; aqui manda la norma escrita.
+%
+% FIGURA PROPIA, dibujada en TikZ. El codigo esta en figuras/cap02/bloch_tikz.tex,
+% con sus parametros comentados (radio, perspectiva, y los angulos theta y phi del
+% estado que se dibuja).
+%
+% Al ser de elaboracion propia NO arrastra ninguna licencia, y ademas usa la
+% tipografia del documento, asi que las etiquetas casan con el resto del texto.
+%
+% ALTERNATIVA: la version descargada de Wikimedia sigue en figuras/cap02/bloch.pdf.
+% Para volver a ella, sustituir el \input por
+%     \includegraphics[width=0.42\textwidth]{cap02/bloch}
+% y devolver el pie a: «Fuente: Glosser.ca (2012), Bloch Sphere.svg, Wikimedia
+% Commons. Licencia CC BY-SA 3.0.»
+\begin{figure}[htbp]
+    \centering
+    \caption{Un bit clásico frente a un qubit: dos estados posibles frente
+             a estados infinitos sobre la esfera de Bloch.}
+    \label{fig:bloch}
+    \input{figuras/cap02/bloch_tikz}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+¿Cuánta información representa un qubit? Teóricamente, existe un número infinito de
+puntos sobre la esfera unidad. Sin embargo, esta
+conclusión resulta engañosa, y el motivo es el comportamiento del qubit cuando se lo observa.
+Conviene recordar que medir un qubit devuelve únicamente 0 o 1. Además, la medición cambia el
+estado del qubit y lo colapsa, desde su superposición de $\ket{0}$ y $\ket{1}$, al estado
+concreto. Por ejemplo, si la medición de
+$\ket{+}$ da 0, el estado del qubit tras la medición será $\ket{0}$.
+
+¿Por qué se produce este colapso? Nadie lo sabe: este comportamiento es sencillamente uno de
+los postulados fundamentales de la mecánica cuántica. Lo relevante para nuestros propósitos es
+que de una sola medición se obtiene un único bit de información sobre el estado del qubit.
+Solo midiendo infinitos qubits preparados de forma idéntica
+sería posible determinar $\alpha$ y $\beta$ para un qubit en el estado dado por la
+ecuación~\eqref{eq:superposicion}.
+
+Falta una pregunta todavía: ¿cuánta información representa un qubit si
+no lo medimos? La pregunta es difícil porque un estado cuántico contiene información que no podemos medir directamente. 
+Sin embargo, cuando un sistema cuántico cerrado evoluciona sin realizar ninguna medición, la naturaleza 
+parece ``llevar la cuenta'' de todas las variables continuas que describen el estado, como $\alpha$ y $\beta$. 
+En este sentido, incluso un solo qubit encierra una gran cantidad de información oculta, y dicha cantidad 
+\textbf{crece de forma exponencial con el número de qubits}.
+.
+
+\subsection{Qubits múltiples}
+\label{sec:multiples}
+% Apartado BREVE y con poca matematica: su unico objetivo es que se vea el crecimiento
+% 2^n antes de hablar de puertas, porque despues se usa constantemente.
+% Fuente: Nielsen y Chuang (2010), seccion 1.2.
+% ⚠️ VERIFICAR LA PAGINA antes de la entrega. Se cita por seccion.
+Un solo qubit no basta para calcular nada interesante. Entonces, ¿cómo
+se describe el estado conjunto de varios? La respuesta explica por sí sola por
+qué un ordenador cuántico puede hacer cosas que uno clásico no.
+
+Con \textbf{dos qubits} las combinaciones posibles de valores clásicos son cuatro: 00, 01,
+10 y 11. A cada una le corresponde un estado de la base, y el estado conjunto es una
+superposición de los cuatro, con una amplitud compleja por cada uno:
+\begin{equation}
+\label{eq:dos_qubits}
+\ket{\psi} = \alpha_{00}\ket{00} + \alpha_{01}\ket{01}
+           + \alpha_{10}\ket{10} + \alpha_{11}\ket{11}
+\;\equiv\;
+\begin{pmatrix} \alpha_{00} \\ \alpha_{01} \\ \alpha_{10} \\ \alpha_{11}\end{pmatrix}.
+\end{equation}
+La notación $\ket{00}$ es una abreviatura de $\ket{0}\otimes\ket{0}$, el
+\textbf{producto tensorial} de los estados de cada qubit. La operación es más simple de lo
+que sugiere el símbolo: consiste en multiplicar cada componente del primer vector por todas
+las del segundo y apilar los resultados, de forma que dos vectores de dos componentes
+producen uno de cuatro,
+\begin{equation}
+\label{eq:tensorial}
+\begin{pmatrix} a \\ b \end{pmatrix} \otimes \begin{pmatrix} c \\ d \end{pmatrix}
+=
+\begin{pmatrix} a\,c \\ a\,d \\ b\,c \\ b\,d \end{pmatrix},
+\qquad\text{y en particular}\qquad
+\ket{0}\otimes\ket{0} =
+\begin{pmatrix} 1 \\ 0 \end{pmatrix} \otimes \begin{pmatrix} 1 \\ 0 \end{pmatrix}
+=
+\begin{pmatrix} 1 \\ 0 \\ 0 \\ 0 \end{pmatrix} = \ket{00}.
+\end{equation}
+Es también la razón de que el número de amplitudes se multiplique por dos con cada qubit
+que se añade: cada componente del estado anterior se desdobla en dos. Y la condición de
+normalización se mantiene: la suma de los
+módulos al cuadrado de las cuatro amplitudes vale uno, porque al medir se obtiene una de
+las cuatro cadenas de bits con esas probabilidades.
+
+Con \textbf{tres qubits} el razonamiento se repite. Las cadenas posibles pasan a ser ocho
+—de 000 a 111—, y el estado necesita ocho amplitudes:
+\begin{equation}
+\label{eq:tres_qubits}
+\ket{\psi} = \alpha_{000}\ket{000} + \alpha_{001}\ket{001} + \cdots + \alpha_{111}\ket{111}
+\;\equiv\;
+\begin{pmatrix} \alpha_{000} & \alpha_{001} & \cdots & \alpha_{111}\end{pmatrix}^{\!\intercal}.
+\end{equation}
+
+Y así sucesivamente:
+\begin{itemize}
+    \item con \textbf{cuatro qubits}, los estados de la base van de $\ket{0000}$ a
+          $\ket{1111}$ y hacen falta \textbf{16 amplitudes};
+    \item con \textbf{cinco qubits}, van de $\ket{00000}$ a $\ket{11111}$ y hacen falta
+          \textbf{32 amplitudes};
+    \item \dots
+\end{itemize}
+
+El patrón está claro: \textbf{$n$ qubits requieren $2^n$ amplitudes complejas}. Con 50
+qubits son más de mil billones de números, y describir ese estado en un ordenador clásico
+es imposible. Ahí está la promesa de la computación cuántica.
+
+\subsection{Puertas cuánticas y circuitos}
+\label{sec:puertas}
+% Fuente de los dos primeros parrafos: Nielsen y Chuang (2010), seccion 1.3.
+% ⚠️ VERIFICAR LA PAGINA antes de la entrega. Se cita por seccion porque no esta
+%    comprobada; no inventarla.
+%
+% ⚠️ Del original se ha DESCARTADO la promesa «including a circuit which teleports
+%    qubits!»: anuncia un contenido que esta memoria no va a desarrollar, y prometer
+%    algo que luego no aparece es de las cosas que un tribunal si nota.
+Los cambios que experimenta un estado cuántico se pueden describir con el lenguaje de la
+computación cuántica. Del mismo modo que un ordenador clásico se construye a partir de un
+circuito eléctrico formado por cables y puertas lógicas, un ordenador cuántico se construye
+a partir de un circuito cuántico formado por cables y puertas cuánticas elementales,
+encargadas de transportar y manipular la información cuántica
+\cite[secc.~1.3]{nielsen2010quantum}.
+
+Los circuitos de un ordenador clásico constan de cables y puertas lógicas. Los cables
+sirven para transportar la información a lo largo del circuito, mientras que las puertas
+lógicas realizan manipulaciones sobre esa información y la convierten de una forma en otra.
+
+% La forma vectorial ya se introdujo en el apartado 2.1.1; aqui solo se recupera.
+Escrita en forma vectorial —ecuación~\eqref{eq:vector_estado}—, la información de un qubit
+es una columna de dos números complejos. Escrito así, el papel de una puerta cuántica se deduce solo: \textbf{una puerta es una
+matriz que transforma el vector de estado en otro}. Si $U$ denota la puerta y $\ket{\psi}$
+el estado de partida, el estado resultante es $\ket{\psi'} = U\ket{\psi}$, y aplicar varias
+puertas en secuencia equivale a multiplicar sus matrices.
+
+\paragraph{Un ejemplo.} La puerta $X$, análoga cuántica de la negación clásica, se define
+como
+\begin{equation}
+\label{eq:puerta_x}
+X = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix},
+\qquad\text{de modo que}\qquad
+X\begin{pmatrix} \alpha \\ \beta \end{pmatrix} = \begin{pmatrix} \beta \\ \alpha \end{pmatrix}.
+\end{equation}
+Sobre los estados de la base actúa como cabría esperar de una negación, llevando $\ket{0}$
+a $\ket{1}$ y $\ket{1}$ a $\ket{0}$. Sobre una superposición, en cambio, hace algo que no
+tiene equivalente clásico: intercambia las dos amplitudes sin necesidad de medir, y por
+tanto sin destruir la superposición.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+\begin{table}[htbp]
+    \centering
+    \caption{Puertas cuánticas de un qubit más habituales.}
+    \label{tab:puertas}
+    \begin{tabular}{@{}llp{0.46\textwidth}@{}}
+        \toprule
+        \textbf{Puerta} & \textbf{Matriz} & \textbf{Efecto} \\
+        \midrule
+        $X$ & $\begin{pmatrix} 0 & 1 \\ 1 & 0\end{pmatrix}$
+            & Intercambia $\ket{0}$ y $\ket{1}$. Es la negación cuántica. \\[1.1em]
+        $Y$ & $\begin{pmatrix} 0 & -i \\ i & 0\end{pmatrix}$
+            & Intercambia los estados e introduce además una fase. \\[1.1em]
+        $Z$ & $\begin{pmatrix} 1 & 0 \\ 0 & -1\end{pmatrix}$
+            & Deja $\ket{0}$ intacto y cambia el signo de $\ket{1}$. \\[1.1em]
+        $H$ & $\dfrac{1}{\sqrt{2}}\begin{pmatrix} 1 & 1 \\ 1 & -1\end{pmatrix}$
+            & Puerta de Hadamard: crea superposición a partir de un estado de la base. \\[1.1em]
+        $S$ & $\begin{pmatrix} 1 & 0 \\ 0 & i\end{pmatrix}$
+            & Aplica una fase de $\pi/2$ al estado $\ket{1}$. \\[1.1em]
+        $T$ & $\begin{pmatrix} 1 & 0 \\ 0 & e^{i\pi/4}\end{pmatrix}$
+            & Aplica una fase de $\pi/4$. \\[1.1em]
+        $R_z(\theta)$ & $\begin{pmatrix} 1 & 0 \\ 0 & e^{i\theta}\end{pmatrix}$
+            & Rotación de fase de ángulo arbitrario en torno al eje $z$. \\
+        \bottomrule
+    \end{tabular}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}
+
+Como toda puerta de un qubit es unitaria, su efecto sobre la esfera de Bloch de la
+Figura~\ref{fig:bloch} es siempre una \textbf{rotación}: el estado se desplaza sobre la
+superficie. La Figura~\ref{fig:hadamard} es un ejemplo de como la puerta de
+Hadamard, que puede descomponerse en un giro de $90^\circ$ en torno al eje $y$ seguido de
+otro de $180^\circ$ en torno al eje $x$, actúa sobre el estado
+$(\ket{0}+\ket{1})/\sqrt{2}$ y lo lleva de vuelta a $\ket{0}$.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% ⚠️ FUENTE: es un redibujo de una figura de Nielsen y Chuang, no una invencion propia.
+%    La forma academica correcta es «elaboracion propia a partir de…», no «elaboracion
+%    propia» a secas. Verificar el numero de figura del libro y añadirlo si se quiere.
+% Codigo de color: azul = el qubit · naranja = la transformacion.
+\begin{figure}[htbp]
+    \centering
+    \caption{Acción de la puerta de Hadamard sobre la esfera de Bloch.}
+    \label{fig:hadamard}
+    \input{figuras/cap02/hadamard_tikz}
+
+    {\footnotesize Fuente: elaboración propia a partir de \citeNP{nielsen2010quantum}.}
+\end{figure}
+
+\paragraph{Ejemplo de puerta de dos qubits.} El estado conjunto de dos qubits necesita cuatro
+amplitudes, una por cada combinación de la base $\ket{00}$, $\ket{01}$, $\ket{10}$ y
+$\ket{11}$, de modo que una puerta que actúe sobre ambos es una matriz unitaria de
+$4\times 4$. La más conocida es la \textbf{CNOT}, que niega el segundo qubit —el
+\textit{objetivo}— solo cuando el primero —el \textit{control}— vale 1:
+\begin{equation}
+\label{eq:cnot}
+\mathrm{CNOT} =
+\begin{pmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+0 & 0 & 1 & 0
+\end{pmatrix}.
+\end{equation}
+
+\paragraph{El circuito.} Un circuito cuántico es una secuencia de puertas aplicadas sobre
+un conjunto de qubits, seguida de una medición. Se representa con una línea horizontal por
+qubit —los «cables» del símil clásico— y las puertas colocadas sobre ellas en el orden en
+que se ejecutan. Al circuito lo describen dos magnitudes: la \textbf{anchura},
+que es el número de qubits, y la \textbf{profundidad}, que es el número de capas de puertas
+que deben ejecutarse una tras otra.
+
+La Figura~\ref{fig:circuito_ghz} muestra un ejemplo concreto. Los cinco cables horizontales
+son los qubits; sobre el primero actúa una puerta de Hadamard y a continuación una cadena de
+cuatro CNOT propaga el entrelazamiento al resto. El circuito tiene por tanto anchura cinco y
+profundidad cinco, y prepara el estado
+$(\ket{00000}+\ket{11111})/\sqrt{2}$, en el que los cinco qubits están entrelazados entre sí.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura generada por el propio proyecto: TFM-Quantum/figures/00_anatomia/circuitos/.
+% Se copia el PDF, no el PNG, porque es vectorial y no pixela.
+%
+% ⚠️ La imagen trae su PROPIO titulo incrustado («GHZ — Estado GHZ — el entrelazamiento
+%    en su forma mas pura»), asi que se duplica con el \caption. Lo suyo es regenerarla
+%    sin titulo desde src/viz/circuitos, o recortarlo. Se deja asi de momento.
+\begin{figure}[htbp]
+    \centering
+    \caption{Tres ejemplos de circuito: preparación de un estado GHZ, un ansatz
+             \textit{hardware-efficient} y una transformada cuántica de Fourier.}
+    \label{fig:circuito_ghz}
+    % Composicion compacta: GHZ y HEA en una fila, y la QFT —mas larga— debajo,
+    % ocupando el ancho completo. Sin paquetes nuevos: dos minipages y un salto.
+    % ⚠️ Las tres imagenes traen SU PROPIO titulo incrustado, que chocaba con el
+    %    \caption y quedaba descolgado a la izquierda. Se recortan los 20 bp
+    %    superiores de cada PDF —medido: el rotulo ocupa el 6,3 % del alto—.
+    %    Lo limpio seria regenerarlas sin titulo desde TFM-Quantum/src/viz/circuitos.
+    \includegraphics[trim=0 0 0 20bp, clip, width=0.47\textwidth]{cap02/circuito_ghz}\hfill
+    \includegraphics[trim=0 0 0 20bp, clip, width=0.47\textwidth]{cap02/circuito_hea}
+
+    \vspace{0.4em}
+    \includegraphics[trim=0 0 0 20bp, clip, width=0.88\textwidth]{cap02/circuito_qft}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\paragraph{La base nativa.} Un procesador real no implementa todas las puertas de la
+Tabla~\ref{tab:puertas}, sino un conjunto reducido a partir del cual puede construirse
+cualquier otra. Antes de ejecutarse, todo circuito se \textbf{traduce} a ese conjunto
+mediante un proceso llamado \textit{transpilación}. En los procesadores IBM Heron la base
+nativa es $\{cz, id, rz, sx, x\}$.
+
+Esa traducción evidencia más problema que aborda este trabajo. Un
+circuito teóricamente tiene diez puertas puede convertirse en cientos al expresarse en
+la base nativa, y \textbf{cada puerta ejecutada es una oportunidad más de introducir
+error}. Cuanto más largo es el circuito traducido, menos señal sobrevive hasta la medición.
+
+% =====================================================================================
+% PENDIENTE en esta subseccion:
+%   - FIGURA de un circuito sencillo (dos qubits, H + CNOT + medicion). Seria muy util
+%     para un tribunal que no sabe de cuantica: ahora mismo el circuito se describe con
+%     palabras pero no se ve. Se puede dibujar en TikZ, como la esfera de Bloch, o con
+%     el paquete `quantikz` si se decide añadirlo al preambulo.
+%   - Verificar la pagina exacta de la cita de Nielsen y Chuang.
+% =====================================================================================
+
+\subsection{El circuito como grafo acíclico dirigido}
+\label{sec:dag}
+% ⚠️ ESTA SUBSECCION ERA LA BISAGRA hacia el 2.2: cerraba el bloque cuantico con la idea
+%    de que, si un circuito es un grafo, predecirlo es regresion sobre grafos. Al subirla
+%    aqui quedan DOS apartados por debajo (hardware y utilidad), asi que la transicion ya
+%    no cae junto al 2.2. Hay que reponerla al final de «Para que sirve un ordenador
+%    cuantico», o el 2.2 arrancara en seco.
+Un circuito \textbf{es} un DAG: cada puerta es un nodo, las dependencias son las aristas.
+Profundidad como camino más largo.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Ambas figuras las genera figuras/cap02/gen_circuito_dag.py, que las produce con el
+% propio Qiskit: el grafo NO es una ilustracion inventada, es la representacion interna
+% que el transpilador manipula de verdad. El coloreado de los nodos —verde entradas,
+% azul operaciones, rojo salidas— lo pone `dag_drawer` por si mismo.
+\begin{figure}[htbp]
+    \centering
+    \caption{Un circuito y su grafo acíclico dirigido: cada puerta es un nodo y cada
+             arista, la dependencia sobre un qubit.}
+    \label{fig:dag}
+    \begin{minipage}[c]{0.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap02/dag_circuito}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.52\textwidth}
+        \centering
+        \includegraphics[width=0.92\textwidth]{cap02/dag_grafo}
+    \end{minipage}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\textbf{Y aquí es donde la física se convierte en un problema de aprendizaje automático:} si
+un circuito es un grafo, predecir su comportamiento es un problema de regresión sobre
+grafos. Eso es lo que motiva la sección siguiente.
+
+
+% =====================================================================================
+\subsection{El hardware actual}
+\label{sec:hardware}
+% GUION. Apartado de CONTEXTO, el mas divulgativo del capitulo. Objetivo: que un tribunal
+% que no sabe de cuantica entienda de que maquinas hablamos.
+% Que contar:
+%   - las tecnologias que compiten: superconductores, iones atrapados, fotonica, atomos
+%     neutros; en que se diferencian en una frase cada una;
+%   - quien domina el sector: IBM, Google, IonQ, Quantinuum, Rigetti, PsiQuantum…;
+%   - como es un chip superconductor por dentro: qubits, acoplamientos, la topologia de
+%     conexion, y por que NO todos los qubits pueden interactuar entre si;
+%   - los ordenes de magnitud de hoy: cuantos qubits, que tasas de error, criogenia;
+%   - la CALIBRACION: los chips se recalibran a diario y sus parametros cambian.
+%
+% ⚠️ ESTE es el apartado que justifica el resto de la memoria: aqui se introduce el chip
+%    concreto (IBM Heron) que luego se simula en el capitulo~\ref{cap:dataset}. Presentarlo
+%    aqui de forma general y REMITIR alli para el detalle, sin repetirlo.
+% ⚠️ Es el apartado que mas se desactualiza. Fechar los datos: «a fecha de 2026…».
+% ⚠️ Necesita citas: no vale de memoria. Hacen falta fuentes verificables para las cifras
+%    de cada fabricante.
+
+\subsection{Propuesta de capítulos}
+\label{sec:propuesta_archivo}
+% =====================================================================================
+% 🗃️ APARTADO DE TRABAJO, NO DEFINITIVO.
+%
+% Aqui esta ARCHIVADO el material de la estructura anterior del capitulo 2.1, con su
+% contenido intacto, para poder releerlo y decidir que se rescata y adonde va.
+%
+% ⚠️ ESTE APARTADO NO PUEDE QUEDARSE EN LA VERSION QUE SE ENTREGUE. Antes del deposito
+%    hay que vaciarlo: repartir lo que sirva entre 2.1.1–2.1.4 y borrar el resto.
+%
+% ⚠️ OJO CON LOS SOLAPES que ya se ven:
+%    - «Evolucion unitaria y puertas» se solapa con el nuevo 2.1.2;
+%    - «El circuito como grafo aciclico dirigido» tambien, y ademas es la bisagra que
+%      abre el 2.2: si se elimina, hay que reponer esa transicion en otro sitio;
+%    - «La esfera de Bloch» ya esta REDACTADA y lleva la Figura~\ref{fig:bloch}; es el
+%      unico bloque de aqui con prosa terminada.
+% =====================================================================================
+
+\subsubsection{Evolución unitaria y puertas}
 \label{sec:unitaria}
 Las puertas como matrices unitarias $U \in \mathcal{U}(2^n)$. Reversibilidad. Puertas de un
 qubit y puertas de entrelazamiento.
 
-\subsection{La base nativa de IBM Heron}
 % Fuente: src/config.py::BASIS_GATES
-El conjunto $\{cz, id, rz, sx, x\}$ y por qué importa: \textbf{cualquier circuito acaba
-traducido a él}. La puerta de dos qubits nativa es \texttt{cz}, no \texttt{cx}, y es
-\textbf{simétrica} —no existe control ni objetivo físico—, lo que obliga a una convención al
-construir el grafo.
+\textbf{La base nativa de IBM Heron.} El conjunto $\{cz, id, rz, sx, x\}$ y por qué importa:
+\textbf{cualquier circuito acaba traducido a él}. La puerta de dos qubits nativa es
+\texttt{cz}, no \texttt{cx}, y es \textbf{simétrica} —no existe control ni objetivo
+físico—, lo que obliga a una convención al construir el grafo.
 
-\section{Medición y valores esperados}
+\subsubsection{Medición y valores esperados}
 \label{sec:medicion}
 El colapso del estado. Diferencia entre \textbf{muestrear} (obtener cadenas de bits) y
 \textbf{estimar un valor esperado} $\langle O \rangle = \bra{\psi} O \ket{\psi}$.
 
-\subsection{Qué es un observable}
 % Fuente: doc/02_Los_Observables.md
-Operadores de Pauli, sus autovalores $\pm 1$, y qué significa un valor esperado intermedio.
+\textbf{Qué es un observable.} Operadores de Pauli, sus autovalores $\pm 1$, y qué significa
+un valor esperado intermedio.
 
-\subsection{Por qué este trabajo predice observables y no distribuciones}
-Una distribución completa tiene $2^n$ entradas y no se puede usar como objetivo de tamaño
-fijo. Un observable es \textbf{un número}, es lo que un algoritmo real devuelve, y permite
-una salida del mismo tamaño para cualquier circuito.
+\textbf{Por qué este trabajo predice observables y no distribuciones.} Una distribución
+completa tiene $2^n$ entradas y no se puede usar como objetivo de tamaño fijo. Un observable
+es \textbf{un número}, es lo que un algoritmo real devuelve, y permite una salida del mismo
+tamaño para cualquier circuito.
 
-\section{Circuitos como grafos acíclicos dirigidos}
-\label{sec:dag}
-Un circuito \textbf{es} un DAG: cada puerta es un nodo, las dependencias son las aristas.
-Profundidad como camino más largo. Es la representación que consume el modelo del
+\section{Fundamentos de los modelos de aprendizaje automático}
+\label{sec:fund_ia}
+% =====================================================================================
+% SOLO TEORIA. Que es cada familia de modelos y como funciona. Ni una cifra nuestra,
+% ni una decision de diseño: eso es del capitulo 9.
+%
+% ⚠️ REFERENCIAS PENDIENTES DE VERIFICAR antes de citarlas aqui (no estan en el .bib):
+%      - Ridge original: Hoerl y Kennard (1970), Technometrics
+%      - Random Forest: Breiman (2001), Machine Learning
+%      - Atencion / Transformer: Vaswani y cols. (2017), NeurIPS
+%      - Un manual general de referencia (Hastie/Tibshirani/Friedman o Bishop)
+%    ➡️ Verificar DOI de cada una. Regla del proyecto: ninguna cita sin DOI comprobado.
+
+\subsection{Dos formas de representar un circuito}
+\label{sec:dos_representaciones}
+% APERTURA DE 2.2. Cinco lineas, pero son las que convierten las tres subsecciones
+% siguientes en una comparativa en marcha y no en tres fichas sueltas.
+Del grafo del apartado anterior se puede partir de dos maneras. La primera es
+\textbf{resumirlo en una fila de números} —cuántas puertas, de qué tipo, cuánto dura— y
+aplicar un modelo tabular clásico. La segunda es \textbf{dárselo al modelo tal cual}, con su
+estructura intacta.
+
+Esa disyuntiva es la que estructura todo el trabajo, y las tres familias que siguen son las
+candidatas: dos que exigen la tabla y una que acepta el grafo.
+
+\subsection{Regresión lineal regularizada: Ridge}
+\label{sec:teoria_ridge}
+Mínimos cuadrados ordinarios y qué optimizan. El problema de la \textbf{colinealidad}: cuando
+dos columnas dicen casi lo mismo, la solución se vuelve inestable y los coeficientes se
+disparan.
+
+La \textbf{penalización $L_2$} y el compromiso sesgo--varianza: se acepta algo de sesgo a
+cambio de coeficientes acotados. Interpretación geométrica.
+
+\subsection{Ensembles de árboles: Random Forest}
+\label{sec:teoria_rf}
+El árbol de decisión como partición recursiva del espacio de entrada. Su problema: varianza
+alta.
+
+\textbf{Bagging} y aleatorización de variables en cada división: por qué promediar muchos
+árboles decorrelacionados reduce la varianza sin aumentar apenas el sesgo.
+
+\textbf{Una propiedad teórica que importará después:} la predicción es siempre un promedio de
+valores vistos en el entrenamiento, así que el modelo \textbf{no puede extrapolar} fuera del
+rango aprendido. Aquí solo se enuncia; sus consecuencias se miden en el
 capítulo~\ref{cap:comparativa}.
+
+\subsection{Redes neuronales sobre grafos}
+\label{sec:teoria_gnn}
+% AQUI SI hay que detenerse: es lo que el tribunal probablemente no ha visto aplicado
+% a este problema.
+%
+% 🔴 CORREGIDO (sep-2026). Este apartado decia lo CONTRARIO de la decision vigente:
+%    planteaba la atencion como alternativa al paso de mensajes. La arquitectura del
+%    trabajo es un MPNN CON paso de mensajes y nodo virtual BIDIRECCIONAL; el Graph
+%    Transformer se descarto, y con medidas. Ver doc/00_Justificaciones.md §5.
+%
+% ⚠️ AQUI SOLO VA LA TEORIA (que es una GNN, que es el paso de mensajes, que es un nodo
+%    virtual). El POR QUE de la eleccion —la matriz de estructura constante en el 99 %,
+%    las distancias de 30-70 pasos— es una decision propia y medida: va en el
+%    capitulo~\ref{cap:comparativa}, no aqui.
+Qué es una red neuronal sobre grafos y qué la distingue de una red sobre vectores o
+imágenes.
+
+El \textbf{paso de mensajes}: cada nodo agrega información de sus vecinos, y hacen falta
+tantas capas como distancia se quiera cubrir.
+
+\textbf{El nodo virtual} como forma de obtener una representación de todo el grafo: un nodo
+ficticio conectado a los demás, cuyo estado final resume la estructura entera.
+
+% PENDIENTE de redactar: mencionar tambien la ALTERNATIVA basada en atencion, aunque sea
+% brevemente, porque el capitulo 4 cita GTraQEM y el 9 explica por que se descarto. Sin
+% saber que existe, ese descarte no se entiende.

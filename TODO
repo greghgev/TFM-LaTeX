@@ -33,3 +33,27 @@ Ideas para el TFM:
 Extensiones:
    ☐ Mirar LaTeX Utilities para Zotero
    ☐ Fijarse con la plantilla inicial y compara que falta
+
+
+Bibliografía:
+    ☐ Añadir el libro de texto para que se pueda observar bien.
+    ☐ Añadir todo lo de github.
+
+
+Conclusiones IMPORTANTES:
+    ☐ Mostrar el objetivo con el TFM:
+        - Ver la comparativa de modelos si GNN gana a Ridge y RF
+    ☐ Mostrar la utilidad del TFM: 
+        - Si sale todo bien, podemos afirmar que esta se puede extrapolar a circuitos más grandes que los que se entrenaron, y no habria necesidad de calcular el valor exacto de la fidelidad de un circuito cuantico en ordenadores reales: bastaria con saber la calibración y del valor ruidoso de la fidelidad de un cirucito para poder predecir si la rpedicción es uena o no.
+
+Modificaciones de la plantilla o discrepancias plantilla/reglas: 
+    - Tipografía Carlito en vez de Computer Modern
+    - Cabecera: nombre izquierda + título del TFM derecha, en cuerpo menor. Antes: autor + titulación, ambos a la derecha
+    - Título de figura arriba y fuente abajo
+    - fontenc T1
+    - hyperref con colorlinks (enlaces en color, sin recuadro)
+    - fija los márgenes de la norma
+    -  la clase book es a doble cara y espejaba los márgenes, dejando 2 cm a la izquierda en las páginas pares; la norma da un margen izquierdo único
+    - el estilo institucional sacaba cabecera y pie 20 pt hacia fuera, fuera de los márgenes que fija la norma; ahora van alineados con la caja de texto.
+    - quita la sangría y pone el espacio entre párrafos; se usa el paquete y no \parindent/\parskip sueltos porque además corrige el espaciado de las listas, que si no se descuadra.
+    - la plantilla ponía «Índice de Ilustraciones» y la norma dice «Índice de figuras».

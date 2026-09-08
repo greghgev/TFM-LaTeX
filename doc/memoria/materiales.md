@@ -21,7 +21,8 @@
 | Reparto | 16 000 `train_val` + 3 631 `test` | `[REPO]` `[v2]` |
 | Nodos totales | **17 812 123** | `[REPO]` `[v2]` |
 | Método de simulación | `density_matrix` **forzado** | `[REPO]` `[v2]` |
-| Observables | **8**: mean_Z, mean_X, mean_Y, std_Z, std_X, std_Y, paridad, corr_vecinos | `[REPO]` `[v2]` |
+| Observables (dataset) | **8**: mean_Z, mean_X, mean_Y, std_Z, std_X, std_Y, paridad, corr_vecinos | `[REPO]` `[v2]` |
+| **Observables objetivo (modelo)** | 🔴 **5**: mean_Z, mean_X, mean_Y, paridad, corr_vecinos — «las tres bases de Pauli y dos correladores». Las tres dispersiones se retiraron del objetivo en ago-2026, **sin regenerar el dataset** | `[REPO]` `[ago-2026]` |
 | Features por puerta | 25 dimensiones | `[REPO]` |
 | Puertas 100 % rotas | 1,47 % de los nodos — **dato real de IBM**, no un error | `[REPO]` |
 
@@ -162,8 +163,13 @@ $$\hat\Delta = \langle O \rangle_{\text{ruidoso}}\cdot\frac{1 - \hat f}{\hat f}$
 **No rompe el paradigma pre-ejecución** — y este es el punto que hay que defender ante el
 tribunal: la **entrada del modelo no cambia**, sigue siendo solo circuito y calibración. El
 valor medido entra únicamente en la aritmética final de la corrección, exactamente donde ya
-entraba en `⟨O⟩mitigado = ⟨O⟩ruidoso − Δ`. QEMFormer, en cambio, necesita el valor ruidoso
+entraba en `⟨O⟩mitigado = ⟨O⟩ruidoso + Δ`. QEMFormer, en cambio, necesita el valor ruidoso
 **como entrada del modelo**: la diferencia sigue siendo real.
+
+🔴 **EL SIGNO ES UNA SUMA.** `Δ` está definido en el dataset como `exacto − ruidoso`, luego
+`exacto = ruidoso + Δ`. Con una resta, **un modelo perfecto duplicaría el error** en vez de
+anularlo. Corregido en sep-2026; hasta entonces varios documentos arrastraban la resta. El
+código siempre estuvo bien: el fallo era solo de documentación.
 
 **Ventaja adicional:** el caso degenerado se resuelve solo. Si el valor medido es ≈ 0,
 entonces Δ̂ ≈ 0 — que es la respuesta correcta cuando no hay señal que corregir.
@@ -174,7 +180,7 @@ En test **solo transfiere `paridad`** (R² 0,62, −37 % de MAE). En los otros c
 hunde en negativo pese al 0,8 de validación.
 
 **No es un fracaso: es el resultado central.** El dataset se diseñó para medir exactamente
-esto, y deja a la comparativa una pregunta real — **¿transfiere el GEM, que ve la estructura
+esto, y deja a la comparativa una pregunta real — **¿transfiere el GNN, que ve la estructura
 del grafo, donde la agregación no lo hace?**
 
 ---
@@ -187,17 +193,23 @@ del grafo, donde la agregación no lo hace?**
    siempre donde el valor exacto es diminuto.
 4. Entre el **22 % y el 37 %** de las muestras **no tienen señal que perder** y aportan menos
    del 8 % del target.
-5. **Estructura aprendible y fuerte:** el factor de supervivencia correlaciona **−0,92**
-   (Spearman) con el tamaño del circuito, de forma monótona pero **no lineal** → logaritmos.
-6. **La telemetría del hardware NO predice**: 13 columnas, |r| medio **0,054**.
-7. **La calidad de puerta se desvanece al fijar el tamaño**: 0,344 → **0,035**. Alcanza al
-   score de **mapomatic** (−0,341 → −0,034). ⚠️ **No es una refutación de Nation & Treinish**:
-   ellos comparan layouts del *mismo* circuito, donde el tamaño es constante por construcción.
-8. **Colinealidad extrema**: un bloque de 8 features es «el tamaño» repetido, |r| hasta 0,999
-   → justifica Ridge sobre mínimos cuadrados.
+5. **Estructura aprendible y fuerte:** el factor de supervivencia correlaciona hasta
+   **−0,87** (Spearman) con **cuánto circuito hay** — `duracion_total`, `n_cz`, `n_puertas` —,
+   de forma monótona pero **no lineal**.
+   ⚠️ **No decir «con el tamaño» a secas**: con el **número de qubits** la relación es al revés,
+   `f` incluso *sube*, salvo en `paridad`, que se desploma. Lo que destruye la señal es la
+   longitud del circuito, no su anchura.
+6. **La telemetría del hardware NO predice**: 13 columnas, |Spearman| medio **0,014-0,052** y
+   ninguna por encima de **0,098** `[v2]`.
+7. 🔴 **CORREGIDO `[v2]`: la calidad de puerta NO se desvanece al fijar el tamaño.** El v1 daba
+   0,344 → 0,035; repitiendo la correlación dentro de cada `n_qubits` sobre el v2,
+   `gate_error_suma` pasa de **0,489 a 0,510**. **No citar las cifras del v1.**
+8. **Colinealidad extrema**: un bloque de **14** features es «el tamaño» repetido, |r| hasta
+   0,999, y hay **identidades exactas** con VIF infinito (las cuatro `frac_*` suman 1, los
+   recuentos suman `n_puertas`). Se descartan **20 columnas** de las 54 `[v2]`.
 9. **`day` cae fuera del rango de train el 100 % del tiempo** → excluirla de los tabulares.
    Random Forest, además, **no puede extrapolar**.
-10. **Label shift en `std_Z`**: la media de train es **3,2× peor** que no mitigar.
+10. **Label shift en `std_Z`**: la media de train es **3,2× peor** que no mitigar. ⚠️ Cifra del v1, y `std_Z` ya no es objetivo — se conserva porque el fenómeno puede repetirse en otros observables: **vigilar el intercepto de Ridge**.
 
 ### Dos trampas metodológicas detectadas — van al capítulo 7
 
@@ -216,9 +228,14 @@ Matriz medida sobre **8.000 muestras del v2**, con el signo (importa, ver abajo)
 
 | pareja | r | lectura |
 |---|---|---|
-| `std_X` – `std_Y` | **+0,840** | ┐ |
+| `std_X` – `std_Y` | **+0,840** ⚠️ | ┐ |
 | `std_Z` – `std_Y` | **+0,786** | ├ el bloque de **dispersiones**: miden lo mismo en tres bases |
-| `std_Z` – `std_X` | **+0,777** | ┘ |
+| `std_Z` – `std_X` | **+0,777** ⚠️ | ┘ |
+
+⚠️ **Las tres cifras del bloque de dispersiones están EN DISPUTA y no son citables.** Una
+medición posterior sobre el v2 (Δ con signo, 2 500 muestras) da **+0,73 / +0,71 / +0,68** en vez
+de +0,840 / +0,786 / +0,777. No está resuelto cuál es correcta. **Deja de ser bloqueante**
+porque esos tres observables ya no son objetivo del modelo, pero no citar ninguna de las dos.
 | `mean_X` – `mean_Y` | **−0,552** | ⚠️ **anticorreladas**, no redundantes |
 | `mean_X` – `std_X` | **−0,484** | ⚠️ ídem |
 
@@ -239,7 +256,7 @@ elección arbitraria sin explicar— no de independencia estadística.
 
 | Referencia | Para qué se cita | Estado |
 |---|---|---|
-| **GTraQEM** — Bao et al., ICLR 2025 | La arquitectura base: Graph Transformer sin paso de mensajes + nodo virtual QCR | ✅ revisado |
+| **GTraQEM** — Bao et al., ICLR 2025 | De donde sale la idea del **nodo virtual**. ⚠️ **NO se reproduce su arquitectura**: su Graph Transformer sin paso de mensajes se descartó (medido: su matriz de estructura no informa a nuestra escala) y su modelo usa el valor ruidoso como entrada, que este trabajo excluye | ✅ revisado |
 | **Liao et al.**, Nature Mach. Intell. 2024 | Referencia central de ML-QEM; **Random Forest como mejor baseline** | ✅ revisado |
 | **QEMFormer** — Bao et al., ICML 2025 | El techo de rendimiento a superar; **y el contraste**: necesita el valor ruidoso como entrada | ✅ revisado |
 | **mapomatic** — Nation & Treinish, PRX Quantum 2023 | El pre-ejecución **heurístico** de IBM; nuestro `log_fidelidad_total` es su score | ✅ revisado |

@@ -12,6 +12,53 @@
 %    dentro del preámbulo.
 % =====================================================================================
 
+% --- Márgenes y párrafo: NORMA ESTRICTA -------------------------------------------
+% Instrucciones del TFE, apartado 1.3, PAGINA 5 y 6.
+%
+% ⚠️ Esto SE APARTA de la plantilla oficial, y a proposito. La plantilla usa margenes
+%    ALTERNOS de 3,5 interior / 2,5 exterior (a doble cara) y sangria de primera linea,
+%    y ninguna de las dos cosas es lo que dice la norma escrita:
+%      p. 5 — «Izquierdo: 3,0 cm. Derecho: 2,0 cm. Superior e inferior: 2,5 cm.»
+%      p. 6 — «interlineado 1,5, espacio entre parrafos 6 puntos anterior y 6 puntos
+%              posterior, SIN SANGRIA.»
+%    Para revertir a la plantilla, comentar este bloque entero.
+% Los parametros 2 y 4 de \setmarginsrb NO son el margen del cuerpo:
+%   - el 2.º es la distancia al borde superior de la CABECERA; el cuerpo empieza en
+%     ese valor mas \headheight mas \headsep  ->  1,5 + 0,49 + 0,51 = 2,50 cm ✓
+%   - el 4.º es el hueco por DEBAJO del pie; el cuerpo termina en ese valor mas
+%     \footskip                              ->  1,62 + 0,88 = 2,50 cm ✓
+% Comprobado midiendo las longitudes reales sobre el .log, no a ojo.
+\setmarginsrb{3cm}{1.5cm}{2cm}{1.62cm}{14pt}{14.5pt}{0pt}{25pt}
+
+% La clase `book` es a doble cara y espeja los margenes: las paginas pares saldrian
+% con 2 cm a la izquierda en vez de 3. La norma da UN margen izquierdo fijo, asi que
+% se igualan las dos caras.
+\setlength{\evensidemargin}{\oddsidemargin}
+
+% Cabecera y pie alineados con la caja de texto. El estilo institucional los sacaba
+% 20 pt hacia fuera, lo que los dejaba fuera de los margenes que fija la norma.
+\fancyhfoffset{0pt}
+
+% Sin sangria y con espacio entre parrafos. Se usa el paquete `parskip` en vez de
+% tocar \parindent y \parskip a mano porque ademas corrige el espaciado de listas,
+% que con \parskip suelto se descuadra.
+% 12 pt = los «6 puntos anterior» mas los «6 puntos posterior» de la norma, que en
+% Word se SUMAN entre dos parrafos consecutivos.
+\usepackage[skip=12pt, indent=0pt]{parskip}
+
+% --- Tipografía -------------------------------------------------------------------
+% `carlito` es el clon libre METRICAMENTE COMPATIBLE con Calibri. Se usa para cumplir
+% las Instrucciones del TFE, apartado 1.3, PAGINA 6: «Calibri 12».
+%
+% ⚠️ Esto SE APARTA de la plantilla LaTeX oficial, que deja la Computer Modern por
+%    defecto. Es una desviacion deliberada y a favor de la norma escrita, no en contra.
+%    Para revertirla basta con comentar las dos lineas siguientes.
+%
+% ⚠️ Las MATEMATICAS siguen en Computer Modern: carlito no trae juego matematico. La
+%    combinacion texto sans + matematicas serif es habitual y legible.
+\usepackage[sfdefault]{carlito}
+\renewcommand{\familydefault}{\sfdefault}
+
 % --- Matemáticas para notación cuántica -------------------------------------------
 % `physics` da \bra{}, \ket{}, \braket{}, \Tr{}, etc.
 % El \let de abajo es OBLIGATORIO y va antes: `mathabx` (cargado por el estilo de la UNIR)
@@ -36,8 +83,40 @@
 %    lo manda el estilo institucional.
 \usepackage{setspace}
 
+% --- Figuras vectoriales generadas en LaTeX ---------------------------------------
+% Para dibujar figuras propias (esfera de Bloch, esquemas de circuitos…). Ventaja
+% frente a una imagen externa: es vectorial, usa la tipografía del documento y es
+% «elaboración propia», sin cuestiones de licencia.
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+
+% ⚠️ `tikz` arrastra `xcolor`, que llega DESPUES del `color` que carga
+%    estilo_unir-1.sty y redefine \definecolor. El `azulunir` que el estilo declaró
+%    queda registrado con el modelo antiguo, y al usarlo desde TikZ falla con
+%    «Package xcolor Error: Undefined color model».
+%    Se vuelve a declarar aquí, con EXACTAMENTE el mismo RGB que el estilo oficial,
+%    para que quede registrado en xcolor. El color no cambia: los títulos de capítulo
+%    siguen siendo el mismo azul institucional.
+\definecolor{azulunir}{rgb}{0,0.59,0.80}
+
+% Color de acento para las figuras propias. Convenio constante en toda la memoria:
+%   azulunir  -> el objeto (el qubit, el estado, el dato)
+%   acentofig -> lo que se le HACE (transformaciones, giros, planos, operaciones)
+\definecolor{acentofig}{rgb}{0.85,0.33,0.10}
+
+% Rojo oscuro para lo CLASICO en las figuras comparativas (el bit frente al qubit).
+\definecolor{rojoclasico}{rgb}{0.60,0.09,0.09}
+
 % --- Bibliografía -----------------------------------------------------------------
 \usepackage{apacite}
+
+% DOI clicables en la lista de referencias.
+% `apacite.bst` emite \doi{...} para cada entrada con campo `doi`, y por defecto lo
+% imprime como texto plano. Se redefine para que sea un enlace a doi.org.
+% ⚠️ NO usar el paquete `doi`: se carga despues de apacite, gana su propia \doi, y el
+%    resultado es «doi: doi:10.xxxx» duplicado y ademas sin enlace.
+% ⚠️ Va en \AtBeginDocument porque apacite fija su version al abrir el documento.
+\AtBeginDocument{\renewcommand{\doi}[1]{\href{https://doi.org/#1}{#1}}}
 
 % --- Código -----------------------------------------------------------------------
 \usepackage{listings}
@@ -77,4 +156,4 @@
 
 % --- Rutas de figuras -------------------------------------------------------------
 % Las figuras del proyecto se generan en TFM-Quantum/figures/ y se copian a figuras/.
-\graphicspath{{figuras/}{doc/imgs/}}
+\graphicspath{{figuras/}{doc/imgs/}}   % la subcarpeta del capítulo va en el nombre: {cap02/bloch}

@@ -72,15 +72,22 @@ separado.
 ### ⚠️ Cuál domina — resultado medido, y no es el esperado
 
 La intuición dice que la calidad del hardware que te toca determina cuánto error acumulas.
-**Medido, no es así:** al comparar circuitos **del mismo tamaño**, la correlación entre la
-calidad de las puertas y el error observado **se desvanece** (0,344 → 0,035).
+**Medido sobre el v2, no es así:** lo que predice el error es el **tamaño y la forma del
+circuito**. `duracion_total`, `n_cz` y `n_puertas` llegan a |Spearman| **0,87** con el factor
+de supervivencia, mientras que la telemetría del hardware —las 13 variables de T1, T2 y
+lectura— se queda en un |Spearman| medio de **0,014 a 0,052** según el observable, y **ninguna
+de las 13 pasa de 0,098**.
 
-Lo que predice el error es el **tamaño y la forma del circuito**. La telemetría del hardware
-(13 variables: T1, T2, lectura) da una correlación media de **0,054**.
+📌 Hay que contarlo **con su matiz**: no significa que el hardware no importe, sino que **su
+variación entre días y regiones del chip es pequeña comparada con la variación entre
+circuitos**. El chip es casi el mismo todos los días; el circuito no.
 
-📌 Es un resultado importante para la memoria, y hay que contarlo **con su matiz**: no
-significa que el hardware no importe, sino que **su variación entre regiones del chip es
-pequeña comparada con la variación entre circuitos**.
+🔴 **Corrección (sep-2026).** Una versión anterior de esta sección afirmaba que al fijar el
+tamaño la correlación de la calidad de puerta **se desvanecía** (0,344 → 0,035). Esa cifra era
+del dataset **v1** y **no se reproduce en el v2**: repitiendo la correlación dentro de cada
+`n_qubits`, `gate_error_suma` pasa de 0,489 a **0,510** — ni se desvanece ni baja. **No citar
+el 0,344 → 0,035.** Medido en `notebooks/01_eda/01h` y en
+`src/eda/relaciones.py::dentro_del_tamano`.
 
 ## 4. Qué NO modelamos, y hay que declararlo
 

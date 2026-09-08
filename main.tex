@@ -36,7 +36,7 @@
 % =====================================================================================
 \begin{document}
 
-\renewcommand{\listfigurename}{Índice de Ilustraciones}
+\renewcommand{\listfigurename}{Índice de figuras}   % norma p. 6; la plantilla ponía «Índice de Ilustraciones»
 \renewcommand{\listtablename}{Índice de Tablas}
 \renewcommand{\contentsname}{Índice de Contenidos}
 \renewcommand{\figurename}{Figura}
@@ -125,6 +125,9 @@ transformer
 % =====================================================================================
 % Los anexos NO computan a efectos de extensión (Instrucciones §2.9).
 \appendix
+
+% Va el primero de los anexos por ser una declaración exigida por la normativa.
+\include{capitulos/anexo_ia}
 
 \chapter{Código fuente y datos analizados}
 % ⚠️ Instrucciones §2.9: «Es recomendable que el estudiante incluya en su memoria la URL

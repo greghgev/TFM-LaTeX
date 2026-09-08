@@ -1,0 +1,125 @@
+% =====================================================================================
+% Esfera de Bloch — figura propia en TikZ.
+%
+% Se incluye desde capitulos/02_fundamentos.tex con \input. Es vectorial, usa la
+% tipografia del documento y es de ELABORACION PROPIA: no arrastra ninguna licencia.
+%
+% GEOMETRIA. El plano ecuatorial se dibuja como una elipse alineada con los ejes de
+% la pagina, de semiejes \R y \K*\R. Un punto del ecuador se parametriza con el angulo
+% de pantalla t:            (\R cos t , \K \R sin t)
+% Los ejes se colocan sobre esa misma elipse, asi que todo queda consistente:
+%     \Ty  = 0°    -> el eje y, hacia la derecha
+%     \Tx  = 235°  -> el eje x, hacia abajo a la izquierda
+% El angulo azimutal phi se mide DESDE el eje x hacia el eje y, luego t = \Tx + phi.
+%
+% PARAMETROS AJUSTABLES: \R (radio), \K (aplastamiento de la perspectiva),
+% \Theta y \Phi (posicion del estado dibujado).
+% =====================================================================================
+% ⚠️ \shorthandoff{<>} ES NECESARIO. `babel` con la opcion `spanish` convierte < y >
+%    en caracteres ACTIVOS (los usa para las comillas << >>), y eso rompe la sintaxis
+%    de puntas de flecha de TikZ: «>={Stealth}» y «[->]» fallan con
+%    «Argument of \language@active@arg> has an extra }».
+%    Va dentro de un grupo, asi que los catcodes se restauran solos al cerrar.
+\begingroup
+\shorthandoff{<>}%
+\begin{tikzpicture}[>={Stealth[length=2.2mm]}, line width=0.5pt]
+
+  \pgfmathsetmacro{\R}{2.2}      % radio de la esfera
+  \pgfmathsetmacro{\K}{0.30}     % achatamiento del ecuador en perspectiva
+  \pgfmathsetmacro{\Tx}{235}     % angulo de pantalla del eje x
+  \pgfmathsetmacro{\Theta}{40}   % angulo polar del estado dibujado
+  \pgfmathsetmacro{\Phi}{55}     % angulo azimutal del estado dibujado
+
+  % --- coordenadas del estado |psi> ------------------------------------------------
+  \pgfmathsetmacro{\Tp}{\Tx+\Phi}                       % angulo de pantalla del azimut
+  \pgfmathsetmacro{\Rxy}{\R*sin(\Theta)}                % radio de la proyeccion ecuatorial
+  \pgfmathsetmacro{\Px}{\Rxy*cos(\Tp)}
+  \pgfmathsetmacro{\Pyeq}{\K*\Rxy*sin(\Tp)}             % altura de la proyeccion
+  \pgfmathsetmacro{\Py}{\Pyeq+\R*cos(\Theta)}           % altura del propio estado
+
+  % =====================================================================================
+  % EL BIT CLASICO, a la izquierda, para la comparativa.
+  % ⚠️ NO TOCA NADA DE LA ESFERA: se dibuja en su propia columna, a la izquierda del
+  %    origen. La esfera sigue centrada en (0,0) exactamente como estaba.
+  %
+  % Los dos puntos van al MISMO azul que los polos de la esfera, y alineados con ellos.
+  % Es deliberado: asi se lee de un vistazo que el bit clasico tiene DOS estados y que
+  % el qubit tiene esos mismos dos... y toda la superficie que hay entre medias.
+  % =====================================================================================
+  \pgfmathsetmacro{\Xbit}{-2.60*\R}     % columna del bit clasico
+  % ⚠️ Los cuatro puntos van al MISMO radio (\Rpunto) y las dos parejas a la MISMA
+  %    altura, y=+\R y y=-\R: asi el 0 queda alineado con |0> y el 1 con |1>.
+  \pgfmathsetmacro{\Rpunto}{3.2}        % radio de los puntos, en pt
+
+  \fill[rojoclasico] (\Xbit,\R) circle (\Rpunto pt);
+  \node[right=5pt] at (\Xbit,\R) {$0$};
+  \fill[rojoclasico] (\Xbit,-\R) circle (\Rpunto pt);
+  \node[right=5pt] at (\Xbit,-\R) {$1$};
+
+  % rotulos de cada mitad
+  \node[font=\bfseries] at (\Xbit,{-1.62*\R}) {Bit clásico};
+  \node[font=\bfseries] at (0,{-1.62*\R}) {Qubit};
+
+  % --- esfera y ecuador -------------------------------------------------------------
+  \draw (0,0) circle (\R);
+  \draw[dashed] (0,0) ellipse ({\R} and {\K*\R});
+
+  % --- ejes -------------------------------------------------------------------------
+  % Las puntas de flecha MUEREN sobre la propia esfera, sin sobresalir; las etiquetas
+  % van fuera. El eje x es mas corto a proposito: no apunta hacia el borde del circulo
+  % sino hacia el punto del ECUADOR que le corresponde, que en perspectiva cae dentro.
+  % eje z: atraviesa la esfera de polo a polo, con punta arriba
+  \draw (0,-\R) -- (0,0);
+  \draw[->] (0,0) -- (0,\R);
+  % El eje z lleva SU PROPIA etiqueta en negro, como x e y. Las dos etiquetas azules
+  % de arriba y abajo no nombran el eje: nombran los dos ESTADOS de la base.
+  \node[right=2pt] at ({0.02*\R},{0.86*\R}) {$\hat{\mathbf{z}}$};
+  % Solo el estado: el eje ya lo nombra la etiqueta negra de arriba. Centradas sobre
+  % el polo, que es lo que marcan.
+  \node[above=2pt, azulunir] at (0,\R) {$\ket{0}$};
+  \node[below=2pt, azulunir] at (0,-\R) {$\ket{1}$};
+  % eje y: hacia la derecha, hasta el borde
+  \draw[->] (0,0) -- (\R,0);
+  \node[right=2pt] at (\R,0) {$\hat{\mathbf{y}}$};
+  % eje x: hasta su punto del ecuador, abajo a la izquierda
+  \draw[->] (0,0) -- ({\R*cos(\Tx)},{\K*\R*sin(\Tx)});
+  \node[below left, inner sep=1pt] at ({\R*cos(\Tx)},{\K*\R*sin(\Tx)})
+        {$\hat{\mathbf{x}}$};
+
+  % --- los dos estados de la base computacional --------------------------------------
+  % |0> y |1> son EXACTAMENTE los polos de la esfera. Marcarlos es correcto y ayuda:
+  % deja ver de un vistazo que los estados clasicos son solo dos puntos de todos los
+  % posibles. En azul institucional, el mismo de los titulos de capitulo.
+  \fill[azulunir] (0,\R) circle (\Rpunto pt);
+  \fill[azulunir] (0,-\R) circle (\Rpunto pt);
+
+  % --- proyeccion del estado sobre el plano ecuatorial -------------------------------
+  \draw[dotted] (0,0) -- (\Px,\Pyeq);
+  \draw[dotted] (\Px,\Pyeq) -- (\Px,\Py);
+
+  % --- el estado --------------------------------------------------------------------
+  \draw[->] (0,0) -- (\Px,\Py);
+  \fill (\Px,\Py) circle (1.5pt);
+  \node[above right, inner sep=2pt] at (\Px,\Py) {$\ket{\psi}$};
+
+  % --- angulo theta: entre el eje z y el estado --------------------------------------
+  % El arco NO va de 90 a 90-theta: theta es el angulo real en 3D, y sobre el papel la
+  % direccion del estado esta en atan2(\Py,\Px). Hay que arcar hasta ESE angulo para que
+  % el arco muera justo sobre la flecha.
+  \pgfmathsetmacro{\Apsi}{atan2(\Py,\Px)}
+  \pgfmathsetmacro{\Rt}{0.46*\R}
+  \draw (0,\Rt) arc[start angle=90, end angle=\Apsi, radius=\Rt];
+  \pgfmathsetmacro{\Amid}{0.5*(90+\Apsi)}
+  \node at ({1.24*\Rt*cos(\Amid)},{1.24*\Rt*sin(\Amid)}) {$\theta$};
+
+  % --- angulo phi: en el plano ecuatorial, del eje x a la proyeccion -----------------
+  % Se dibuja sobre la MISMA elipse del ecuador, a radio reducido, para que se lea como
+  % un angulo tumbado en el plano y no como un angulo en el plano del papel.
+  \pgfmathsetmacro{\Rp}{0.42*\R}
+  \draw plot[domain=\Tx:\Tp, samples=40, smooth]
+        ({\Rp*cos(\x)},{\K*\Rp*sin(\x)});
+  \pgfmathsetmacro{\Pmid}{\Tx+0.5*\Phi}
+  \node at ({1.55*\Rp*cos(\Pmid)},{1.55*\K*\Rp*sin(\Pmid)}) {$\phi$};
+
+\end{tikzpicture}%
+\endgroup

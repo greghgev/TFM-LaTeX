@@ -1,0 +1,104 @@
+% =====================================================================================
+% La puerta de Hadamard vista sobre la esfera de Bloch — figura propia en TikZ.
+%
+% Tres viñetas: el estado de partida (|0>+|1>)/raiz(2) sobre el eje x, la rotacion de
+% 90 grados en torno a y que lo lleva al polo sur, y la rotacion de 180 grados en torno
+% a x que lo sube al polo norte. Resultado: H|+> = |0>.
+%
+% CODIGO DE COLOR, deliberado y constante en toda la memoria:
+%   azulunir   -> el QUBIT (vector de estado, punto y etiqueta)
+%   acentofig  -> las TRANSFORMACIONES (giros, planos, flechas de operacion)
+%
+% ⚠️ \shorthandoff{<>} es obligatorio: `babel` en español hace activos < y >, y eso
+%    rompe la sintaxis de puntas de flecha de TikZ.
+% =====================================================================================
+\begingroup
+\shorthandoff{<>}%
+\begin{tikzpicture}[>={Stealth[length=2mm]}, line width=0.5pt, scale=0.92]
+
+  \pgfmathsetmacro{\R}{1.45}    % radio de cada esfera
+  \pgfmathsetmacro{\K}{0.30}    % achatamiento del ecuador; ver nota al pie del fichero
+  \pgfmathsetmacro{\Tx}{235}    % angulo de pantalla del eje x
+  \pgfmathsetmacro{\D}{4.9}     % separacion entre viñetas
+
+  % --- una esfera con sus tres ejes, reutilizable ------------------------------------
+  \newcommand{\esferabase}{%
+    \draw (0,0) circle (\R);
+    \draw[dashed] (0,0) ellipse ({\R} and {\K*\R});
+    \draw[->] (0,0) -- (0,\R);
+    \node[right=1pt] at ({0.02*\R},{0.78*\R}) {\scriptsize $\hat{\mathbf{z}}$};
+    \draw[->] (0,0) -- (\R,0) node[right=-1pt] {\scriptsize $\hat{\mathbf{y}}$};
+    \draw[->] (0,0) -- ({\R*cos(\Tx)},{\K*\R*sin(\Tx)})
+          node[below left=-3pt] {\scriptsize $\hat{\mathbf{x}}$};%
+  }
+
+  % =====================================================================================
+  % 1) Estado de partida: (|0>+|1>)/raiz(2), sobre el eje x
+  % =====================================================================================
+  \begin{scope}[xshift=0cm]
+    \esferabase
+    \draw[azulunir, line width=1.1pt]
+          (0,0) -- ({\R*cos(\Tx)},{\K*\R*sin(\Tx)});
+    \fill[azulunir] ({\R*cos(\Tx)},{\K*\R*sin(\Tx)}) circle (2pt);
+    \node[azulunir, anchor=east] at ({-1.06*\R},{-0.40*\R})
+         {\small $(\ket{0}+\ket{1})/\sqrt{2}$};
+    % giro de 90 grados en torno al eje y
+    \draw[acentofig, ->, line width=0.7pt]
+          ({0.30*\R},{-0.038*\R}) arc[start angle=-170, end angle=110,
+          x radius={0.14*\R}, y radius={0.22*\R}];
+  \end{scope}
+
+  \draw[->, line width=0.8pt] ({0.5*\D-0.45},0) -- ({0.5*\D+0.45},0);
+
+  % =====================================================================================
+  % 2) Tras el giro: |1> en el polo sur. La rotacion de 180 grados en torno a x se
+  %    representa con el plano y la flecha doble.
+  % =====================================================================================
+  \begin{scope}[xshift=\D cm]
+    % el plano va PRIMERO: asi la esfera y el estado quedan por encima y se ven
+    \draw[acentofig, fill=acentofig, fill opacity=0.06, line width=0.6pt]
+          ({-1.78*\R},{-0.33*\R}) -- ({-0.90*\R},{0.31*\R})
+       -- ({ 1.78*\R},{ 0.31*\R}) -- ({ 0.90*\R},{-0.33*\R}) -- cycle;
+    \esferabase
+    \draw[azulunir, line width=1.1pt] (0,0) -- (0,-\R);
+    \fill[azulunir] (0,-\R) circle (2pt);
+    \node[azulunir, anchor=north] at (0,{-1.08*\R}) {\small $\ket{1}$};
+    % flecha doble: el estado atraviesa el plano de arriba abajo
+    \draw[acentofig, <->, line width=0.9pt]
+          ({0.58*\R},{-0.52*\R}) -- ({0.58*\R},{0.52*\R});
+  \end{scope}
+
+  \draw[->, line width=0.8pt] ({1.5*\D-0.45},0) -- ({1.5*\D+0.45},0);
+
+  % =====================================================================================
+  % 3) Resultado: |0> en el polo norte
+  % =====================================================================================
+  \pgfmathsetmacro{\DD}{2*\D}
+    \begin{scope}[xshift=\DD cm]
+    \esferabase
+    \draw[azulunir, line width=1.1pt] (0,0) -- (0,\R);
+    \fill[azulunir] (0,\R) circle (2pt);
+    \node[azulunir, anchor=south east] at ({-0.04*\R},{1.06*\R}) {\small $\ket{0}$};
+  \end{scope}
+
+\end{tikzpicture}%
+\endgroup
+
+% =====================================================================================
+% NOTA SOBRE \K, EL ACHATAMIENTO
+%
+% Determina desde que altura se mira la esfera, y con ello el angulo VISUAL entre los
+% ejes x e y. Con el eje y horizontal, ese angulo no puede llegar a 90 grados: el eje x
+% ha de apoyarse sobre la elipse del ecuador —porque el ecuador ES el plano xy— y la
+% unica forma de que forme 90 grados con y seria que apuntase recto hacia abajo, encima
+% del eje z. Lo medido:
+%
+%     K = 0,30  ->  157 grados   punta de x a 0,62·R del centro
+%     K = 0,55  ->  142 grados   punta de x a 0,73·R del centro   <- el elegido
+%     K = 0,75  ->  133 grados   punta de x a 0,84·R del centro
+%     K = 1,00  ->  125 grados   punta de x a 1,00·R  (el ecuador se confunde con
+%                                el contorno y la esfera deja de parecer una esfera)
+%
+% Se probo 0,55 y se descarto: el usuario prefiere la perspectiva original de 0,30.
+% La tabla se deja aqui por si en algun momento se quiere volver a mover.
+% =====================================================================================

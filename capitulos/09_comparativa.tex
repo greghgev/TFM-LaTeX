@@ -17,7 +17,7 @@
 % ESTA seccion es el nucleo conceptual de la comparativa: es lo que hace que comparar
 % estos tres modelos y no otros tres tenga sentido.
 Cada muestra es una \textbf{matriz de altura variable} —de una decena a varios miles de
-filas, una por puerta—. Un \textit{Graph Transformer} acepta esa entrada tal cual. Ridge y
+filas, una por puerta—. Una \textbf{red de grafos} acepta esa entrada tal cual. Ridge y
 Random Forest \textbf{no}: exigen que todas las filas tengan las mismas columnas.
 
 \subsection{La agregación, y qué se pierde con ella}
@@ -77,21 +77,39 @@ es un problema a resolver, sino \textbf{parte de lo que la comparativa mide}.
 \textbf{Su limitación, que hay que declarar:} \textbf{no puede extrapolar}. Satura en el valor
 de la hoja más extrema que aprendió, y este conjunto de datos activa ese caso a propósito.
 
-\section{Solución 3: el GEM, un \textit{Graph Transformer}}
+\section{Solución 3: el GEM, una red neuronal de grafos}
 \label{sec:gem}
-\subsection{Por qué atención y no paso de mensajes}
-El entrelazamiento crea dependencias entre puertas \textbf{muy separadas} en el grafo. Una GNN
-convolucional necesitaría tantas capas como distancia; la atención las relaciona en una sola.
+% 🔴 REESCRITO (sep-2026). El guion anterior defendia un Graph Transformer y «por que
+%    atencion y no paso de mensajes». Es justo lo contrario de la decision vigente.
+%    Fuente: doc/00_Justificaciones.md §5 — el cambio esta MEDIDO, no es de opinion.
 
-\subsection{El nodo virtual QCR}
-Un nodo ficticio conectado a todos los demás: su embedding final resume el circuito entero y
-produce la predicción, en lugar de un promedio sobre nodos. Respaldado por GTraQEM.
+\subsection{Por qué paso de mensajes y no atención}
+% El argumento, que es una contribucion propia y no una cita:
+%   - la alternativa de partida era el Graph Transformer de GTraQEM, que inyecta la
+%     topologia mediante una MATRIZ DE ESTRUCTURA sumada al score de atencion;
+%   - medido sobre nuestros grafos: la distancia mediana entre nodos conectados es de
+%     30 a 70 pasos (p99 = 157), asi que con el recorte habitual esa matriz queda
+%     CONSTANTE en mas del 99 % de sus entradas, y sin recorte no cabe en memoria;
+%   - conclusion: a nuestra escala el mecanismo NO INFORMA;
+%   - y GTraQEM ademas alimenta su modelo con el valor ruidoso medido, que este trabajo
+%     excluye por diseño: sin esa entrada y sin matriz util, quedaba lo peor de ambos.
 
-\subsection{La decisión sobre los grafos grandes}
-% Fuente: doc/memoria/pendientes.md seccion 4
-La atención es cuadrática y el peor caso no cabe en memoria. Presentar las tres opciones
-—truncar, GPU grande, atención eficiente— y \textbf{justificar la elegida con la medida de a
-cuántas muestras afecta}.
+\subsection{El nodo virtual bidireccional}
+% ⚠️ La BIDIRECCIONALIDAD es la diferencia clave con el diseño del paper, y hay que
+%    explicarla: en un Transformer la atencion ya conecta todo con todo, asi que basta
+%    un nodo virtual que LEA. En paso de mensajes no: los mensajes viajan un salto por
+%    capa y solo por aristas, luego un nodo virtual sin salidas ACUMULA PERO NO DEVUELVE.
+%    Con 4-6 capas frente a distancias de 30-70 pasos, la propagacion por aristas es
+%    puramente local y el nodo virtual es la UNICA via al largo alcance del modelo.
+% La idea del nodo virtual sí procede de GTraQEM; su implementacion, no.
+
+\subsection{Los grafos completos, sin truncar}
+% 🔴 ESTE APARTADO CAMBIA DE SIGNO. Antes planteaba una disyuntiva —truncar a 2 000
+%    nodos, GPU grande o atencion eficiente— que YA NO EXISTE: con paso de mensajes la
+%    memoria es LINEAL en nodos y aristas, no cuadratica.
+% Lo que hay que contar es el efecto colateral, que es un argumento a favor:
+%   desaparece el truncado y, con el, un sesgo metodologico que castigaba mas al
+%   entrenamiento que al test.
 
 % =====================================================================================
 % EL PROTOCOLO IDENTICO
@@ -168,4 +186,4 @@ manifiesto que acompaña al conjunto con versiones y configuración.
 \section{Infraestructura de cómputo}
 \label{sec:infra}
 Generación en máquinas virtuales de Google Cloud —necesaria, no cómoda: las muestras de 15
-qubits piden 17,2\,GB por proceso—. Entrenamiento del \textit{Graph Transformer} en GPU.
+qubits piden 17,2\,GB por proceso—. Entrenamiento de la red de grafos en GPU.

@@ -152,8 +152,31 @@
 %---------------------------
 %cabecera del trabajo
 %---------------------------
-\lhead{}
-\rhead{\theauthor\\\@titulacion}
+% =====================================================================================
+% ⚠️ UNICA MODIFICACION RESPECTO AL .sty OFICIAL DE LA UNIR (ago-2026).
+%
+% El original era:
+%     \lhead{}
+%     \rhead{\theauthor\\\@titulacion}
+%
+% es decir, autor + TITULACION, los dos a la derecha y en cuerpo normal.
+%
+% Se cambia porque las «Instrucciones para la redaccion y elaboracion del TFE»,
+% apartado 1.3 «Formatos y plantilla de trabajo», PAGINA 6, dicen literalmente:
+%
+%     «Todas las paginas llevaran un encabezado con el nombre completo del
+%      estudiante y el TITULO DEL TFE.»
+%
+% La plantilla pone la titulacion donde la norma pide el titulo del trabajo. Se sigue
+% la norma escrita: nombre a la izquierda, titulo del TFE a la derecha, y en cuerpo
+% menor para que no compita con el texto.
+% =====================================================================================
+% ⚠️ NO usar \thetitle aqui: `titlesec` (que carga este mismo fichero) lo redefine y
+%    acaba imprimiendo el numero de la seccion actual en vez del titulo del trabajo.
+%    Se usan los internos del nucleo, \@author y \@title, que dentro de un .sty se
+%    tokenizan bien porque la @ es letra.
+\lhead{\footnotesize\@author}
+\rhead{\footnotesize\@title}
 %\lfoot{\thetitle}
 \rfoot{\thepage}
 \cfoot[]{}

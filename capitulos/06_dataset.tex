@@ -55,12 +55,21 @@ cota física $T_2 \leq 2T_1$. Decisión tomada: \textbf{mantenerlas}, porque un
 \end{itemize}
 \textbf{Los tres son independientes}, así que cada fallo se puede atribuir a su causa.
 
-\section{La etiqueta: ocho observables}
+\section{La etiqueta: la batería de observables}
 \label{sec:observables}
 % Fuente: doc/02_Los_Observables.md (seccion final)
-Las tres bases de Pauli, sus tres dispersiones, la paridad global y el correlador de vecinos.
+%
+% 🔴 CORREGIDO (sep-2026). HAY QUE DISTINGUIR DOS COSAS, y antes se confundian:
+%      el DATASET guarda OCHO observables — no se ha regenerado nada;
+%      el MODELO entrena sobre CINCO — se retiraron las tres dispersiones (ago-2026).
+%    Los cinco vigentes son «las tres bases de Pauli y dos correladores».
+%    ⚠️ Explicar POR QUE se retiraron: no fue por redundancia entre ellas, sino porque el
+%       ruido es afin (ruidoso = f·exacto + b) y en ese bloque el desplazamiento b vale
+%       el 135-149 % de la degradacion que se quiere predecir.
+Las tres bases de Pauli, la paridad global y el correlador de vecinos —más las tres
+dispersiones, que están en el conjunto de datos pero no son objetivo del modelo.
 
-\subsection{Por qué ocho y no uno}
+\subsection{Por qué una batería y no un solo observable}
 Para varios tipos de circuito hay observables que valen \textbf{cero por construcción física}
 —un GHZ tiene magnetización media nula siempre—. Un objetivo escalar único sería una elección
 arbitraria que dejaría ciegos a esos tipos.
@@ -70,8 +79,12 @@ El simulador calcula el estado \textbf{una vez} y proyecta cada observable sobre
 5 observables y 100 tardan lo mismo.
 
 \subsection{Un matiz que hay que declarar}
-Las tres dispersiones \textbf{correlacionan fuertemente entre sí} (hasta 0,85). La
-justificación de las ocho es de \textbf{simetría de diseño}, no de independencia estadística.
+% 🔴 CIFRA NO CITABLE. Hay dos mediciones en conflicto para la correlacion del bloque de
+%    dispersiones: +0,85/+0,77/+0,80 y +0,73/+0,71/+0,68. NO citar ninguna hasta
+%    rehacerlo con el protocolo definitivo. Ver doc/memoria/materiales.md §5.
+%    Deja de ser bloqueante porque esos tres observables ya no son objetivo.
+Las tres dispersiones \textbf{correlacionan fuertemente entre sí}. La justificación de la
+batería es de \textbf{simetría de diseño}, no de independencia estadística.
 
 \section{Representación del circuito}
 \label{sec:representacion}

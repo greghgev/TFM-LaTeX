@@ -233,20 +233,27 @@ Por eso Pauli‑Z es el observable estándar para medir qubits en hardware real.
 
 ---
 
-# 🎯 Los ocho observables del dataset (añadido ago-2026)
+# 🎯 Los observables: ocho en el dataset, cinco en el modelo (actualizado ago-2026)
 
 Todo lo anterior describe observables sobre **un qubit**. El dataset del TFM no predice eso:
-predice **ocho magnitudes agregadas sobre el registro entero**, que es lo que un usuario mide
-de verdad al ejecutar un algoritmo.
+predice **magnitudes agregadas sobre el registro entero**, que es lo que un usuario mide de
+verdad al ejecutar un algoritmo.
+
+> 🔴 **Hay que distinguir dos cosas, y la memoria no puede confundirlas:**
+>
+> | | |
+> |---|---|
+> | **El dataset guarda 8 observables** | no se ha regenerado nada |
+> | **El modelo entrena sobre 5** | se retiraron las tres dispersiones (ago-2026) |
 
 | # | Observable | Qué mide | Por qué está |
 |---|---|---|---|
 | 1 | `mean_Z` | ⟨ΣZᵢ⟩/n — magnetización media | la magnitud global más usada; comparable entre tamaños |
 | 2 | `mean_X` | ídem en la base X | captura errores de **fase**, invisibles en la base Z |
 | 3 | `mean_Y` | ídem en la base Y | cierra las tres bases de Pauli |
-| 4 | `std_Z` | dispersión de los ⟨Zᵢ⟩ | **heterogeneidad**: ¿sufren todos los qubits igual? |
-| 5 | `std_X` | ídem en X | |
-| 6 | `std_Y` | ídem en Y | |
+| ~~4~~ | ~~`std_Z`~~ | dispersión de los ⟨Zᵢ⟩ | 🔴 **retirado del objetivo** (sigue en el dataset) |
+| ~~5~~ | ~~`std_X`~~ | ídem en X | 🔴 **retirado** |
+| ~~6~~ | ~~`std_Y`~~ | ídem en Y | 🔴 **retirado** |
 | 7 | `paridad` | ⟨Z₀Z₁…Z_{n−1}⟩ | correlación global; **un solo fallo la rompe** |
 | 8 | `corr_vecinos` | ⟨ΣZᵢZᵢ₊₁⟩/(n−1) | errores de dos qubits, que son los caros |
 
@@ -262,6 +269,26 @@ preferencia: hay estados en los que un observable vale **cero por construcción 
 Con un target escalar basado en Z, esos circuitos no tendrían nada que predecir. Sería una
 elección arbitraria imposible de defender.
 
+✅ **Confirmado con bootstrap sobre el dataset v2** (2 000 remuestreos por tipo): **6 de los 7
+tipos tienen un observable óptimo con veredicto sólido**, y hay **cuatro óptimos distintos**.
+
+| tipo | óptimo | ventaja sobre el 2º | estabilidad |
+|---|---|---|---|
+| QFT | `mean_X` | **3,69×** | 100 % |
+| GHZ | `paridad` | **2,49×** | 100 % |
+| QAOA | `mean_X` | 1,36× | 100 % |
+| TFIM | `corr_vecinos` | 1,33× | 100 % |
+| BV | `mean_Z` | 1,28× | 100 % |
+| Random | `std_Z` | 1,06× | 100 % |
+| HEA | `std_X` | 1,01× | 67 % → *no concluyente* |
+
+⚠️ **La cifra citable del QFT es 3,69×.** En documentos anteriores figuraban 42,7× y 45,4×:
+eran del dataset v1, con otra batería, y **se contradecían entre sí**. **No citarlas.**
+
+⚠️ **Los dos tipos cuyo óptimo cae en el bloque de dispersiones lo hacen por margen
+despreciable.** Por eso retirarlas del objetivo no deja a ningún tipo sin óptimo propio: en
+Random pasa a ser `paridad`, que conserva el 80 % de la magnitud.
+
 ## Por qué hacen falta los valores por qubit
 
 Una **desviación típica no se puede calcular a partir de una media**. Para obtener `std_Z`
@@ -274,14 +301,42 @@ además `por_qubit [3, n]` con los valores individuales exactos.
 **El tamaño fijo de la salida es innegociable:** si el objetivo creciera con el número de
 qubits, no se podría entrenar una sola red para todos los tamaños.
 
-## ⚠️ Un matiz medido que hay que declarar
+## 🔴 Por qué se retiraron las tres dispersiones
 
-Las tres dispersiones **no son independientes entre sí**:
+Las tres **no son independientes entre sí**. Medido sobre el dataset v2 (Δ con signo,
+2 500 muestras):
 
 ```
-std_X ↔ std_Y   +0,85       std_Z ↔ std_X   +0,77       std_Z ↔ std_Y   +0,80
+std_Z ↔ std_X   +0,68       std_Z ↔ std_Y   +0,71       std_X ↔ std_Y   +0,73
 ```
 
-Los cinco observables originales sí son casi ortogonales (|r| ≤ 0,19), pero el bloque `std_*`
-mide en buena parte lo mismo en tres bases. **La justificación de los ocho es de simetría de
-diseño —no dejar ninguna elección arbitraria sin explicar— no de independencia estadística.**
+⚠️ **Cifra a fijar:** una medición anterior sobre el v1 daba +0,85 / +0,77 / +0,80. **No
+citar ninguna de las dos hasta rehacerlo con el protocolo definitivo.**
+
+Pero la redundancia entre ellas **no fue el motivo decisivo** —con los otros cinco su |r| es
+≤ 0,04, así que miden algo que nada más mide. Los motivos fueron dos:
+
+**1. Simetría de diseño.** Los cinco que quedan son **«las tres bases de Pauli y dos
+correladores»**. No queda ninguna dispersión elegida a dedo — que era justamente la asimetría
+que motivó ampliar la batería de 5 a 8. **El conjunto nuevo es más simétrico que el original.**
+
+**2. El ruido no solo atenúa: también desplaza.** Medido, el modelo real es
+
+$$\langle O\rangle_{\text{ruidoso}} = f\cdot\langle O\rangle_{\text{exacto}} + b$$
+
+y en las tres dispersiones ese desplazamiento `b` vale el **135–149 % de la propia
+degradación** que se quiere predecir, frente al 1–17 % en el resto. Además **varía con el
+tamaño del circuito unas 14 veces más** que en los demás observables. En un modelo
+multi-salida con estructura compartida —Random Forest y la red de grafos— ese bloque
+dominaría el ajuste de los otros.
+
+**Consecuencia física concreta:** en `std_Z`, el factor de supervivencia implícito
+`f = 1,012 − 0,0249/⟨O⟩exacto` **se vuelve negativo** en cuanto el valor exacto baja de ~0,025.
+Una «fracción de señal superviviente» negativa no significa nada.
+
+🟢 **Efecto colateral de retirarlas:** el factor `f` pasa de alcanzar valores de hasta 71 a
+quedarse en el rango **[−0,9 · 2,3]**, y las filas con `|f| > 2` caen del ~20 % a menos del 1 %.
+**La cola pesada del objetivo era, en su mayor parte, un fenómeno de ese bloque.**
+
+⚠️ **Siguen guardadas en el dataset.** Retirarlas del objetivo no obligó a regenerar nada, y
+permite reactivarlas para un estudio de ablación.
