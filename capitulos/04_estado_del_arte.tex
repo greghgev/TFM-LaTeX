@@ -9,17 +9,15 @@
 \section{Mitigación clásica de errores}
 \label{sec:qem_clasico}
 
-\subsection{Zero Noise Extrapolation (ZNE)}
-Para corregir los errores, ZNE propone amplificar el ruido de forma controlada y luego extrapolar hacia atrás, imaginando cómo sería el resultado en un escenario de ruido cero[cite: 3]. El gran problema es \textbf{su coste: nos obliga a lanzar varias ejecuciones extra por cada resultado que queremos obtener}[cite: 1, 3].
+Los ordenadores cuánticos actuales, enmarcados en la era NISQ, sufren niveles de ruido que invalidan los resultados de los algoritmos si no se aplican técnicas de corrección[cite: 1]. Dado que la corrección cuántica de errores (QEC) completa exige una sobrecarga inasumible de cientos de qubits físicos por cada qubit lógico, la mitigación cuántica de errores (QEM) se presenta como la alternativa operativa realista a día de hoy[cite: 2, 3]. 
 
-\subsection{Probabilistic Error Cancellation (PEC)}
-PEC toma otro camino y se basa en el muestreo de una cuasi-distribución[cite: 3]. Es un método insesgado, pero tiene una trampa terrible en la práctica: su coste computacional \textbf{crece exponencialmente} a medida que aumenta el ruido del sistema[cite: 3].
+Dentro de este paradigma, los enfoques clásicos han demostrado ser efectivos para reducir la degradación, pero imponen barreras computacionales severas[cite: 1, 3]. Un ejemplo destacado es la extrapolación de ruido cero (ZNE), un método probabilístico que propone amplificar el ruido del sistema de forma deliberada y controlada para, a partir de esos datos degradados, extrapolar matemáticamente hacia atrás e inferir cómo habría sido el resultado en un escenario ideal de ruido cero[cite: 1, 3]. Aunque es una solución válida, su gran problema radica en el coste operativo: obliga a lanzar múltiples ejecuciones adicionales en la máquina por cada resultado que se desea obtener, multiplicando el gasto de un recurso que ya es de por sí muy limitado[cite: 1, 3]. 
 
-\subsection{Mitigación de lectura (M3)}
-M3 se centra específicamente en los errores de lectura, y lo hace invirtiendo la matriz de asignación sin llegar a construirla explícitamente de forma completa[cite: 1].
+Por otro lado, la cancelación probabilística de errores (PEC) aborda el problema desde otra perspectiva matemática, basándose en el muestreo de una cuasi-distribución[cite: 1, 3]. Si bien PEC tiene la ventaja teórica de ser un método insesgado, esconde una trampa enorme en la práctica: su coste computacional en términos de muestras adicionales crece de forma exponencial a medida que aumenta el nivel de ruido del sistema, haciéndolo rápidamente inviable para circuitos profundos[cite: 1, 3]. 
 
-\subsection{El denominador común}
-¿Qué tienen en común todos estos métodos clásicos? Que todos gastan ejecuciones adicionales sobre un recurso que ya es bastante escaso de por sí, y, sobre todo, que todos actúan \textbf{después} de haber ejecutado el circuito[cite: 1].
+En paralelo, existen técnicas más específicas como la mitigación de lectura (M3), que se centran exclusivamente en corregir los errores asimétricos que ocurren en la fase final de medición[cite: 1, 2]. M3 logra esto calculando la inversión de la matriz de asignación, pero con la ventaja técnica de no llegar a construirla explícitamente de forma completa en la memoria[cite: 1]. 
+
+A pesar de sus diferentes planteamientos matemáticos, todos estos métodos clásicos de mitigación comparten un denominador común altamente limitante: consumen agresivamente ciclos adicionales de la unidad de procesamiento cuántico (QPU) y operan estrictamente en tiempo de ejecución, es decir, \textbf{después} de haber ejecutado el circuito[cite: 1, 3]. Esta necesidad imperativa de ejecutar primero para observar el valor ruidoso y poder mitigarlo a posteriori es la barrera exacta que frena su escalabilidad y justifica la transición hacia modelos de aprendizaje automático[cite: 1, 3].
 
 \section{Aprendizaje automático aplicado a la mitigación}
 \label{sec:ml_qem}
