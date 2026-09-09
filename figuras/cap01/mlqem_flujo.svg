@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f3864"/>
+    </marker>
+    <marker id="fr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b3261e"/>
+    </marker>
+  </defs>
+
+  <!-- Los tres pasos -->
+  <g>
+    <rect x="16"  y="60" width="180" height="72" rx="6" fill="#e8eef7" stroke="#1f3864" stroke-width="1.6"/>
+    <text x="106" y="88"  text-anchor="middle" font-size="17" font-weight="bold" fill="#1f3864">1. Generación</text>
+    <text x="106" y="110" text-anchor="middle" font-size="13.5" fill="#333">circuitos de</text>
+    <text x="106" y="125" text-anchor="middle" font-size="13.5" fill="#333">entrenamiento</text>
+
+    <rect x="242" y="60" width="180" height="72" rx="6" fill="#e8eef7" stroke="#1f3864" stroke-width="1.6"/>
+    <text x="332" y="88"  text-anchor="middle" font-size="17" font-weight="bold" fill="#1f3864">2. Codificación</text>
+    <text x="332" y="110" text-anchor="middle" font-size="13.5" fill="#333">el circuito, como</text>
+    <text x="332" y="125" text-anchor="middle" font-size="13.5" fill="#333">características</text>
+
+    <rect x="468" y="60" width="180" height="72" rx="6" fill="#e8eef7" stroke="#1f3864" stroke-width="1.6"/>
+    <text x="558" y="88"  text-anchor="middle" font-size="17" font-weight="bold" fill="#1f3864">3. Etiquetado</text>
+    <text x="558" y="110" text-anchor="middle" font-size="13.5" fill="#333">ejecución en la QPU</text>
+    <text x="558" y="125" text-anchor="middle" font-size="13.5" fill="#333">y valor ideal</text>
+  </g>
+
+  <line x1="196" y1="96" x2="238" y2="96" stroke="#1f3864" stroke-width="2" marker-end="url(#fa)"/>
+  <line x1="422" y1="96" x2="464" y2="96" stroke="#1f3864" stroke-width="2" marker-end="url(#fa)"/>
+
+  <!-- El modelo -->
+  <rect x="242" y="196" width="180" height="64" rx="6" fill="#1f3864"/>
+  <text x="332" y="223" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">El modelo</text>
+  <text x="332" y="245" text-anchor="middle" font-size="13.5" fill="#dfe6f2">estima la corrección</text>
+
+  <line x1="332" y1="132" x2="332" y2="192" stroke="#1f3864" stroke-width="2" marker-end="url(#fa)"/>
+
+  <!-- La limitacion: el valor ruidoso medido es entrada del modelo -->
+  <path d="M 558 132 L 558 228 L 426 228" fill="none" stroke="#b3261e" stroke-width="2.2"
+        stroke-dasharray="7 5" marker-end="url(#fr)"/>
+  <text x="700" y="180" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#b3261e">valor</text>
+  <text x="700" y="196" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#b3261e">ruidoso</text>
+  <text x="700" y="212" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#b3261e">medido</text>
+
+  <text x="332" y="288" text-anchor="middle" font-size="14" font-style="italic" fill="#b3261e">La corrección exige haber ejecutado antes el circuito</text>
+</svg>

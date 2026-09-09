@@ -1,65 +1,153 @@
 \chapter{Estado del arte}
 \label{cap:sota}
 
-% GUION. Fuentes: doc/SoTA/comparative_analysis.md y doc/memoria/materiales.md seccion 6.
-% REGLA: ninguna cita sin DOI verificado. Los preprints se citan indicando que lo son.
-% Excluidos por no citables: Wang/Zhengzhou, Stirbu, Al Farib.
+% =====================================================================================
+% GUION. Reescrito por completo en sep-2026.
+%
+% ⚠️ EL BORRADOR ANTERIOR ESTABA LLENO DE MARCADORES «[cite: 1, 2]» que NO son citas de
+%    LaTeX: venian de una exportacion y se imprimian tal cual en el PDF. Sustituidos por
+%    \cite{} de verdad.
+%
+% 🔴 RESTRICCION DURA DE EXTENSION. Los capitulos 2 y 3 son el bloque «Contexto y estado
+%    del arte» y la norma lo acota a 10-15 PAGINAS EN TOTAL. El capitulo 2 ocupa 12, asi
+%    que este debe caber en TRES. De ahi las decisiones de economia:
+%      - cada trabajo se despacha en dos o tres frases, no en un parrafo;
+%      - los paradigmas alternativos (Q-Cluster, Liao 2025) van en UNA frase dentro de
+%        §3.2, no en seccion propia; su sitio es el capitulo de limitaciones;
+%      - §3.5 va con TABLA: ahorra dos paginas de prosa y es justo lo que un tribunal
+%        busca en un trabajo de tipo 3.
+%    Si el capitulo 2 adelgaza, lo primero que merece crecer aqui es §3.3.
+%
+% Fuentes: TFM-Quantum/doc/SoTA/comparative_analysis.md (corpus principal) y
+%          TFM-Quantum/doc/SoTA_ampliada/fichas/paper_{1..5}.md (solo la idea principal
+%          de cada uno, por decision del autor).
+%
+% ⚠️ Reglamento art. 11.4.a: «no es original el trabajo que contenga un exceso de
+%    informacion de otras fuentes, AUNQUE ESTEN DEBIDAMENTE CITADAS». Defensa de este
+%    capitulo: cada trabajo se trae por lo que decide algo en los capitulos 5 a 9, y se
+%    dice explicitamente que decide.
+%
+% ⚠️ Excluidos por no citables: Wang/Zhengzhou, Stirbu, Al Farib.
+% =====================================================================================
 
+Este capítulo recorre lo que ya existe para corregir el efecto del ruido, ordenado por
+\textbf{cuándo} actúa cada familia de métodos respecto a la ejecución del circuito. Se ha seleccionado
+este criterio porque es el que separa a este trabajo de todo lo demás.
 
-\section{Mitigación clásica de errores}
+\section{La mitigación clásica y su precio}
 \label{sec:qem_clasico}
 
-Los ordenadores cuánticos actuales, enmarcados en la era NISQ, sufren niveles de ruido que invalidan los resultados de los algoritmos si no se aplican técnicas de corrección[cite: 1]. Dado que la corrección cuántica de errores (QEC) completa exige una sobrecarga inasumible de cientos de qubits físicos por cada qubit lógico, la mitigación cuántica de errores (QEM) se presenta como la alternativa operativa realista a día de hoy[cite: 2, 3]. 
+La corrección de errores completa (QEC) exige cientos de qubits físicos por cada qubit
+lógico, una sobrecarga imposible de sustentar en las máquinas actuales \cite{preskill2018nisq}. La
+mitigación de errores (QEM) es la alternativa: no elimina el ruido, sino que
+estima el resultado que se habría obtenido sin él \cite{cai2023quantum}.
 
-Dentro de este paradigma, los enfoques clásicos han demostrado ser efectivos para reducir la degradación, pero imponen barreras computacionales severas[cite: 1, 3]. Un ejemplo destacado es la extrapolación de ruido cero (ZNE), un método probabilístico que propone amplificar el ruido del sistema de forma deliberada y controlada para, a partir de esos datos degradados, extrapolar matemáticamente hacia atrás e inferir cómo habría sido el resultado en un escenario ideal de ruido cero[cite: 1, 3]. Aunque es una solución válida, su gran problema radica en el coste operativo: obliga a lanzar múltiples ejecuciones adicionales en la máquina por cada resultado que se desea obtener, multiplicando el gasto de un recurso que ya es de por sí muy limitado[cite: 1, 3]. 
+Las técnicas de referencia son la \textbf{extrapolación a ruido cero} (ZNE), que amplifica el
+ruido deliberadamente y extrapola hacia atrás hasta el caso ideal \cite{temme2017error}; la
+\textbf{cancelación probabilística de errores} (PEC), insesgada a cambio de un coste en
+muestras que crece exponencialmente con el ruido \cite{cai2023quantum}; y la
+\textbf{mitigación de lectura} (M3), que ataca solo la medición final
+\cite{nation2023suppressing}. Sus planteamientos son distintos, pero comparten los dos rasgos
+que este trabajo toma como punto de partida: todas \textbf{consumen ejecuciones adicionales}
+del procesador, el recurso más escaso, y todas actúan \textbf{después} de ejecutar.
 
-Por otro lado, la cancelación probabilística de errores (PEC) aborda el problema desde otra perspectiva matemática, basándose en el muestreo de una cuasi-distribución[cite: 1, 3]. Si bien PEC tiene la ventaja teórica de ser un método insesgado, esconde una trampa enorme en la práctica: su coste computacional en términos de muestras adicionales crece de forma exponencial a medida que aumenta el nivel de ruido del sistema, haciéndolo rápidamente inviable para circuitos profundos[cite: 1, 3]. 
-
-En paralelo, existen técnicas más específicas como la mitigación de lectura (M3), que se centran exclusivamente en corregir los errores asimétricos que ocurren en la fase final de medición[cite: 1, 2]. M3 logra esto calculando la inversión de la matriz de asignación, pero con la ventaja técnica de no llegar a construirla explícitamente de forma completa en la memoria[cite: 1]. 
-
-A pesar de sus diferentes planteamientos matemáticos, todos estos métodos clásicos de mitigación comparten un denominador común altamente limitante: consumen agresivamente ciclos adicionales de la unidad de procesamiento cuántico (QPU) y operan estrictamente en tiempo de ejecución, es decir, \textbf{después} de haber ejecutado el circuito[cite: 1, 3]. Esta necesidad imperativa de ejecutar primero para observar el valor ruidoso y poder mitigarlo a posteriori es la barrera exacta que frena su escalabilidad y justifica la transición hacia modelos de aprendizaje automático[cite: 1, 3].
-
-\section{Aprendizaje automático aplicado a la mitigación}
+\section{Modelos sustitutos aprendidos}
 \label{sec:ml_qem}
 
-\subsection{Modelos sustitutos entrenados sobre resultados ruidosos}
-El estudio de Liao et al. (2024) es nuestra referencia central aquí[cite: 2, 3]. Demostraron que podemos entrenar redes que aprendan a corregir directamente a partir del valor ruidoso, ahorrándonos el enorme coste extra de ejecuciones que exigen métodos como ZNE[cite: 3]. \textbf{El dato que este trabajo aprovecha:} en sus pruebas de ablación demostraron que \textbf{Random Forest} es el mejor modelo tabular de referencia[cite: 2, 3]. Precisamente por eso está justificado incluirlo como uno de los pilares en la comparativa del capítulo~\ref{cap:comparativa}[cite: 1, 4].
+La respuesta al coste anterior fue sustituir las ejecuciones extra por un modelo entrenado.
+\citeA{liao2024machine} demostraron que una red puede aprender la corrección directamente a
+partir del valor ruidoso, y validaron el enfoque en hardware IBM real hasta un centenar de
+qubits. De su ablación sale un dato que este trabajo aprovecha: entre los modelos tabulares,
+\textbf{Random Forest es la mejor referencia}, y por eso entra en la comparativa del
+Capítulo~\ref{cap:comparativa}.
 
-\subsection{Arquitecturas de grafo}
-En el caso de GTraQEM (Bao et al., ICLR 2025), plantearon un \textit{Graph Transformer} \textbf{sin paso de mensajes} pero apoyado en un \textbf{nodo virtual}[cite: 2, 4]. De aquí saco exactamente la idea del nodo virtual que sí uso en este trabajo, pero \textbf{su arquitectura no se reproduce}[cite: 2, 4]: el porqué descarté su diseño lo desarrollo a fondo en el capítulo~\ref{cap:comparativa}[cite: 4].
+Sobre esa idea, la línea de grafos. GTraQEM \cite{bao2025gtraqem} representa el circuito como
+un DAG y lo procesa con un \textit{graph transformer} apoyado en un \textbf{nodo virtual}
+conectado a todos los demás, que recoge el contexto global; de ahí procede la idea del nodo
+virtual que sí se emplea aquí, aunque no su arquitectura, por las razones del
+Capítulo~\ref{cap:comparativa}. QEMFormer \cite{bao2025qemformer} es el techo actual y combina
+una rama sobre metadatos globales con otra sobre la estructura del DAG.
 
-Por otro lado, Liu et al. (2026) montaron una red neuronal de grafos (GNN) sobre el grafo acíclico dirigido (DAG) usando un vector por nodo muy parecido al nuestro (ellos usan 31 dimensiones y yo 25)[cite: 2]. Esto nos viene genial para justificar por qué apostamos por GNN en lugar de por redes convolucionales (CNN)[cite: 2].
-
-\subsection{El techo actual de rendimiento}
-Actualmente, el rey en rendimiento es QEMFormer (Bao et al., ICML 2025) apoyado en el banco de pruebas QEM-Bench[cite: 2]. \textbf{Y aquí está el contraste central de esta memoria:} QEMFormer necesita que le des el valor ruidoso \textbf{como entrada del modelo}[cite: 2, 4]. Es decir, tienes que ejecutar el circuito en la máquina antes de poder mitigarlo[cite: 1, 2]. Además, como codifican los qubits con un formato \textit{multi-hot}, el modelo se queda atado obligatoriamente al tamaño exacto de qubits con el que se entrenó[cite: 4].
+\textbf{Y aquí está el contraste que define esta memoria:} unos y otros toman el \textbf{valor
+ruidoso medido como entrada}, de modo que hay que haber ejecutado el circuito para poder
+corregirlo. La ablación de \citeA{placidi2026deep} lo mide: ese valor es la variable dominante
+y sin ella el modelo se desploma.
 
 \section{El paradigma pre-ejecución}
 \label{sec:preejecucion}
 
-\subsection{Heurísticas: mapomatic}
-Nation \& Treinish (2023) presentan la herramienta oficial de IBM, mapomatic[cite: 2]. Lo que hace es puntuar \textbf{layouts alternativos del mismo circuito} basándose en la calibración del día para quedarse con el mejor camino, pero sin llegar a usar aprendizaje automático[cite: 2].
+Existe una familia distinta que decide \textbf{antes} de gastar la máquina. La herramienta
+oficial de IBM, mapomatic \cite{nation2023suppressing}, puntúa con la calibración del día las
+distintas formas de colocar un mismo circuito sobre el chip y se queda con la mejor; es una
+heurística analítica, sin aprendizaje. \citeA{hartnett2024learning} dan el paso al aprendizaje
+automático con datos medidos en hardware real.
 
-\textbf{Esta distinción hay que hacerla muy explícita:} mapomatic \textbf{elige} el mejor mapa posible; este trabajo, en cambio, \textbf{estima una magnitud} concreta para poder aplicar una corrección matemática[cite: 2]. Son dos objetivos totalmente distintos[cite: 2].
+Un linaje reciente sí predice magnitudes sobre el grafo del circuito antes de ejecutarlo, y es
+lo más cercano a esta propuesta. QuEst \cite{wang2025quest} estima la fiabilidad
+de un circuito para descartarlo, con una salida que no permite recuperar ningún valor mitigado.
+\citeA{liu2026output} predicen el valor de salida con una red de grafos sobre el DAG, con un
+vector por nodo muy parecido al de aquí. 
+SQuASH \cite{martyniuk2025benchmarking} enfrenta una red de grafos a Random Forest sobre los
+mismos circuitos, \textbf{precedente directo de esta comparativa}. Y \citeA{tudisco2025graph}, antes de
+proponer la suya, demuestran que el número de qubits, la profundidad y el recuento de puertas
+\textbf{no bastan} para separar los casos: hay que meter el circuito entero en el modelo en vez
+de resumirlo a mano.
 
-\subsection{Ranking aprendido: Q-CTRL}
-Hartnett et al. (2024) usan \textit{machine learning} para ordenar circuitos equivalentes antes de mandarlos a ejecutar[cite: 2]. Sin embargo, su modelo solo predice el \textbf{orden} (cuál irá mejor o peor), pero no predice la magnitud matemática, así que tampoco nos sirve para corregir el resultado final[cite: 2].
+Ninguno de los cinco predice la degradación de un observable, y ninguno modela el
+paso del tiempo.
 
-\section{Variabilidad temporal del hardware}
+\section{El hardware cambia con el tiempo}
 \label{sec:drift}
-Hirasaki et al. (2023) demostraron algo vital: las tasas de error de los qubits no empeoran poco a poco, sino que cambian de forma \textbf{escalonada} y brusca[cite: 2, 4]. Esta es la evidencia empírica que justifica por qué este dataset tiene un eje temporal, y es lo que invalidó por completo la idea que tenía en el diseño original de simular una deriva lineal del ruido[cite: 4].
 
-Además, Huo et al. (2026) confirman esta misma variabilidad tremenda, pero vista desde los resultados operacionales que sufre el usuario final[cite: 2].
-
-\section{Paradigmas alternativos}
-\label{sec:alternativas}
-Existen otros enfoques, como Q-Cluster (Patil et al., 2025), que aborda una mitigación \textbf{no supervisada}, es decir, sin usar etiquetas ideales[cite: 2]. En la misma línea, Liao et al. (2025) proponen mitigación sin \textit{ground truth}[cite: 2]. Ambos trabajos los menciono también en el apartado de limitaciones, porque nuestro pipeline \textbf{sí} es totalmente dependiente de tener un valor exacto que podamos simular[cite: 2].
+\citeA{hirasaki2023detection} midieron que las tasas de error no se degradan de forma gradual,
+sino a \textbf{saltos bruscos} que aparecen en cualquier momento, y que la recalibración diaria
+no basta para capturarlos. \citeA{huo2026anchor} lo confirman desde el otro extremo: el mismo
+programa ejecutado en momentos distintos devuelve resultados inconsistentes. Esto 
+justifica que el conjunto de datos de esta memoria tenga un eje temporal. 
 
 \section{El hueco}
 \label{sec:gap}
-En definitiva, nadie está prediciendo la \textbf{magnitud} de la degradación \textbf{antes de ejecutar} combinando la estructura del circuito y la telemetría del chip[cite: 1, 2]. Nuestro modelo viene a cubrir esto con cuatro diferenciadores concretos:
+
+% ⚠️ FORMATO: la plantilla oficial pone el \caption DEBAJO. Se sigue la plantilla.
+% ⚠️ Va anclada con [t] y en \small A PROPOSITO: con [htbp] y cuerpo normal no cabia al
+%    pie de su pagina, flotaba a la siguiente y arrastraba el ultimo item de la lista,
+%    dejando dos tercios de pagina en blanco y sacando el capitulo de sus tres paginas.
+% Las cuatro columnas son los cuatro diferenciadores enunciados debajo de la tabla.
+% ⚠️ Si alguna fila cambia, cambiarla tambien en doc/SoTA/comparative_analysis.md.
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \textbf{Trabajo} & \textbf{Pre-ejec.} & \textbf{Magnitud} & \textbf{Multi-salida} & \textbf{Deriva} \\
+        \midrule
+        ZNE, PEC, M3                            & no & sí & no & no \\
+        \citeNP{liao2024machine}                & no & sí & no & parcial \\
+        GTraQEM, QEMFormer                      & no & sí & sí & no \\
+        mapomatic, \citeNP{hartnett2024learning}& sí & no & no & no \\
+        \citeNP{wang2025quest}                  & sí & sí & no & no \\
+        \citeNP{liu2026output}                  & sí & sí & no & no \\
+        \citeNP{aktar2024graph}                 & sí & sí & no & no \\
+        \citeNP{martyniuk2025benchmarking}      & sí & sí & no & no \\
+        \citeNP{tudisco2025graph}               & sí & no & no & no \\
+        \midrule
+        \textbf{Este trabajo}                   & \textbf{sí} & \textbf{sí} & \textbf{sí} & \textbf{sí} \\
+        \bottomrule
+    \end{tabular}
+
+    \caption{El estado del arte frente a los cuatro rasgos que definen esta propuesta.}
+    \label{tab:hueco}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}
+
+La Tabla~\ref{tab:hueco} resume el corpus frente a los cuatro rasgos que definen este trabajo.
+
+Ninguna fila reúne las cuatro columnas: 
+
 \begin{enumerate}
-    \item Opera puramente en pre-ejecución: la entrada del modelo nunca incluye el resultado medido[cite: 2].
-    \item No codifica rígidamente la identidad del qubit, así que generaliza de forma natural a circuitos de cualquier tamaño[cite: 2, 4].
-    \item Modela el \textit{drift} temporal usando calibraciones reales de 42 días[cite: 2, 4].
-    \item Evalúa circuitos algorítmicos complejos como QFT de forma sistemática, algo que ningún otro trabajo de ML-QEM hace[cite: 2].
+    \item \textbf{Pre-ejecución estricta} (la entrada del modelo nunca incluye el resultado medido).
+    \item  \textbf{Magnitud y no un orden}, que es lo único que permite corregir y no solo descartar.
+    \item  La \textbf{multi-salida} sobre varios observables y sin codificar la identidad del qubit, que deja al modelo aceptar tamaños no vistos.
+    \item La \textbf{deriva temporal como eje explícito}, con días de calibración reales y disjuntos entre entrenamiento y prueba.
 \end{enumerate}

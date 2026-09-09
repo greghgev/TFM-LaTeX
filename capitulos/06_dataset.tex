@@ -16,8 +16,8 @@
 % Fuente: doc/00_Justificaciones.md seccion 1
 Tres motivos independientes, y el tercero es el decisivo:
 \begin{itemize}
-    \item \textbf{cuota}: el plan abierto de IBM da 10 minutos de QPU al mes;
-    \item \textbf{latencia}: las colas hacen inviable un barrido de 20.000 circuitos;
+    \item \textbf{cuota}: el plan abierto de IBM da $10$ minutos de QPU al mes;
+    \item \textbf{latencia}: las colas hacen inviable un barrido de $20.000$ circuitos;
     \item \textbf{la etiqueta no existe en hardware}: el modelo aprende la diferencia entre el
           resultado ideal y el ruidoso, y un ordenador cuántico \textbf{solo devuelve el
           ruidoso}. Si el valor exacto se pudiera medir, no haría falta mitigar.
@@ -25,13 +25,13 @@ Tres motivos independientes, y el tercero es el decisivo:
 
 \section{El procesador simulado}
 \label{sec:chip}
-\texttt{ibm\_kingston}, familia Heron r2, 156 qubits, topología \textit{heavy-hex}, puerta de
+\texttt{ibm\_kingston}, familia Heron r2, $156$ qubits, topología \textit{heavy-hex}, puerta de
 dos qubits nativa \texttt{cz}. Un qubit está muerto y se excluye del muestreo.
 % Figura sugerida: figures/00_anatomia/chip/ (mapa del chip)
 
 \section{Calibración real, no simulada}
 \label{sec:calibracion}
-\textbf{42 días completos} descargados con \texttt{BackendProperties}: T1, T2, error y duración
+\textbf{$42$ días completos} descargados con \texttt{BackendProperties}: T1, T2, error y duración
 de \textbf{cada puerta física}, y error de lectura asimétrico, para cada día.
 
 \subsection{Por qué se abandonó la deriva sintética}
@@ -40,17 +40,17 @@ deriva real es \textbf{escalonada}: una degradación lineal habría enseñado un
 
 \subsection{Lo que solo aparece en datos reales}
 % Fuente: doc/memoria/materiales.md seccion 2
-Puertas averiadas que \textbf{IBM no repara en 42 días}, y qubits cuya calibración viola la
+Puertas averiadas que \textbf{IBM no repara en $42$ días}, y qubits cuya calibración viola la
 cota física $T_2 \leq 2T_1$. Decisión tomada: \textbf{mantenerlas}, porque un
-\texttt{gate\_error} de 1,0 es información válida sobre el estado del chip.
+\texttt{gate\_error} de $1{,}0$ es información válida sobre el estado del chip.
 
 \section{Composición y los tres ejes OOD}
 \label{sec:ejes}
 % Esta seccion es el nucleo del diseno experimental.
 \begin{itemize}
-    \item \textbf{Tipo}: entrenamiento 100\,\% circuitos aleatorios; test con seis tipos nunca
+    \item \textbf{Tipo}: entrenamiento $100$\,\% circuitos aleatorios; test con seis tipos nunca
           vistos (HEA, TFIM, QAOA, QFT, GHZ, Bernstein-Vazirani).
-    \item \textbf{Tamaño}: entrenamiento hasta 11 qubits; test de 12 a 15.
+    \item \textbf{Tamaño}: entrenamiento hasta $11$ qubits; test de $12$ a $15$.
     \item \textbf{Tiempo}: días de calibración \textbf{disjuntos} entre grupos.
 \end{itemize}
 \textbf{Los tres son independientes}, así que cada fallo se puede atribuir a su causa.
@@ -71,12 +71,12 @@ dispersiones, que están en el conjunto de datos pero no son objetivo del modelo
 
 \subsection{Por qué una batería y no un solo observable}
 Para varios tipos de circuito hay observables que valen \textbf{cero por construcción física}
-—un GHZ tiene magnetización media nula siempre—. Un objetivo escalar único sería una elección
+(un GHZ tiene magnetización media nula siempre). Un objetivo escalar único sería una elección
 arbitraria que dejaría ciegos a esos tipos.
 
 \subsection{Por qué no cuesta nada}
 El simulador calcula el estado \textbf{una vez} y proyecta cada observable sobre él. Medido:
-5 observables y 100 tardan lo mismo.
+$5$ observables y $100$ tardan lo mismo.
 
 \subsection{Un matiz que hay que declarar}
 % 🔴 CIFRA NO CITABLE. Hay dos mediciones en conflicto para la correlacion del bloque de
@@ -88,12 +88,11 @@ batería es de \textbf{simetría de diseño}, no de independencia estadística.
 
 \section{Representación del circuito}
 \label{sec:representacion}
-El DAG con 25 dimensiones por nodo: tipo de puerta, ángulo, posición, grado, y
+El DAG con $25$ dimensiones por nodo: tipo de puerta, ángulo, posición, grado, y
 \textbf{telemetría de los qubits físicos concretos} sobre los que actúa ese día.
 
 \textbf{Decisión deliberada:} no se codifica la identidad del qubit, solo su telemetría. Es lo
 que permite generalizar a cualquier número de qubits.
-
 \section{Reproducibilidad y sus límites}
 \label{sec:reproducibilidad}
 % Remite al capitulo 6, no lo desarrolla aqui.

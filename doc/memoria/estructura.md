@@ -12,6 +12,10 @@
 > **Líneas:** 3 (aprendizaje automático: Ridge y Random Forest) y 4 (aprendizaje
 > profundo: la *red de grafos*)
 >
+> ⚠️ **El capítulo «El ruido cuántico» se retiró en sep-2026** por decisión del autor:
+> demasiado técnico para el tribunal y no imprescindible para el argumento. Todos los
+> capítulos posteriores bajan un número.
+>
 > ⚠️ **Reestructurado en ago-2026** para encajar en la estructura oficial del tipo 3
 > (*Instrucciones para la redacción del TFE* §2.6). Cambios: se añadieron los capítulos
 > **5 (Objetivos y metodología)** y **11 (Discusión)**, y se fusionaron los antiguos 8 y 9.
@@ -35,7 +39,7 @@
 
 ---
 
-## Los doce capítulos
+## Los once capítulos
 
 Cada capítulo se corresponde con un apartado de la estructura oficial del **tipo 3**.
 La columna «bloque» es lo que el tribunal espera encontrar; la memoria debe decirlo
@@ -45,16 +49,15 @@ explícitamente en §1.4 para que no haya que reconstruirlo.
 |---|---|---|---|---|
 | 1 | Introducción | `01_introduccion.tex` | Introducción | ✅ |
 | 2 | Fundamentos de computación cuántica | `02_fundamentos.tex` | Contexto y estado del arte | ✅ |
-| 3 | El ruido cuántico | `03_ruido_cuantico.tex` | Contexto y estado del arte | ✅ |
-| 4 | Estado del arte | `04_estado_del_arte.tex` | Contexto y estado del arte | ✅ |
-| 5 | **Objetivos y metodología de trabajo** | `05_objetivos_metodologia.tex` | Objetivos y metodología | ✅ ⚠️ nuevo |
-| 6 | Planteamiento de la comparativa: el conjunto de datos | `06_dataset.tex` | Planteamiento | ✅ |
-| 7 | Rigor metodológico ⭐ | `07_rigor_metodologico.tex` | Planteamiento | ✅ |
-| 8 | La variable objetivo ⭐ | `08_variable_objetivo.tex` | Planteamiento | ⚠️ estructura sí, cifras no |
-| 9 | Desarrollo de la comparativa: modelos y protocolo | `09_comparativa.tex` | Desarrollo | ⚠️ diseño sí, resultados no |
-| 10 | Resultados | `10_resultados.tex` | Desarrollo | ❌ bloqueado |
-| 11 | **Discusión y análisis de resultados** | `11_discusion.tex` | Discusión | ❌ bloqueado ⚠️ nuevo |
-| 12 | Conclusiones y trabajo futuro | `12_conclusiones.tex` | Conclusiones | ❌ bloqueado |
+| 3 | Estado del arte | `04_estado_del_arte.tex` | Contexto y estado del arte | ✅ |
+| 4 | **Objetivos y metodología de trabajo** | `05_objetivos_metodologia.tex` | Objetivos y metodología | ✅ ⚠️ nuevo |
+| 5 | Planteamiento de la comparativa: el conjunto de datos | `06_dataset.tex` | Planteamiento | ✅ |
+| 6 | Rigor metodológico ⭐ | `07_rigor_metodologico.tex` | Planteamiento | ✅ |
+| 7 | La variable objetivo ⭐ | `08_variable_objetivo.tex` | Planteamiento | ⚠️ estructura sí, cifras no |
+| 8 | Desarrollo de la comparativa: modelos y protocolo | `09_comparativa.tex` | Desarrollo | ⚠️ diseño sí, resultados no |
+| 9 | Resultados | `10_resultados.tex` | Desarrollo | ❌ bloqueado |
+| 10 | **Discusión y análisis de resultados** | `11_discusion.tex` | Discusión | ❌ bloqueado ⚠️ nuevo |
+| 11 | Conclusiones y trabajo futuro | `12_conclusiones.tex` | Conclusiones | ❌ bloqueado |
 
 Además: **Anexos A–C** y un **Índice de acrónimos** (§2.10, opcional pero recomendable
 con la cantidad de siglas de este trabajo).
@@ -110,13 +113,8 @@ Lo mínimo imprescindible, sin convertirlo en un libro de texto: qubit y espacio
 evolución unitaria · puertas de uno y dos qubits · medición y valores esperados · **qué es un
 observable** y por qué el trabajo predice observables y no distribuciones completas.
 
-### 3 · El ruido cuántico (5 pp.)
-Estados mixtos y matriz de densidad · canales cuánticos y operadores de Kraus · las tres
-fuentes físicas: decoherencia (T1/T2), error de puerta y error de lectura · **el modelo de
-ruido concreto de este trabajo**: los tres canónicos de Qiskit Aer calibrados contra datos
-reales de IBM · por qué el crosstalk queda fuera y qué implica.
 
-### 4 · Estado del arte (6 pp.)
+### 3 · Estado del arte (6 pp.)
 Mitigación clásica (ZNE, PEC, M3) y su coste en ejecuciones · ML aplicado a QEM (Liao 2024,
 GTraQEM, QEMFormer) · el paradigma **pre-ejecución** (mapomatic, Q-CTRL) · *concept drift*
 (Hirasaki, Anchor) · **el hueco**: nadie predice la magnitud del error antes de ejecutar
@@ -125,27 +123,27 @@ usando estructura del circuito más telemetría.
 🔴 **Restricción dura:** los capítulos 2, 3 y 4 son el bloque «Contexto y estado del arte»,
 y la norma lo acota a **10–15 páginas en total**. 4+5+6 = 15 es el techo, no un objetivo.
 
-### 5 · Objetivos y metodología de trabajo (4 pp.) ⚠️ NUEVO
+### 4 · Objetivos y metodología de trabajo (4 pp.) ⚠️ NUEVO
 Los tres elementos que exige la norma (§2.5): **objetivo general · objetivos específicos ·
 metodología de trabajo**. Los objetivos **deben ser SMART** —la norma lo llama
 *imprescindible*—, y su criterio de éxito medible es el del capítulo 9: **batir a no
 mitigar**. Incluye además el tipo de trabajo y las líneas, las fases, y la sección de
 **herramientas empleadas** —donde va la declaración obligatoria de uso de IA—.
 
-### 6 · Planteamiento de la comparativa: el conjunto de datos (7 pp.)
+### 5 · Planteamiento de la comparativa: el conjunto de datos (7 pp.)
 Gemelo digital de `ibm_kingston` (Heron r2) · **calibración real de 42 días**, no simulada ·
 los siete tipos de circuito · **los tres ejes OOD** y por qué son independientes · la batería
 de observables (**8 en el dataset, 5 como objetivo del modelo** — explicar por qué se retiraron
 las tres dispersiones) · el vector de 25 dimensiones por puerta · el grafo
 como representación · reproducibilidad y sus límites.
 
-### 7 · Rigor metodológico ⭐ (5 pp.)
+### 6 · Rigor metodológico ⭐ (5 pp.)
 El bug de las etiquetas del v1 y cómo se descubrió · **la lección**: repetir con la misma
 semilla prueba reproducibilidad, no exactitud · la regeneración v2 y su validación · el
 límite de determinismo del transpilador · las dos trampas de medición detectadas (el eje
 tiempo confundido con el eje tipo; soporte fino disfrazado de tendencia).
 
-### 8 · La variable objetivo ⭐ (5 pp.)
+### 7 · La variable objetivo ⭐ (5 pp.)
 Qué se quería predecir (Δ) · **la medida de que no es predecible** · la explicación
 aritmética: Δ = (1−f)·⟨O⟩exacto · la reformulación a *f* · por qué **no** rompe el paradigma
 pre-ejecución · el límite honesto de la solución · aprobado por el director.
@@ -154,14 +152,14 @@ pre-ejecución · el límite honesto de la solución · aprobado por el director
 *«identificar los criterios de éxito para la comparativa, las medidas que se van a tomar»*.
 El capítulo 8 **es** la definición de la medida, y el 7 es lo que la hace fiable.
 
-### 9 · Desarrollo de la comparativa: modelos y protocolo (10 pp.)
+### 8 · Desarrollo de la comparativa: modelos y protocolo (10 pp.)
 Fusión de los antiguos 8 y 9. La agregación circuito → fila y **qué información pierde** (el
 núcleo de la comparativa) · el catálogo de features · las tres soluciones: Ridge y por qué no
 mínimos cuadrados, Random Forest, la red de grafos MPNN con nodo virtual bidireccional (y **por qué NO un Graph Transformer**: la matriz de estructura no informa a nuestra escala) · la decisión
 sobre los grafos grandes · **el protocolo idéntico**: partición temporal, preprocesado,
 métricas desglosadas, el listón · **Weights & Biases** e infraestructura.
 
-### 10 · Resultados — ⏳ (8 pp.)
+### 9 · Resultados — ⏳ (8 pp.)
 Comparativa de los tres modelos · desglose por los tres ejes y por observable · distribución
 del error. **Exposición objetiva, sin valorar.**
 
@@ -170,12 +168,12 @@ del error. **Exposición objetiva, sin valorar.**
 > ha hecho todavía a propósito: cuantas menos veces se mire el test, menos margen hay para
 > ajustarse a él sin querer. Los capítulos 11 y 12 siguen bloqueados por lo mismo.
 
-### 11 · Discusión y análisis de resultados — ❌ BLOQUEADO (5 pp.) ⚠️ NUEVO
+### 10 · Discusión y análisis de resultados — ❌ BLOQUEADO (5 pp.) ⚠️ NUEVO
 ¿Aporta algo la estructura del circuito? · ventajas y desventajas de cada solución · qué
 transfiere y qué no, eje por eje · datos anómalos · contraste con el estado del arte ·
 amenazas a la validez.
 
-### 12 · Conclusiones y trabajo futuro — ❌ BLOQUEADO (4 pp.)
+### 11 · Conclusiones y trabajo futuro — ❌ BLOQUEADO (4 pp.)
 Cumplimiento de objetivos —**uno a uno**, que la norma lo exige: *«cada objetivo del trabajo
 se enlazará con una conclusión»*— · limitaciones sin adornar · líneas futuras
 (`IDEAS_FUTURAS.md`).

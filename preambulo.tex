@@ -12,52 +12,26 @@
 %    dentro del preámbulo.
 % =====================================================================================
 
-% --- Márgenes y párrafo: NORMA ESTRICTA -------------------------------------------
-% Instrucciones del TFE, apartado 1.3, PAGINA 5 y 6.
+% --- Formato de página: EL DE LA PLANTILLA OFICIAL ---------------------------------
+% ⚠️ CALCADO DE LA PLANTILLA (sep-2026), por decisión expresa del autor. Aquí había
+%    cinco ajustes que se apartaban de ella para seguir las «Instrucciones para la
+%    redacción del TFE». Se han RETIRADO los cinco; manda la plantilla:
 %
-% ⚠️ Esto SE APARTA de la plantilla oficial, y a proposito. La plantilla usa margenes
-%    ALTERNOS de 3,5 interior / 2,5 exterior (a doble cara) y sangria de primera linea,
-%    y ninguna de las dos cosas es lo que dice la norma escrita:
-%      p. 5 — «Izquierdo: 3,0 cm. Derecho: 2,0 cm. Superior e inferior: 2,5 cm.»
-%      p. 6 — «interlineado 1,5, espacio entre parrafos 6 puntos anterior y 6 puntos
-%              posterior, SIN SANGRIA.»
-%    Para revertir a la plantilla, comentar este bloque entero.
-% Los parametros 2 y 4 de \setmarginsrb NO son el margen del cuerpo:
-%   - el 2.º es la distancia al borde superior de la CABECERA; el cuerpo empieza en
-%     ese valor mas \headheight mas \headsep  ->  1,5 + 0,49 + 0,51 = 2,50 cm ✓
-%   - el 4.º es el hueco por DEBAJO del pie; el cuerpo termina en ese valor mas
-%     \footskip                              ->  1,62 + 0,88 = 2,50 cm ✓
-% Comprobado midiendo las longitudes reales sobre el .log, no a ojo.
-\setmarginsrb{3cm}{1.5cm}{2cm}{1.62cm}{14pt}{14.5pt}{0pt}{25pt}
-
-% La clase `book` es a doble cara y espeja los margenes: las paginas pares saldrian
-% con 2 cm a la izquierda en vez de 3. La norma da UN margen izquierdo fijo, asi que
-% se igualan las dos caras.
-\setlength{\evensidemargin}{\oddsidemargin}
-
-% Cabecera y pie alineados con la caja de texto. El estilo institucional los sacaba
-% 20 pt hacia fuera, lo que los dejaba fuera de los margenes que fija la norma.
-\fancyhfoffset{0pt}
-
-% Sin sangria y con espacio entre parrafos. Se usa el paquete `parskip` en vez de
-% tocar \parindent y \parskip a mano porque ademas corrige el espaciado de listas,
-% que con \parskip suelto se descuadra.
-% 12 pt = los «6 puntos anterior» mas los «6 puntos posterior» de la norma, que en
-% Word se SUMAN entre dos parrafos consecutivos.
-\usepackage[skip=12pt, indent=0pt]{parskip}
-
-% --- Tipografía -------------------------------------------------------------------
-% `carlito` es el clon libre METRICAMENTE COMPATIBLE con Calibri. Se usa para cumplir
-% las Instrucciones del TFE, apartado 1.3, PAGINA 6: «Calibri 12».
+%      1. \setmarginsrb{3cm}{1.5cm}{2cm}{1.62cm}{14pt}{14.5pt}{0pt}{25pt}
+%         (márgenes 3/2/2,5/2,5 de las Instrucciones, p. 5). La plantilla no fija
+%         ninguno: deja los de la clase `book`, que son espejados a doble cara.
+%      2. \setlength{\evensidemargin}{\oddsidemargin}
+%         (igualaba las dos caras, porque la norma da UN margen izquierdo fijo).
+%      3. \fancyhfoffset{0pt}
+%         (alineaba cabecera y pie con la caja). El estilo oficial usa 20 pt.
+%      4. \usepackage[skip=12pt, indent=0pt]{parskip}
+%         (sin sangría y 6 pt antes / 6 pt después, Instrucciones p. 6). La plantilla
+%         usa sangría de primera línea y ningún espacio entre párrafos.
+%      5. \usepackage[sfdefault]{carlito} + \renewcommand{\familydefault}{\sfdefault}
+%         (clon métrico de Calibri, Instrucciones p. 6). La plantilla deja la
+%         Computer Modern por defecto.
 %
-% ⚠️ Esto SE APARTA de la plantilla LaTeX oficial, que deja la Computer Modern por
-%    defecto. Es una desviacion deliberada y a favor de la norma escrita, no en contra.
-%    Para revertirla basta con comentar las dos lineas siguientes.
-%
-% ⚠️ Las MATEMATICAS siguen en Computer Modern: carlito no trae juego matematico. La
-%    combinacion texto sans + matematicas serif es habitual y legible.
-\usepackage[sfdefault]{carlito}
-\renewcommand{\familydefault}{\sfdefault}
+%    Para volver a la norma escrita, reponer las cinco líneas de arriba.
 
 % --- Matemáticas para notación cuántica -------------------------------------------
 % `physics` da \bra{}, \ket{}, \braket{}, \Tr{}, etc.
@@ -66,7 +40,7 @@
 \let\rank\undefined
 \usepackage{physics}
 \usepackage{bm}          % negrita en símbolos matemáticos
-
+\usepackage{fancybox}
 % --- Tablas y espaciado -----------------------------------------------------------
 \usepackage{booktabs}    % \toprule, \midrule, \bottomrule
 

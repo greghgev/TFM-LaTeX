@@ -143,6 +143,89 @@
   doi     = {10.22331/q-2024-11-14-1542}
 }
 
+% [REVISADO] Actas de IEEE QCE 2025, confirmadas en dblp y en IEEE Xplore (doc. 11250055).
+% Predictor GNN sobre el DAG para elegir EN QUE MAQUINA ejecutar. Lo valioso para este
+% trabajo no es su clasificador, sino su analisis previo: demuestran que numero de qubits,
+% profundidad y numero de puertas NO separan las clases, y de ahi concluyen que hay que
+% meter el circuito entero en el modelo en vez de resumirlo en variables agregadas. Es el
+% mismo argumento que sostiene la comparativa de esta memoria, y lo respalda antes de
+% proponer nada.
+% ⚠️ Su verdad de referencia es una FORMULA HEURISTICA, no una medida ni una simulacion.
+%    Si se cita una cifra suya, decirlo.
+@inproceedings{tudisco2025graph,
+  author    = {Tudisco, Antonio and Volpe, Deborah and Orlandi, Giacomo and
+               Turvani, Giovanna},
+  title     = {Graph Neural Network-Based Predictor for Optimal Quantum Hardware
+               Selection},
+  booktitle = {2025 IEEE International Conference on Quantum Computing and Engineering
+               (QCE)},
+  pages     = {296--301},
+  year      = {2025},
+  doi       = {10.1109/QCE65121.2025.10339}
+}
+
+% [PREPRINT] arXiv:2210.16724v2. El PDF lleva bloque de copyright de ICCAD '22 pero con la
+% plantilla ACM SIN RELLENAR (10.1145/nnnnnnn.nnnnnnn), y dblp solo lo registra como CoRR:
+% es el preprint del autor, no la version de actas. AL CITARLO, INDICAR QUE ES UN PREPRINT.
+% QuEst: el primero que estima una magnitud fisica de degradacion ANTES de ejecutar usando
+% un grafo del circuito. Origen del linaje: Liu (2026) lo cita y Aktar (2024) declara
+% adaptar su modelo.
+% ⚠️ Su ventaja sobre el modelo tabular es MENOR de lo que dice su texto: en 3 de las 5
+%    maquinas reales la diferencia es despreciable y en una gana la tabla. Si se cita para
+%    sostener «el grafo bate a la tabla», hay que citar el desglose, no la media.
+@misc{wang2025quest,
+  author       = {Wang, Hanrui and Liu, Pengyu and Cheng, Jinglei and Liang, Zhiding and
+                  Gu, Jiaqi and Li, Zirui and Ding, Yongshan and Jiang, Weiwen and
+                  Shi, Yiyu and Qian, Xuehai and Pan, David Z. and Chong, Frederic T. and
+                  Han, Song},
+  title        = {{QuEst}: Graph Transformer for Quantum Circuit Reliability Estimation},
+  year         = {2025},
+  eprint       = {2210.16724},
+  archivePrefix= {arXiv},
+  primaryClass = {quant-ph},
+  doi          = {10.48550/arXiv.2210.16724},
+  note         = {Preprint}
+}
+
+% [REVISADO] Actas de IEEE QCE 2024 confirmadas en dblp. Citar sin reservas.
+% Aporta las dos medidas que mas nos interesan: la extrapolacion en tamano cuantificada
+% (entrenar hasta k qubits y predecir mas alla) y que la DIVERSIDAD de ruido en el
+% entrenamiento gana a la coincidencia exacta de backend, que es un argumento externo a
+% favor de nuestros 42 dias de calibracion distinta.
+% ⚠️ Su verdad de referencia es ESTADISTICA (5000 ejecuciones e histograma de 75 bins), asi
+%    que parte de su RMSE es error de la etiqueta y no lo separan.
+@inproceedings{aktar2024graph,
+  author    = {Aktar, Shamminuj and B\"artschi, Andreas and Oyen, Diane and
+               Eidenbenz, Stephan and Badawy, Abdel-Hameed A.},
+  title     = {Graph Neural Networks for Parameterized Quantum Circuits Expressibility
+               Estimation},
+  booktitle = {2024 IEEE International Conference on Quantum Computing and Engineering
+               (QCE)},
+  pages     = {1547--1557},
+  year      = {2024},
+  doi       = {10.1109/QCE60285.2024.00181}
+}
+
+% [PREPRINT] arXiv:2506.06762v2, sin `journal-ref` ni actas en dblp. AL CITARLO,
+% INDICAR QUE ES UN PREPRINT.
+% SQuASH: modelo sustituto que predice el rendimiento de un PQC sin ejecutarlo. Es el
+% precedente directo de la comparativa GNN vs Random Forest sobre los mismos circuitos y
+% el mismo protocolo, con la ventaja del grafo cuantificada en R².
+% ⚠️ Su margen GNN > RF esta INFLADO: su Random Forest recibe el QASM como tensor por
+%    instrucciones rellenado a profundidad fija, una representacion que un ensemble de
+%    arboles no puede explotar. No usar su margen como cota de lo que esperar aqui.
+@misc{martyniuk2025benchmarking,
+  author       = {Martyniuk, Darya and Jung, Johannes and Barta, Daniel and
+                  Paschke, Adrian},
+  title        = {Benchmarking Quantum Architecture Search with Surrogate Assistance},
+  year         = {2025},
+  eprint       = {2506.06762},
+  archivePrefix= {arXiv},
+  primaryClass = {quant-ph},
+  doi          = {10.48550/arXiv.2506.06762},
+  note         = {Preprint}
+}
+
 
 % =====================================================================================
 % 3. Variabilidad temporal del hardware — justifica el eje OOD temporal
@@ -295,4 +378,126 @@
   pages   = {500--505},
   year    = {2023},
   doi     = {10.1038/s41586-023-06096-3}
+}
+
+% =====================================================================================
+% 3. Algoritmos cuánticos — motivación (§1.1.1)
+% =====================================================================================
+
+% [REVISADO] El algoritmo de factorización. Es la ventaja exponencial demostrada y la
+% razón por la que el sector existe. DOI comprobado contra el curso de criptografía
+% cuántica de IBM (works cited).
+@article{shor1997polynomial,
+  author  = {Shor, Peter W.},
+  title   = {Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms
+             on a Quantum Computer},
+  journal = {SIAM Journal on Computing},
+  volume  = {26},
+  number  = {5},
+  pages   = {1484--1509},
+  year    = {1997},
+  doi     = {10.1137/S0097539795293172}
+}
+
+% [REVISADO] Búsqueda no estructurada. Ventaja cuadrática, no exponencial: conviene
+% decirlo en el texto para no exagerar la promesa.
+@inproceedings{grover1996fast,
+  author    = {Grover, Lov K.},
+  title     = {A fast quantum mechanical algorithm for database search},
+  booktitle = {Proceedings of the Twenty-Eighth Annual ACM Symposium on Theory of
+               Computing (STOC '96)},
+  pages     = {212--219},
+  year      = {1996},
+  publisher = {Association for Computing Machinery},
+  doi       = {10.1145/237814.237866}
+}
+
+
+% =====================================================================================
+% 4. Mitigación de errores — los métodos clásicos (§1.2.1)
+% =====================================================================================
+
+% [REVISADO] EL artículo fundacional de la mitigación: introduce a la vez la
+% extrapolación a ruido cero (ZNE) y la cancelación probabilística (PEC). Sin esta
+% entrada, §1.2.1 nombra dos métodos que no puede citar.
+@article{temme2017error,
+  author  = {Temme, Kristan and Bravyi, Sergey and Gambetta, Jay M.},
+  title   = {Error Mitigation for Short-Depth Quantum Circuits},
+  journal = {Physical Review Letters},
+  volume  = {119},
+  number  = {18},
+  pages   = {180509},
+  year    = {2017},
+  doi     = {10.1103/PhysRevLett.119.180509}
+}
+
+% [REVISADO] Revisión de referencia de QEM en Reviews of Modern Physics. Sostiene dos
+% afirmaciones de §1.1.2 y §1.2.1: que la corrección completa es inviable hoy por el
+% sobrecoste en qubits, y que el coste de la mitigación crece con el tamaño del
+% circuito. Es la fuente citable para «la mitigación es la vía practicable».
+@article{cai2023quantum,
+  author  = {Cai, Zhenyu and Babbush, Ryan and Benjamin, Simon C. and Endo, Suguru and
+             Huggins, William J. and Li, Ying and McClean, Jarrod R. and O'Brien, Thomas E.},
+  title   = {Quantum error mitigation},
+  journal = {Reviews of Modern Physics},
+  volume  = {95},
+  number  = {4},
+  pages   = {045005},
+  year    = {2023},
+  doi     = {10.1103/RevModPhys.95.045005}
+}
+
+% =====================================================================================
+% 3. Motivación (§1.1) — fuentes divulgativas, restringidas por decisión del autor
+% =====================================================================================
+
+% [WEB] Artículo explicativo de IBM Think. Fuente ÚNICA de §1.1.1: definición, problemas
+% complejos, el ejemplo molecular, las dos familias de aplicaciones, Shor 1994, y la
+% distinción utilidad cuántica / ventaja cuántica.
+% ⚠️ Página viva: publicada el 10-06-2025 y actualizada el 02-04-2026. Reverificar
+% la fecha de consulta antes del depósito.
+@misc{ibm2026computacion,
+  author       = {Schneider, Josh and Smalley, Ian},
+  title        = {¿Qué es la computación cuántica?},
+  howpublished = {IBM Think. \url{https://www.ibm.com/es-es/think/topics/quantum-computing}},
+  year         = {2026},
+  note         = {Consultado el 9 de septiembre de 2026}
+}
+
+% [WEB] Guía divulgativa de The Quantum Insider. Fuente ÚNICA de §1.1.2: significado de
+% NISQ, Preskill 2018, escala de decenas a miles de qubits, coste de la corrección
+% (cientos-miles de físicos por lógico), horizonte 2028-2033 y mitigación por software.
+@misc{tqi2026nisq,
+  author       = {Ur Rehman, Mohib},
+  title        = {What Is {NISQ} Quantum Computing: The Current Era of Quantum Machines},
+  howpublished = {The Quantum Insider.
+                  \url{https://thequantuminsider.com/2026/08/21/what-is-nisq-quantum-computing-guide/}},
+  year         = {2026},
+  note         = {Publicado el 21 de agosto de 2026. Consultado el 9 de septiembre de 2026}
+}
+
+% [WEB] Fuente ÚNICA de §1.1.3: definición de ruido cuántico, decoherencia, relajación,
+% desfase, ruido de medición, ruido térmico, y el impacto sobre QAOA, Shor y Grover.
+% ⚠️ Blog personal, NO fuente académica ni técnica revisada. Ver aviso más abajo.
+@misc{duque2025ruido,
+  author       = {Duque, Manu},
+  title        = {Ruido cuántico},
+  howpublished = {\url{https://www.manuduque.com/ruido-cuantico/}},
+  year         = {2025},
+  note         = {Publicado el 23 de marzo de 2025, actualizado el 9 de noviembre de 2025.
+                  Consultado el 9 de septiembre de 2026}
+}
+
+% [REVISADO] La comunicación en congreso donde Shor presentó el algoritmo por primera
+% vez (FOCS 1994). Es la versión que cita la fuente de IBM al hablar de «1994».
+% ⚠️ NO usar a la vez que shor1997polynomial: son el mismo trabajo, versión de
+% congreso y versión de revista. Elegir una.
+@inproceedings{shor1994algorithms,
+  author    = {Shor, Peter W.},
+  title     = {Algorithms for quantum computation: discrete logarithms and factoring},
+  booktitle = {Proceedings 35th Annual Symposium on Foundations of Computer Science},
+  pages     = {124--134},
+  year      = {1994},
+  publisher = {IEEE Computer Society Press},
+  doi       = {10.1109/SFCS.1994.365700}
 }

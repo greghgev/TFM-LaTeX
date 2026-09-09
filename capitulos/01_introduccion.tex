@@ -1,106 +1,260 @@
 \chapter{Introducción}
 \label{cap:intro}
 
-% GUION. Fuentes: doc/memoria/estructura.md, doc/00_Justificaciones.md
-% Escribir este capitulo AL FINAL, cuando el resto este cerrado: las contribuciones
-% solo se pueden enunciar bien cuando se sabe que se ha demostrado.
-%
+% GUION. Fuentes: doc/memoria/estructura.md, doc/00_Justificaciones.md, doc/03_Ruido_Cuantico.md
 % EXTENSION: 3-5 paginas (Instrucciones seccion 2.3). No mas.
 %
 % ⚠️ ESTRUCTURA FIJADA POR LA NORMA (seccion 2.3): Motivacion · Planteamiento del
 %    problema · Estructura del trabajo. Aqui los objetivos van «a grandes rasgos»; los
 %    objetivos formales, SMART, viven en el capitulo 5.
+%
+% ⚠️ DECISION DE REDACCION (sep-2026): la introduccion ANTICIPA el hallazgo negativo.
+%    Motivo: §1.3 ya lo enuncia, y plantear §1.2.2 como pregunta abierta dejaba el
+%    capitulo contradiciendose consigo mismo veinte lineas despues. Ademas, en un
+%    trabajo de tipo 3 el tribunal espera saber desde el principio que se compara y
+%    que salio.
+%
+% ⚠️ REVISAR AL CERRAR RESULTADOS: las contribuciones solo se enuncian del todo bien
+%    cuando se sabe que se ha demostrado.
 
 \section{Motivación}
 \label{sec:motivacion}
-% La norma pide responder a tres preguntas: ¿cual es el problema? ¿cuales son sus
-% causas? ¿por que es relevante? Y exige que haya ya referencias a investigacion previa,
-% aunque se profundice despues.
+% ⚠️ FUENTES RESTRINGIDAS POR DECISION DEL AUTOR (sep-2026): esta seccion 1.1 se apoya
+%    UNICAMENTE en tres fuentes divulgativas:
+%      1.1.1 -> ibm2026computacion   (IBM Think, «¿Que es la computacion cuantica?»)
+%      1.1.2 -> tqi2026nisq          (The Quantum Insider, guia NISQ)
+%      1.1.3 -> duque2025ruido       (Manu Duque, «Ruido cuantico»)
+%    NO añadir aqui Shor, Grover, Preskill, Kim, Cai ni Nielsen: se citan mas adelante.
 
 \subsection{Para qué sirve un ordenador cuántico}
 \label{sec:utilidad}
-% GUION. El «y esto para que vale». Es lo que mas le interesa a un tribunal de IA.
-%
-% ⚠️ MOVIDO AQUI desde el capitulo 2 (ago-2026). Su sitio es la MOTIVACION: la norma
-%    (Instrucciones §2.3) pide que este apartado responda a «¿por que es relevante el
-%    problema?», y esa respuesta es exactamente esta. Ademas descarga el bloque de
-%    contexto, que tiene el tope de 15 paginas.
-%
-% ⚠️ Va PRIMERO, antes del contexto NISQ, a proposito. El arco narrativo queda:
-%    para que sirve  ->  pero las maquinas de hoy tienen ruido  ->  y eso invalida
-%    el resultado. Al reves, el tribunal lee el problema antes de saber por que importa.
-% Que contar:
-%   - que un ordenador cuantico NO es un ordenador clasico mas rapido: resuelve
-%     PROBLEMAS DISTINTOS, y en casi todo lo demas es peor;
-%   - los casos donde hay ventaja teorica demostrada: factorizacion (Shor), busqueda
-%     (Grover), simulacion de sistemas cuanticos —quimica y materiales—, optimizacion;
-%   - la simulacion de moleculas como el caso de uso mas creible a corto plazo;
-%   - el cruce con la IA: donde se ha propuesto aprendizaje automatico cuantico y por
-%     que hoy sigue siendo especulativo;
-%   - el limite honesto: ninguna ventaja practica demostrada en un problema util todavia,
-%     y la razon es EL RUIDO. Ahi arranca el capitulo~\ref{cap:ruido} y, con el, el TFM.
-% ⚠️ Cerrar este apartado enlazando con el problema del trabajo es lo que convierte el
-%    capitulo de fundamentos en parte del argumento y no en relleno.
+
+Conviene aclarar un malentendido frecuente: un ordenador cuántico no es un
+ordenador clásico más rápido. Es un campo de la informática y la ingeniería que aprovecha
+las cualidades propias de la mecánica cuántica para resolver problemas que quedan fuera del
+alcance incluso de los ordenadores clásicos más potentes \cite{ibm2026computacion}. Y esta definición
+hay que leerla con cuidado porque para la mayoría de las tareas se espera que los ordenadores clásicos sigan siendo la mejor
+solución. La ventaja cuántica no es general, sino que está
+concentrada en un tipo muy concreto de problema.
+
+Ese tipo de problema es aquel en la que muchas variables interactúan de forma complicada. 
+Un ejemplo es modelar el
+comportamiento de los átomos de una molécula, complejo por las múltiples interacciones entre
+sus electrones \cite{ibm2026computacion}. Un ordenador clásico necesita
+\emph{calcular} cómo se comportará una molécula, mientras que un ordenador cuántico no
+necesita hacer los cálculos, porque puede \textbf{imitar} el sistema molecular.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% FOTOGRAFIA DE TERCEROS. Origen: la URL que aporto el autor,
+%   https://i0.wp.com/clipset.com/wp-content/uploads/2018/01/ibm-cuantico4.jpg
+% ⚠️ SIN LICENCIA DECLARADA en la fuente. Casi con seguridad es material grafico de IBM
+%    republicado por el medio, o una foto tomada en la feria. Antes de la entrega hay que
+%    localizar el origen primario y su licencia, o sustituirla por una del banco de
+%    imagenes de IBM Research, que si publica condiciones de uso.
+% ⚠️ Es una JPG de 960x1280 px. A 0.35\textwidth (5,3 cm) da ~460 dpi, de sobra para los
+%    300 dpi que exige el README de figuras. NO ampliarla mas de 0.6\textwidth.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.35\textwidth]{cap01/ibm_cuantico}
+
+    \caption{Un procesador cuántico de IBM instalado en su criostato.}
+    \label{fig:ibm_cuantico}
+
+    {\footnotesize Fuente: Clipset (2018).}
+\end{figure}
+
+Lo que se ve en la Figura~\ref{fig:ibm_cuantico} no es el ordenador cuántico, sino el
+frigorífico que lo mantiene vivo. El procesador cuántico es una
+pieza del tamaño de una moneda que va sujeta abajo del todo, a una temperatura cercana al
+cero absoluto. Toda esa maquinaria existe por un solo motivo: aislar los qubits del entorno,
+porque cualquier vibración o cualquier resto de calor los perturba. Esa fragilidad es
+justamente el problema del que trata esta memoria.
+
+En general para hacerse una idea, los ordenadores cuánticos sirven o se prevee que serviran para solventar problemas
+complejos en campos como: industria farmacéutica, química y ciencia de materiales, energía, finanzas, biología computacional, aprendizaje automático, ciberseguridad y semiconductores \cite{ibm2026computacion}.  Históricamente, la primera aplicación
+práctica que se propuso fue el algoritmo de factorización de enteros
+publicado por Peter Shor en 1994 \cite{shor1994algorithms}, que mostró cómo una máquina cuántica podría llegar a
+romper sistemas criptográficos.
+
+Todo expuesto, se ha dado una visión general de la importancia y el potencial de 
+la computación cuántica. Sin embargo, aunque sea una tecnología tan prometedora, todavía presenta
+ciertos desafíos y limitaciones importantes.
 
 \subsection{Contexto: la era NISQ}
 \label{sec:nisq}
-Qué son los dispositivos \textit{Noisy Intermediate-Scale Quantum}: decenas o centenares de
-qubits, sin corrección de errores, con resultados degradados por el ruido. Por qué la
-corrección completa (QEC) no es viable hoy —requiere muchos qubits físicos por cada qubit
-lógico— y por qué eso deja a la \textbf{mitigación por software} como única vía práctica.
+% Sin tecnicismos y a modo general, por decision expresa. Fuente unica: tqi2026nisq.
 
-\subsection{El ruido invalida el resultado}
-\label{sec:problema}
-Las tres fuentes de error (decoherencia, puertas, lectura) y su efecto acumulado sobre el
-valor esperado que el usuario mide. Un circuito de unos centenares de puertas puede perder la
-mayor parte de su señal.
+Actualmente, todos los ordenadores cuánticos disponibles comercialmente (los de IBM, Google, IonQ\dots) pertenecen a una misma categoría, la llamada \textbf{era NISQ}, \textit{Noisy Intermediate-Scale Quantum} \cite{tqi2026nisq}. El físico John Preskill acuñó este término en 2018 para describir una generación de ordenadores cuánticos que ya son difíciles de simular con ordenadores clásicos, pero que siguen teniendo demasiados errores como para aprovechar todo el potencial en aplicaciones reales.
+\cite{tqi2026nisq}.
+
+Los qubits, la unidad básica de información en la computación cuántica, son extremadamente sensibles a cualquier perturbación de su entorno, y cada operación introduce una pequeña posibilidad de error. Estos errores se acumulan con el tiempo y limita la fiabilidad de los resultados obtenidos. Lo actuales sistemas disponen de entre decenas y unos pocos miles de qubits que no son suficientes para que lo ordenadores cuánticos sean totalmente fiables. \cite{tqi2026nisq}.
+
+Aunque se conoce una posible solución, llamada Correción de Errores Cuánticos (QEC, por sus siglas en inglés \textit{Quantum Error Correction}), llevarla a la práctica sigue siendo uno de los mayores desafíos de la computación cuántica. Para hacerse una idea: para conseguir un buena fidelidad de un solo qubit es necesario ejecutar cientos o miles de ellos \cite{tqi2026nisq}. Esto hace que los ordenadores cuánticos actuales aún estén lejos de poder aplicar estos mecanismos de manera eficaz.
+
+Mientras tanto, existe una alternativa práctica en la que se centra nuestro trabajo: la Mitigación de Errores Cuánticos (QEM, por sus siglas en inglés \textit{Quantum Error Correction}). En lugar de intentar eliminar el ruido, su objetivo es estimar cuál habría sido el resultado obtenido en un escenario ideal sin errores. Algunas de las tecnicas que se incluyen en este área son: \textit{Zero Noise Extrapolation} (ZNE), \textit{Probabilistic Error Cancellation} (PEC) y \textit{Readout Error Mitigation} (REM).
+
 
 \section{Planteamiento del problema}
 \label{sec:planteamiento}
-% La norma pide responder: ¿como se podria solucionar? ¿que es lo que se propone?
-% Los objetivos, aqui, solo «en terminos generales».
 
-\subsection{Limitaciones de los enfoques actuales}
+\subsection{Limitaciones de los enfoques actuales QEM}
 \label{sec:limitaciones}
-Los métodos clásicos (ZNE, PEC) \textbf{cuestan ejecuciones adicionales} sobre un recurso
-escaso. Los métodos basados en aprendizaje automático del estado del arte
-\textbf{necesitan haber ejecutado ya el circuito} para poder corregirlo.
+
+El problema de estos métodos no es la precisión, sino el \textbf{coste}. Tanto ZNE como PEC
+necesitan ejecutar el circuito \textbf{varias veces más} (a distintos niveles de ruido o con
+variantes muestreadas) para poder estimar cuánto lo ha desviado el ruido. Como consecuencia, 
+la corrección de errores necesita una 
+cantidad adicional de tiempo de ejecución en el procesador cuántico, un recurso 
+especialmente escaso y caro en la actualidad.
+
+De ahí el interés en este ámbito del \textbf{aprendizaje automático} (ML-QEM, \textit{Machine Learning - Quantum Error Mitigation}): si un modelo aprende la relación entre el ruido y su efecto, la corrección se calcula sin gastar ejecuciones adicionales. El procedimiento general consta de tres pasos \cite{liao2024machine}:
+
+\begin{enumerate}
+    \item \textbf{Generación.} Se produce una gran cantidad de circuitos de entrenamiento
+          que imitan la estructura del circuito de interés, de forma que el modelo aprenda
+          sobre ejemplos parecidos a aquel que después tendrá que corregir.
+
+    \item \textbf{Codificación.} Cada circuito se pasa por un codificador que extrae sus
+          características (el número de compuertas, su tipo o su profundidad, entre otras),
+          convirtiendo el circuito en una representación que el modelo pueda consumir.
+
+    \item \textbf{Etiquetado.} Los circuitos se ejecutan en la QPU (Quantum Processing Unit) para obtener sus valores esperados con ruido, que \textbf{junto al valor ideal} conocido proporcionan la etiqueta:
+      cuánto ha desviado el ruido cada resultado.
+\end{enumerate}
+
+Con ese conjunto de datos el modelo aprende a estimar la corrección, y una vez entrenado la
+aplica sin necesidad de las ejecuciones extra que hacen falta en ZNE o PEC. Ahora bien, el esquema
+tiene una limitación: 
+
+\begin{itemize}
+      \item el modelo toma como entrada el \textbf{valor ruidoso ya medido}, y por tanto \textbf{hay que haber ejecutado el circuito} para poder corregirlo. La corrección sigue llegando después del gasto,
+      \item y el \textbf{valor ideal} debe conocerse de antemano para entrenar el modelo.
+\end{itemize}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. Fuente editable en figuras/cap01/mlqem_flujo.svg; el PDF se regenera con
+%   rsvg-convert -f pdf -o mlqem_flujo.pdf mlqem_flujo.svg
+% Representa la enumeracion de esta misma seccion Y la limitacion que la sigue: el trazo
+% rojo discontinuo es el valor ruidoso medido entrando como entrada del modelo, que es
+% exactamente lo que obliga a ejecutar el circuito antes de poder corregirlo. Sin ese
+% trazo la figura seria una ilustracion redundante del texto de al lado.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{cap01/mlqem_flujo}
+
+    \caption{El esquema general de la mitigación por aprendizaje automático, y la
+             dependencia que lo ata a la ejecución previa del circuito.}
+    \label{fig:mlqem}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Para conseguir el valor ideal existen varios métodos pero se ejecutan en ordenadores clásicos. Como mostraremos más adelante, los ordenadores clásicos son incapaces de reproducir los procesos de los ordenadores cuánticos a partir de un número de qubits.
 
 \subsection{La pregunta de este trabajo}
 \label{sec:pregunta}
-¿Se puede predecir la degradación que sufrirá un circuito \textbf{antes de ejecutarlo},
-mirando solo su estructura y la calibración del procesador?
+
+De ahí surge la pregunta que se trata en la memoria:
+
+\begin{center} 
+      \doublebox{
+      \begin{minipage}{0.85\linewidth} \vspace{0.5em}
+             \centering 
+             \textit{¿Se puede predecir la degradación que sufrirá un circuito \textbf{antes de ejecutarlo}, mirando únicamente su estructura y la calibración del procesador?} \vspace{0.5em} \end{minipage}} 
+\end{center}
+
+Lo que se propone no es cambiar el método, sino el momento en que se aplica la corrección: en lugar de corregir el resultado una vez obtenido, intentar \textbf{anticiparlo}. Si esto fuera posible, su utilidad sería inmediata y diferente a la de los métodos anteriores. Permitirá estimar de antemano qué versión de un circuito merece la pena ejecutar, o incluso si merece la pena ejecutarlo, sin consumir tiempo de procesador cuántico. Aunque la literatura ha explorado ideas similares, como clasificar circuitos según la calidad esperada de sus resultados antes de ejecutarlos \cite{hartnett2024learning}, todavía el enfoque `evitando recursos cuánticos' sigue estando escaso de contribuciones. 
 
 \subsection{Qué se propone}
 \label{sec:propuesta}
-% Solo a grandes rasgos: construir el conjunto de datos y comparar tres soluciones
-% —dos de aprendizaje automatico y una de aprendizaje profundo— bajo un protocolo
-% identico. El detalle formal esta en el capitulo 5.
 
-\section{Contribuciones}
-\label{sec:contribuciones}
-% Fuente: doc/memoria/materiales.md. Redactar AL FINAL.
-\begin{enumerate}
-    \item Un conjunto de datos de 20.000 circuitos con \textbf{42 días de calibración real}
-          y tres ejes OOD separables.
-    \item La demostración medida de que \textbf{el objetivo natural del problema no es
-          predecible antes de ejecutar}, con su explicación y una reformulación que sí lo es.
-    \item La detección, medición y corrección de \textbf{un error en las propias etiquetas},
-          junto con la razón metodológica por la que la comprobación original no lo detectó.
-    \item Una comparativa controlada de tres arquitecturas sobre el mismo problema.
-\end{enumerate}
+Responder a esa pregunta exige, antes que un modelo, un conjunto de datos que no existía.
+De modo que lo primero que se propone es construirlo: \textbf{veinte mil circuitos} de entre
+cinco y quince qubits, simulados sobre el gemelo digital de un procesador de IBM y
+etiquetados con la degradación \textbf{exacta} que sufre cada uno. El ruido no se inventa, se
+reconstruye día a día a partir de la \textbf{calibración real} del procesador durante cuarenta y
+dos días, de forma que la variabilidad que el modelo tiene que aprender a tolerar es la que
+de verdad tuvo la máquina. Y la partición se diseña para que el conjunto de prueba obligue a
+generalizar en \textbf{tres ejes independientes} (el tipo de circuito, su tamaño y el día de
+calibración), de manera que cada fallo pueda atribuirse a su causa en lugar de quedar
+diluido en un promedio.
+
+Sobre esos datos se comparan \textbf{tres soluciones} bajo un protocolo idéntico: una regresión
+lineal regularizada (\textbf{Ridge}), un \textbf{Random Forest} (el mejor modelo tabular de referencia
+según la ablación de \citeA{liao2024machine}) y una \textbf{red neuronal de grafos con paso de
+mensajes} (MPNN, \textit{message passing neural network}). La elección no es arbitraria,
+porque un circuito no es una fila: es una matriz de altura variable, una fila por puerta.
+Los dos primeros modelos exigen filas de longitud fija, así que hay que \textbf{resumir} el
+circuito en unas pocas columnas, y ese resumen tira el orden y la estructura (dos circuitos
+con las mismas puertas dispuestas de distinta manera producen la misma fila y son
+físicamente distintos). La red de grafos, en cambio, consume el circuito tal cual. La
+diferencia entre unos y otra es, por tanto, \textbf{la medida de cuánto vale la estructura que el
+resumen descarta}. Es el mismo argumento que sostiene el predictor de
+\citeA{tudisco2025graph}, que antes de proponer su red de grafos demuestra que el número de
+qubits, la profundidad y el recuento de puertas no bastan para separar sus clases; y la
+comparación entre red de grafos y Random Forest sobre circuitos cuánticos tiene ya un
+precedente cuantificado en el \textit{preprint} de \citeA{martyniuk2025benchmarking}.
+
+Una última decisión distingue el planteamiento del habitual en la literatura: los modelos no
+predicen un número, sino \textbf{cinco observables a la vez}. La razón es física antes que
+metodológica. En varias de las familias de circuitos empleadas la magnetización media vale
+\textbf{cero por construcción} (un estado GHZ devuelve $\ket{00\dots0}$ y $\ket{11\dots1}$ a
+partes iguales, y la media de $Z$ se cancela siempre), así que un objetivo escalar único
+habría dejado sin señal a buena parte del conjunto. Con cinco observables, y un tamaño de
+salida que no depende del número de qubits, ninguna familia se queda sin una magnitud que
+predecir.
+
+
+% =====================================================================================
+% ⚠️ SECCION 1.3 «CONTRIBUCIONES» RETIRADA (sep-2026) POR DECISION DEL AUTOR.
+%
+% Se conserva comentada porque el material es reutilizable: las contribuciones 1 y 3
+% estan enunciadas en §1.2.3, y la 2 y la 4 son los capitulos 8 y 7. Si se decide
+% reponer la seccion, basta con descomentar el bloque de abajo y REVISARLO contra los
+% resultados, que era su aviso original.
+% =====================================================================================
+% \section{Contribuciones}
+% \label{sec:contribuciones}
+% % Fuente: doc/memoria/materiales.md y doc/00_Justificaciones.md §4.
+% % ⚠️ REVISAR AL CERRAR RESULTADOS.
+% % ⚠️ Deliberadamente SIN CIFRAS de R²: las de materiales.md §... son del dataset v1 y la
+% %    regla del proyecto prohibe citarlas. Reponer las del v2 cuando esten medidas.
+%
+% \begin{enumerate}
+%     \item \textbf{Un conjunto de datos que no existía.} Veinte mil circuitos etiquetados con
+%           su degradación exacta, generados sobre la calibración real de un procesador de IBM
+%           a lo largo de $42$ días, y organizados en tres ejes de generalización separables
+%           (tipo de circuito, tamaño y tiempo) que permiten medir por separado tres formas
+%           distintas de fallar fuera de distribución.
+%
+%     \item \textbf{La demostración medida de que el objetivo natural del problema no es
+%           predecible antes de ejecutar}, junto con su explicación: la degradación es el
+%           producto de un factor que sí depende del circuito y del hardware por otro que
+%           depende del algoritmo y que es, precisamente, la incógnita para la que haría falta
+%           el ordenador cuántico. De ahí se sigue una reformulación del objetivo que sí es
+%           aprendible, y que es la que sostiene el resto del trabajo.
+%
+%     \item \textbf{Una comparativa controlada de tres modelos que mide si la representación
+%           en grafo aporta información real.} Ridge, Random Forest y una red neuronal de
+%           grafos resuelven el mismo problema con el mismo protocolo y la misma partición; la
+%           diferencia entre los dos primeros y el tercero es exactamente el valor de la
+%           estructura que la agregación tabular descarta.
+%
+%     \item \textbf{La detección, medición y corrección de un error en las propias
+%           etiquetas}, junto con la razón metodológica por la que la comprobación original no
+%           lo detectó y el procedimiento con el que se validó la regeneración.
+% \end{enumerate}
 
 \section{Estructura de la memoria}
 \label{sec:estructura}
-% ⚠️ Escribir aqui el recorrido por los doce capitulos Y, ademas, decir explicitamente a
-%    que bloque de la estructura oficial del tipo 3 corresponde cada uno. Es gratis y le
-%    ahorra al tribunal tener que reconstruirlo:
+% ⚠️ PENDIENTE POR DECISION DEL AUTOR (sep-2026): se redacta AL FINAL, cuando el resto de
+%    la memoria este cerrada y la numeracion de los capitulos ya no vaya a moverse.
+%    Escribirla ahora obliga a rehacerla con cada cambio de estructura, y de hecho el
+%    texto anterior ya referenciaba `cap:ruido`, el capitulo retirado en sep-2026, lo que
+%    dejaba un «Capitulo ??» en el PDF.
 %
-%      cap. 1            → Introduccion
-%      caps. 2, 3 y 4    → Contexto y estado del arte
-%      cap. 5            → Objetivos y metodologia de trabajo
-%      caps. 6, 7 y 8    → Planteamiento de la comparativa
-%      caps. 9 y 10      → Desarrollo de la comparativa
-%      cap. 11           → Discusion y analisis de resultados
-%      cap. 12           → Conclusiones y trabajo futuro
-Recorrido breve por los doce capítulos.
+% Cuando toque redactarla, el guion es: decir explicitamente a que bloque de la estructura
+% oficial del tipo 3 corresponde cada capitulo. Es gratis y le ahorra al tribunal tener que
+% reconstruirlo.
+
+\textbf{Nota:} pendiente de redactar.

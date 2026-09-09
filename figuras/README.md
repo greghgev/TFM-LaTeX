@@ -68,8 +68,21 @@ verdad. Si procede de un tercero hay que citarla, respetar su licencia y, si es
 
 | fichero | capítulo | origen | licencia |
 |---|---|---|---|
+| `cap01/ibm_cuantico.jpg` | 1 · criostato de IBM | Clipset (2018), `i0.wp.com/clipset.com/wp-content/uploads/2018/01/ibm-cuantico4.jpg` | ⚠️ **SIN LICENCIA DECLARADA** — ver aviso abajo |
+| `cap01/mlqem_flujo.pdf` | 1 · flujo ML-QEM | elaboración propia | — |
+| `cap01/mlqem_flujo.svg` | — | fuente editable del anterior | — |
 | `cap02/bloch.pdf` | 2 · esfera de Bloch | Glosser.ca (2012), Wikimedia Commons | **CC BY-SA 3.0** — obliga a citar autor y licencia |
 | `cap02/bloch.svg` | — | fuente editable del anterior | ídem |
+| `cap02/dag_circuito.pdf` | 2 · **retirada de la memoria** en sep-2026 | elaboración propia | se conserva por si hay que reponerla |
+
+⚠️ **Pendiente sobre `cap01/ibm_cuantico.jpg`.** La fuente es un medio que republica la
+imagen sin declarar licencia; con toda probabilidad es material gráfico de IBM o una
+fotografía tomada en una feria. **Antes de la entrega** hay que localizar el origen primario
+y sus condiciones de uso, o sustituirla por una del banco de imágenes de IBM Research, que
+sí las publica.
+
+`cap01/mlqem_flujo.pdf` se regenera con
+`rsvg-convert -f pdf -o mlqem_flujo.pdf mlqem_flujo.svg`.
 
 Convertido con `rsvg-convert -f pdf -o bloch.pdf bloch.svg`. Se conserva el SVG para
 poder regenerarlo o editarlo.

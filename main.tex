@@ -8,16 +8,11 @@
 % =====================================================================================
 \documentclass[11pt,a4paper,spanish]{book}
 
-% --- Paquetes que DEBEN ir ANTES del estilo institucional --------------------------
-% `estilo_unir-1` carga babel e inputenc SIN opciones. Si se cargasen después pidiendo
-% opciones, LaTeX lanzaría "Option clash". Cargándolos antes, su recarga posterior sin
-% opciones es inocua.
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[spanish,es-tabla]{babel}
-
 % --- Estilo institucional de la UNIR ----------------------------------------------
-% Define \titulacion, \director y \nombreciudad, y fija los márgenes con `vmargin`.
+% ⚠️ CALCADO DE LA PLANTILLA OFICIAL (sep-2026), por decisión del autor. La plantilla
+%    carga SOLO `estilo_unir-1`, que a su vez trae babel e inputenc sin opciones; el
+%    idioma llega por la opción `spanish` de \documentclass. Se retiraron por tanto los
+%    \usepackage de inputenc, fontenc y babel que la memoria cargaba antes del estilo.
 \usepackage{estilo_unir-1}
 
 % --- El resto del preámbulo -------------------------------------------------------
@@ -36,7 +31,7 @@
 % =====================================================================================
 \begin{document}
 
-\renewcommand{\listfigurename}{Índice de figuras}   % norma p. 6; la plantilla ponía «Índice de Ilustraciones»
+\renewcommand{\listfigurename}{Índice de Ilustraciones}
 \renewcommand{\listtablename}{Índice de Tablas}
 \renewcommand{\contentsname}{Índice de Contenidos}
 \renewcommand{\figurename}{Figura}
@@ -92,8 +87,9 @@ transformer
 \include{capitulos/01_introduccion}
 
 % --- Contexto y estado del arte (10–15 páginas en total, es el tope de la norma) ------
+% El capítulo «El ruido cuántico» se retiró en sep-2026 por decisión del autor:
+% demasiado técnico para el tribunal y no imprescindible para el argumento.
 \include{capitulos/02_fundamentos}
-\include{capitulos/03_ruido_cuantico}
 \include{capitulos/04_estado_del_arte}
 
 % --- Objetivos y metodología de trabajo ---------------------------------------------

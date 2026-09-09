@@ -32,7 +32,7 @@
 %     el FACTOR DE SUPERVIVENCIA f = <O>ruidoso / <O>exacto, la fraccion de señal que
 %     sobrevive a la ejecucion;
 %   - f = 1 significa que el circuito salio intacto; f = 0, que no queda nada.
-% ⚠️ Enlazar con el capitulo~\ref{cap:ruido}: cuantas mas puertas, menor f.
+% ⚠️ Enlazar con el apartado~\ref{sec:puertas}: cuantas mas puertas, menor f.
 
 \subsection{Reducción y amplificación}
 % EL PUNTO DE LA SECCION, y lo que la hace necesaria: el ruido NO SIEMPRE ENCOGE.
@@ -104,16 +104,16 @@ f = \frac{\langle O \rangle_{\text{ruidoso}}}{\langle O \rangle_{\text{exacto}}}
 
 $\Delta$ es el producto de dos cosas de naturaleza distinta:
 \begin{itemize}
-    \item $(1-f)$ — \textbf{cuánta señal destruye el ruido}. Es física del hardware: depende
+    \item $(1-f)$ ( \textbf{cuánta señal destruye el ruido}. Es física del hardware: depende
           del circuito y de la calibración, y por tanto \textbf{es aprendible}.
-    \item $\langle O \rangle_{\text{exacto}}$ — \textbf{cuánta señal había}. Depende del
+    \item $\langle O \rangle_{\text{exacto}}$ ) \textbf{cuánta señal había}. Depende del
           algoritmo, y es justamente la incógnita para la que haría falta un ordenador
           cuántico. \textbf{No es aprendible.}
 \end{itemize}
 
 \subsection{La excepción que confirma la explicación}
 % Argumento fuerte: no depender solo de la formula.
-Hay un observable cuyo $\Delta$ tiene signo sistemático —positivo el 99,9\,\% de las veces—.
+Hay un observable cuyo $\Delta$ tiene signo sistemático (positivo el $99{,}9$\,\% de las veces).
 \textbf{Es el único con $R^2$ positivo sobre $\Delta$}: donde no hay signo que adivinar, el
 problema se vuelve aprendible.
 
