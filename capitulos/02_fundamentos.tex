@@ -486,69 +486,100 @@ grafos. Eso es lo que motiva la sección siguiente.
 
 
 % =====================================================================================
+% =====================================================================================
+% 2.1.6 — EL HARDWARE ACTUAL
+% Sustituye al bloque de comentarios que habia bajo \subsection{El hardware actual}.
+% Enfoque acordado: divulgativo («a modo curiosidad»), sin tecnicismos, y quedandose
+% solo con los datos que el resto de la memoria necesita: la topologia limitada, la
+% recalibracion diaria y el coste de simular. Las cifras van fechadas en 2026 y con cita.
+% =====================================================================================
+
 \subsection{El hardware actual}
 \label{sec:hardware}
-% GUION. Apartado de CONTEXTO, el mas divulgativo del capitulo. Objetivo: que un tribunal
-% que no sabe de cuantica entienda de que maquinas hablamos.
-% Que contar:
-%   - las tecnologias que compiten: superconductores, iones atrapados, fotonica, atomos
-%     neutros; en que se diferencian en una frase cada una;
-%   - quien domina el sector: IBM, Google, IonQ, Quantinuum, Rigetti, PsiQuantum…;
-%   - como es un chip superconductor por dentro: qubits, acoplamientos, la topologia de
-%     conexion, y por que NO todos los qubits pueden interactuar entre si;
-%   - los ordenes de magnitud de hoy: cuantos qubits, que tasas de error, criogenia;
-%   - la CALIBRACION: los chips se recalibran a diario y sus parametros cambian.
-%
-% ⚠️ ESTE es el apartado que justifica el resto de la memoria: aqui se introduce el chip
-%    concreto (IBM Heron) que luego se simula en el capitulo~\ref{cap:dataset}. Presentarlo
-%    aqui de forma general y REMITIR alli para el detalle, sin repetirlo.
-% ⚠️ Es el apartado que mas se desactualiza. Fechar los datos: «a fecha de 2026…».
-% ⚠️ Necesita citas: no vale de memoria. Hacen falta fuentes verificables para las cifras
-%    de cada fabricante.
 
-\subsection{Propuesta de capítulos}
-\label{sec:propuesta_archivo}
-% =====================================================================================
-% 🗃️ APARTADO DE TRABAJO, NO DEFINITIVO.
-%
-% Aqui esta ARCHIVADO el material de la estructura anterior del capitulo 2.1, con su
-% contenido intacto, para poder releerlo y decidir que se rescata y adonde va.
-%
-% ⚠️ ESTE APARTADO NO PUEDE QUEDARSE EN LA VERSION QUE SE ENTREGUE. Antes del deposito
-%    hay que vaciarlo: repartir lo que sirva entre 2.1.1–2.1.4 y borrar el resto.
-%
-% ⚠️ OJO CON LOS SOLAPES que ya se ven:
-%    - «Evolucion unitaria y puertas» se solapa con el nuevo 2.1.2;
-%    - «El circuito como grafo aciclico dirigido» tambien, y ademas es la bisagra que
-%      abre el 2.2: si se elimina, hay que reponer esa transicion en otro sitio;
-%    - «La esfera de Bloch» ya esta REDACTADA y lleva la Figura~\ref{fig:bloch}; es el
-%      unico bloque de aqui con prosa terminada.
-% =====================================================================================
+Conviene hacerse una idea de qué son físicamente las máquinas de las que habla esta
+memoria, aunque solo sea para situar con una idea general el problema. Un procesador cuántico
+superconductor como los de IBM es un chip del tamaño de una moneda que vive en el fondo de
+un criostato: un cilindro de cobre dorado, de casi dos metros, cuya única función es
+mantener el chip a unas centésimas de grado por encima del cero absoluto. Los qubits no se
+programan escribiendo en una memoria, sino disparándoles pulsos de microondas por unos
+cables coaxiales; cada puerta del circuito es un pulso. Y la medición no devuelve un
+resultado, sino una estadística.
 
-\subsubsection{Evolución unitaria y puertas}
-\label{sec:unitaria}
-Las puertas como matrices unitarias $U \in \mathcal{U}(2^n)$. Reversibilidad. Puertas de un
-qubit y puertas de entrelazamiento.
+% Parrafo nuevo: explica QUE significa «repetir miles de veces y contar». Es el que
+% justifica que el objetivo del TFM sea un valor esperado y no una salida determinista.
+Nos detenemos en esto último. Al medir un qubit no
+se lee el estado en el que estaba: el estado \textbf{se destruye} y en su lugar aparece un
+cero o un uno, elegido al azar con la probabilidad que marcaba ese estado. Una única
+ejecución, por tanto, no informa de nada; devuelve una cadena de ceros y unos que podría
+haber salido de otra máquina completamente distinta. Lo que se hace en la práctica es
+ejecutar el mismo circuito miles de veces seguidas —cada repetición se llama
+\emph{shot}— y anotar cuántas veces sale cada resultado. De ese recuento se obtiene el
+promedio que interesaba, y el circuito se ha ejecutado entero, desde cero, en cada una de
+esas miles de repeticiones. La consecuencia se todo esto es que la precisión es un factor que se paga caro, ya que para reducir el error
+en los resultados es necesario ejecutar más veces los circuitos, lo que aumenta coste de uso del procesador.
 
-% Fuente: src/config.py::BASIS_GATES
-\textbf{La base nativa de IBM Heron.} El conjunto $\{cz, id, rz, sx, x\}$ y por qué importa:
-\textbf{cualquier circuito acaba traducido a él}. La puerta de dos qubits nativa es
-\texttt{cz}, no \texttt{cx}, y es \textbf{simétrica} —no existe control ni objetivo
-físico—, lo que obliga a una convención al construir el grafo.
+Merece de interés mencionar dos características del hardware que lo hacen distinto de un ordenador clásico:
 
-\subsubsection{Medición y valores esperados}
-\label{sec:medicion}
-El colapso del estado. Diferencia entre \textbf{muestrear} (obtener cadenas de bits) y
-\textbf{estimar un valor esperado} $\langle O \rangle = \bra{\psi} O \ket{\psi}$.
+\textbf{Primera: los qubits no se hablan todos con todos.} En un chip clásico cualquier
+dato puede llegar a cualquier registro; en uno cuántico cada qubit está conectado solo a
+dos o tres vecinos. Si un algoritmo necesita que interactúen dos qubits que no lo son, la
+única salida es ir acercando el estado de uno hasta el otro con puertas intermedias, y cada
+puerta añadida es ruido añadido.
 
-% Fuente: doc/02_Los_Observables.md
-\textbf{Qué es un observable.} Operadores de Pauli, sus autovalores $\pm 1$, y qué significa
-un valor esperado intermedio.
+\textbf{Segunda: el chip no es el mismo dos días seguidos.} Estas máquinas se recalibran a
+diario, y cada calibración publica un boletín con la tasa de error de cada puerta y los
+tiempos de vida de cada qubit. Esos números cambian y un qubit que ayer era de los
+buenos hoy puede ser de los malos, y hay puertas que se estropean y no se reparan.
+Esta es la razón de que el conjunto de datos del Capítulo~\ref{cap:dataset}
+contenga la calibración real de un intervalo de días distintos en lugar de una única
+fotografía del chip.
 
-\textbf{Por qué este trabajo predice observables y no distribuciones.} Una distribución
-completa tiene $2^n$ entradas y no se puede usar como objetivo de tamaño fijo. Un observable
-es \textbf{un número}, es lo que un algoritmo real devuelve, y permite una salida del mismo
-tamaño para cualquier circuito.
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Tabla simplificada a proposito: solo el catalogo de chips. El comentario sobre el
+% cambio de estrategia (subir a 1121 y bajar a 156) se retiro por peticion expresa.
+\begin{table}[htbp]
+    \centering
+    \caption{Familias de procesadores cuánticos de IBM y su número de qubits.}
+    \label{tab:familias}
+    \begin{tabular}{@{}lrr@{}}
+        \toprule
+        \textbf{Familia} & \textbf{Año} & \textbf{Qubits} \\
+        \midrule
+        Falcon    & 2019 & 27 \\
+        Eagle     & 2021 & 127 \\
+        Osprey    & 2022 & 433 \\
+        Condor    & 2023 & 1\,121 \\
+        Heron     & 2023 & 133 / 156 \\
+        Nighthawk & 2025 & 120 \\
+        \bottomrule
+    \end{tabular}
+
+    {\footnotesize Fuente: elaboración propia a partir de \citeNP{ibm2026hardware}.}
+\end{table}
+
+% Bloque nuevo: la equivalencia chip cuantico <-> ordenador clasico.
+% Cifras calculadas como 2^n amplitudes x 16 bytes (complejo de doble precision).
+% El 17,2 GB de n=15 es dato del propio proyecto: con ruido el coste es 4^n = 2^30.
+
+Aunque 156 qubits parecen poca cosa habría que repasar \textbf{cuánta memoria haría falta en un ordenador normal
+para imitar el chip}. Y la respuesta es que describir el estado de $n$ qubits exige guardar
+$2^n$ números, de modo que \textbf{cada qubit que se añade duplica} el coste. 
+\begin{itemize}
+    \item Con 30 qubits hacen falta unos 17 GB, la memoria de un portátil actual bueno.
+    \item  Con 40 qubits, unos 17 TB, que ya es un servidor grande.
+    \item Con 50 qubits, unos 18 PB: un centro de datos entero dedicado a imitar un chip del tamaño de una moneda. 
+    \item Y con los 156 qubits de un Heron sale un número de 48 cifras que ninguna máquina actual ni futura podrá almacenar.
+\end{itemize}
+
+Estas ejecuciones con ruido de chips cuánticos se pueden simular con ordenadores clásicos mediante paquetes de 
+simuladores, como Qiskit Aer. Debido al gran cómputo que exigen una ejecución cuántica, los 
+circuitos simulados en este trabajo llegan hasta 15 qubits.
+
+Con todo esto hemos visto que el chip real maneja 156 qubits sin problema y el ordenador clásico no es capaz
+ni de acercarse. Por tanto, no se puede calcular de antemano cuánto va a degradar
+el ruido un resultado, porque ese cálculo es precisamente lo que resulta imposible. Lo
+que sí puede intentarse es \textbf{aprenderlo} a partir de ejemplos.
 
 \section{Fundamentos de los modelos de aprendizaje automático}
 \label{sec:fund_ia}

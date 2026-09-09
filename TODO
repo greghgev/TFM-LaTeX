@@ -1,7 +1,7 @@
 Ideas para el TFM:
-    ☐ Hacer una explicación de la familias de chips cuánticos que hay (Falcon de 27 qubits, Eagle de 127 qubits, Osprey de 433 qubits, Condor de 1121 qubits):
-        ☐ Justificar la elección del Eagle de 127 qubits para este proyecto.
-        ☐ Explicar el peso computacional de los chips cuánticos.
+    ✔ Hacer una explicación de la familias de chips cuánticos que hay (Falcon de 27 qubits, Eagle de 127 qubits, Osprey de 433 qubits, Condor de 1121 qubits): @done(26-09-09 09:33)
+        ✔ Justificar la elección del Eagle de 127 qubits para este proyecto. @done(26-09-09 09:33)
+        ✔ Explicar el peso computacional de los chips cuánticos. @done(26-09-09 09:33)
         ☐ Justiifcar la elección del sub-grafo de 5,7,10 y como máximo 15 qubits
     ☐ Explicar los tipos de circuitos a los que se puede enfocar:
         - Opción 1: Circuitos Aleatorios (Random Clifford / Random Unitary)

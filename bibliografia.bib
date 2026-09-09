@@ -250,3 +250,49 @@
 %    ➡️ Los trailers «Co-Authored-By» del historial de TFM-Quantum registran los modelos
 %       reales usados en cada commit. Consultarlos ANTES de rehacer el repositorio,
 %       porque al limpiarlo esa evidencia desaparece.
+
+% =====================================================================================
+% 2. Hardware — contexto del capítulo 2
+% =====================================================================================
+
+% [WEB] Página oficial de hardware y hoja de ruta de IBM Quantum. Es la fuente de las
+% cifras de la Tabla de familias de procesadores y de la flota disponible en 2026
+% (Heron 133/156, Nighthawk 120). ⚠️ Es una página viva: reverificar la fecha de
+% consulta antes del depósito. Cubre además el requisito de «enlaces puntuales»
+% (Instrucciones §2.8).
+@misc{ibm2026hardware,
+  author       = {{IBM Quantum}},
+  title        = {Hardware for useful quantum computing},
+  howpublished = {\url{https://www.ibm.com/quantum/hardware}},
+  year         = {2026},
+  note         = {Consultado el 9 de septiembre de 2026}
+}
+
+% [REVISADO] El artículo que acuñó el término NISQ y define la era en la que se sitúa
+% todo el trabajo. Sostiene el capítulo 2 y el planteamiento del capítulo 3.
+@article{preskill2018nisq,
+  author  = {Preskill, John},
+  title   = {Quantum Computing in the {NISQ} era and beyond},
+  journal = {Quantum},
+  volume  = {2},
+  pages   = {79},
+  year    = {2018},
+  doi     = {10.22331/q-2018-08-06-79}
+}
+
+% [REVISADO] Artículo de IBM Quantum en Nature. Es la fuente citable de que un chip de
+% 127 qubits opera ya fuera del alcance del cálculo clásico directo: sostiene la
+% equivalencia chip cuántico / ordenador clásico del final de §2.1.6.
+% Lista de autores COMPLETA (no lleva «and others»).
+@article{kim2023evidence,
+  author  = {Kim, Youngseok and Eddins, Andrew and Anand, Sajant and Wei, Ken Xuan and
+             van den Berg, Ewout and Rosenblatt, Sami and Nayfeh, Hasan and Wu, Yantao and
+             Zaletel, Michael and Temme, Kristan and Kandala, Abhinav},
+  title   = {Evidence for the utility of quantum computing before fault tolerance},
+  journal = {Nature},
+  volume  = {618},
+  number  = {7965},
+  pages   = {500--505},
+  year    = {2023},
+  doi     = {10.1038/s41586-023-06096-3}
+}
