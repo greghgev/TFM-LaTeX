@@ -1,5 +1,6 @@
 % =====================================================================================
-% TFM — Mitigación de Ruido Cuántico en Hardware NISQ mediante Deep Learning
+% TFM — Predicción de la degradación por ruido en circuitos cuánticos NISQ antes de su
+%       ejecución: comparativa entre modelos tabulares y redes neuronales de grafos
 % Gregory Harutyunyan Gevorgyan · Máster en Inteligencia Artificial · UNIR
 %
 % Estructura y estado de cada capítulo: doc/memoria/estructura.md
@@ -21,12 +22,30 @@
 % =====================================================================================
 % Portada
 % =====================================================================================
-\title{Mitigación de Ruido Cuántico en Hardware NISQ mediante Deep Learning}
+% ⚠️ TITULO CAMBIADO (sep-2026) por decision del autor. El anterior era «Mitigación de
+%    Ruido Cuántico en Hardware NISQ mediante Deep Learning»; se retiró porque anunciaba
+%    como método el que NO gana la comparativa y omitía el diferenciador del trabajo, que
+%    es predecir ANTES de ejecutar. PENDIENTE: confirmarlo con el director.
+% ⚠️ SALTOS DE LINEA EXPLICITOS con \newline (NO \\: dentro de la tabular del estilo, \\
+%    cerraria la fila y descolocaria la portada entera).
+%    Se fijan a mano porque la columna p{12cm} del estilo justifica el titulo a cuerpo \Huge,
+%    y a ~26 caracteres por linea eso deja huecos enormes entre palabras. Cada \newline
+%    cierra su linea sin estirarla. Los cortes son semanticos, no arbitrarios.
+%    ⚠️ SI SE CAMBIA EL TITULO, HAY QUE REHACER LOS CORTES.
+\title{Predicción de la\newline
+degradación por ruido en\newline
+circuitos cuánticos NISQ\newline
+antes de su ejecución:\newline
+comparativa entre modelos\newline
+tabulares y redes\newline
+neuronales de grafos}
 \titulacion{Máster Universitario en Inteligencia Artificial}
 \author{Gregory Harutyunyan Gevorgyan}
 \director{Pablo Abellán Galiana}
-\nombreciudad{Granada}
-\date{\today}
+\nombreciudad{ Granada}
+% ⚠️ Fecha de entrega, la misma que fija el criterio «T» del objetivo general (§4.1).
+%    NO usar \today: la portada quedaría con la fecha de la ultima compilacion.
+\date{16 de agosto de 2026}
 
 % =====================================================================================
 \begin{document}
@@ -37,43 +56,96 @@
 \renewcommand{\figurename}{Figura}
 \renewcommand{\tablename}{Tabla}
 
+% ⚠️ EL TITULO NO SE PARTE CON GUION EN LA PORTADA.
+%    Los parametros van AQUI, envolviendo a \maketitle, y NO dentro de \title{}: el estilo
+%    compone el titulo dentro de grupos anidados que se cierran antes de romper el parrafo,
+%    asi que puestos ahi dentro se revierten y no surten efecto. Sin esto la portada parte
+%    «degrada-ción», «en-tre» y «re-des», que a cuerpo \Huge canta mucho.
+%    \raggedright evita ademas que la justificacion abra huecos enormes entre palabras.
+%    El estilo institucional (estilo_unir-1.sty) NO se toca: es calco de la plantilla.
+\begingroup
+\hyphenpenalty=10000 \exhyphenpenalty=10000 \raggedright
 \maketitle
+\endgroup
 
-\frontmatter
-\tableofcontents
-\listoffigures
-\listoftables
+% ⚠️ NO se usa \frontmatter tal cual: su \cleardoublepage empujaba a pagina impar y dejaba
+%    una HOJA EN BLANCO detras de la portada (la antigua pagina 2). Aqui se hace lo mismo
+%    que hace \frontmatter —numeracion romana y capitulos sin numerar— pero sin ese salto.
+%    \chapter ya no fuerza pagina impar por su cuenta: estilo_unir-1.sty lo parchea (l.50).
+\makeatletter
+\@mainmatterfalse
+\makeatother
+\pagenumbering{roman}
 
 % -------------------------------------------------------------------------------------
+% ⚠️ ORDEN FIJADO POR EL AUTOR (sep-2026): Resumen y Abstract van JUSTO DETRAS de la
+%    portada y ANTES de los indices. No devolverlos detras del indice.
+% -------------------------------------------------------------------------------------
 \chapter{Resumen}
-% PENDIENTE. Escribir AL FINAL, cuando estén los resultados.
+% ⚠️ EXTENSIÓN: las Instrucciones §1.2 dicen «máximo 150 palabras» y las §2.1 «de 150 a 300».
+%    Los dos documentos oficiales se contradicen. EL AUTOR DECIDIO (sep-2026) acogerse a la
+%    horquilla de §2.1 para poder incluir la justificacion y las contribuciones. MEDIDO: 241.
+%    Si se reescribe, volver a contarlas y NO pasar de 300.
 %
-% ⚠️ EXTENSIÓN: la plantilla oficial y las Instrucciones §1.2 dicen «máximo 150 palabras»;
-%    las Instrucciones §2.1 dicen «de 150 a 300 palabras». Los dos documentos oficiales se
-%    contradicen. Escribir ~150 palabras es lo único que cumple ambos.
-% Debe cubrir: propósito, metodología, resultados y conclusiones.
-%
-% El hilo, para cuando toque redactarlo:
-%   - los ordenadores cuánticos actuales dan resultados degradados por el ruido;
-%   - se estudia si esa degradación se puede predecir ANTES de ejecutar el circuito;
-%   - se construye un conjunto de 20.000 circuitos con calibración real y tres ejes de
-%     generalización, y se comparan tres modelos con protocolo idéntico;
-%   - hallazgo central: la magnitud que se quería predecir no es predecible, y se explica
-%     por qué; la reformulación sí lo es.
+% ⚠️ PALABRAS CLAVE: NO poner «graph transformer». Los modelos de este trabajo son MPNN
+%    (SAGEConv, GINConv, GATv2Conv); un transformer de grafo es otra arquitectura y aquí
+%    no se usa ninguna. Se corrigió en sep-2026.
 
-\textbf{Nota:} pendiente de redactar.
+Los ordenadores cuánticos actuales devuelven resultados degradados por el ruido. Las técnicas
+habituales para corregirlo actúan después de medir y exigen ejecutar el circuito muchas veces,
+lo que multiplica el consumo de un recurso caro y escaso: el tiempo de procesador cuántico.
+Anticipar esa degradación permitiría decidir qué versión de un circuito merece la pena
+ejecutar, o si merece la pena ejecutarlo siquiera, sin gastar ese tiempo. Este trabajo estudia
+si la degradación puede predecirse antes de ejecutar, solo a partir de la estructura del
+circuito y de la calibración del procesador.
 
-\textbf{Palabras clave:} computación cuántica, mitigación de errores, NISQ, \textit{deep
-learning}, \textit{graph transformer}
+Para ello se construye un conjunto de veinte mil circuitos de cinco a quince qubits,
+etiquetados con su degradación exacta sobre la calibración real de un procesador de IBM
+durante cuarenta y dos días, y particionado en tres ejes de generalización independientes:
+tipo de circuito, tamaño y tiempo. Sobre él se comparan tres tipos de modelos bajo un mismo protocolo: 
+una regresión Ridge, un Random Forest y una red neuronal de grafos.
+
+El trabajo aporta tres resultados. Primero, la degradación con signo no es predecible antes de
+ejecutar y su reformulación como factor
+de supervivencia sí lo es. Segundo, Random Forest gana la comparativa, y la representación en
+grafo solo compensa al extrapolar a circuitos mayores o a algoritmos nunca vistos. Tercero,
+acertar sobre el factor no garantiza mitigar bien: Ridge lo predice con coeficiente positivo
+en los cinco observables y aun así empeora cuatro de ellos al aplicarlo.
+
+\textbf{Palabras clave:} computación cuántica, NISQ, mitigación de errores, aprendizaje
+automático, redes neuronales de grafos.
 
 % -------------------------------------------------------------------------------------
 \chapter{Abstract}
-% PENDIENTE. Traducción del resumen. Escribir DESPUÉS del resumen en español.
+% Traducción del resumen en español. Si se toca uno, tocar el otro. MEDIDO: 231 palabras.
 
-\textbf{Note:} pending.
+Today's quantum computers return results degraded by noise. The usual techniques for
+correcting it act after measurement and require running the circuit many times, which
+multiplies the consumption of an expensive and scarce resource: quantum processor time.
+Anticipating that degradation would make it possible to decide which version of a circuit is
+worth running, or whether it is worth running at all, without spending that time. This work
+studies whether the degradation can be predicted before execution, using only the structure of
+the circuit and the calibration of the processor.
 
-\textbf{Keywords:} quantum computing, error mitigation, NISQ, deep learning, graph
-transformer
+To that end, a dataset of twenty thousand circuits of five to fifteen qubits is built,
+labelled with their exact degradation over the real calibration of an IBM processor across
+forty-two days, and partitioned along three independent axes of generalisation: circuit type,
+size and time. Three types of model are then compared under a single protocol: a Ridge
+regression, a Random Forest and a graph neural network.
+
+The work yields three results. First, the signed degradation is not predictable before
+execution, whereas its reformulation as a survival factor is. Second, Random Forest wins the comparison, and the graph representation
+only pays off when extrapolating to larger circuits or to previously unseen algorithms. Third,
+predicting the factor well does not guarantee good mitigation: Ridge predicts it with a
+positive coefficient across all five observables and yet worsens four of them when applied.
+
+\textbf{Keywords:} quantum computing, NISQ, error mitigation, machine learning, graph neural
+networks.
+
+% -------------------------------------------------------------------------------------
+\tableofcontents
+\listoffigures
+\listoftables
 
 % =====================================================================================
 \mainmatter
@@ -87,28 +159,36 @@ transformer
 \include{capitulos/01_introduccion}
 
 % --- Contexto y estado del arte (10–15 páginas en total, es el tope de la norma) ------
-% El capítulo «El ruido cuántico» se retiró en sep-2026 por decisión del autor:
-% demasiado técnico para el tribunal y no imprescindible para el argumento.
 \include{capitulos/02_fundamentos}
-\include{capitulos/04_estado_del_arte}
+\include{capitulos/03_estado_del_arte}
 
 % --- Objetivos y metodología de trabajo ---------------------------------------------
-\include{capitulos/05_objetivos_metodologia}
+\include{capitulos/04_objetivos_metodologia}
 
 % --- Planteamiento de la comparativa ------------------------------------------------
-\include{capitulos/06_dataset}
-\include{capitulos/07_rigor_metodologico}   % ⭐ resultado propio
-\include{capitulos/08_variable_objetivo}    % ⭐ resultado propio
+% ⚠️ REESTRUCTURADO (sep-2026), por decisión del autor. Dos cambios:
+%      1. La VARIABLE OBJETIVO va DELANTE del planteamiento: el capítulo 6 usa el factor
+%         de supervivencia en la EDA, en el preprocesado y en las métricas, así que
+%         definirlo después dejaba al lector leyendo métricas de una magnitud sin
+%         presentar.
+%      2. El capítulo 6 absorbe datos, EDA, preprocesado, modelos, entrenamiento y
+%         criterios de éxito: es el bloque «Planteamiento» completo (Instrucciones §2.6).
+%         El capítulo 7 pasa a ser la EJECUCIÓN de esa comparativa.
+%    🔴 El antiguo capítulo «Rigor metodológico» quedó FUERA de la memoria por decisión
+%       expresa del autor. No reintroducirlo: su material (el bug de las etiquetas del v1,
+%       el límite de determinismo del transpilador y las dos trampas de medición) sigue en
+%       TFM-Quantum/doc/changes/ si algún día se recupera.
+\include{capitulos/05_variable_objetivo}        % ⭐ resultado propio
+\include{capitulos/06_planteamiento_comparativa}
 
 % --- Desarrollo de la comparativa ---------------------------------------------------
-\include{capitulos/09_comparativa}
-\include{capitulos/10_resultados}      % ⏳ BLOQUEADO: faltan datos y modelos
+\include{capitulos/07_comparativa}     % ⏳ la EJECUCIÓN: barrido, hiperparámetros, incidencias
 
-% --- Discusión ----------------------------------------------------------------------
-\include{capitulos/11_discusion}       % ⏳ BLOQUEADO: depende del capítulo 10
+% --- Resultados y discusión ---------------------------------------------------------
+\include{capitulos/08_resultados}      % ⏳ BLOQUEADO: resultados Y su discusión
 
 % --- Conclusiones -------------------------------------------------------------------
-\include{capitulos/12_conclusiones}    % ⏳ BLOQUEADO: depende de los capítulos 10 y 11
+\include{capitulos/09_conclusiones}    % ⏳ BLOQUEADO: depende del capítulo 8
 
 % =====================================================================================
 % Bibliografía
@@ -125,17 +205,20 @@ transformer
 % Va el primero de los anexos por ser una declaración exigida por la normativa.
 \include{capitulos/anexo_ia}
 
-\chapter{Código fuente y datos analizados}
+% \chapter{Código fuente y datos analizados}
 % ⚠️ Instrucciones §2.9: «Es recomendable que el estudiante incluya en su memoria la URL
 %    del repositorio donde tiene alojado el código fuente desarrollado durante el TFE. El
 %    estudiante debe ser el único autor del código y único propietario del repositorio.
 %    En el repositorio no debe haber commit de ningún otro usuario del repositorio.»
 % PENDIENTE: URL del repositorio, una vez esté limpio.
 
-\chapter{Catálogo completo de las variables agregadas}
+% Sale del capitulo 5 (§5.3 y §5.5 remiten aqui) para no desviar la linea de trabajo.
+\include{capitulos/anexo_factor_negativo}
+
+% \chapter{Catálogo completo de las variables agregadas}
 % PENDIENTE.
 
-\chapter{Tablas de resultados desglosadas}
+% \chapter{Tablas de resultados desglosadas}
 % PENDIENTE. Aquí van las tablas largas que no caben en el capítulo 10.
 
 % =====================================================================================
@@ -143,7 +226,7 @@ transformer
 % este trabajo: NISQ, QEC, QEM, ZNE, PEC, M3, GEM, QCR, DAG, OOD, GNN, MAE, RMSE, QPU…
 % =====================================================================================
 % Sin numerar: es un apartado propio (§2.10), no un anexo más.
-\chapter*{Índice de acrónimos}
+% \chapter*{Índice de acrónimos}
 \addcontentsline{toc}{chapter}{Índice de acrónimos}
 % PENDIENTE.
 

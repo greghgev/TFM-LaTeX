@@ -1,0 +1,103 @@
+% =====================================================================================
+% Cómo se reparte el conjunto, y de dónde salen los tres ejes — figura propia en TikZ.
+%
+% CUATRO NIVELES:
+%   1. el conjunto entero;
+%   2. entrenamiento, validación y prueba, con QUÉ HAY dentro de los dos primeros;
+%   3. de PRUEBA salen los tres ejes de generalización, porque es ahí —y solo ahí— donde
+%      aparecen tipos, tamaños y días que el modelo no ha visto;
+%   4. de TIPO y de TAMAÑO sale además cómo se reparte por dentro cada uno de esos ejes.
+%      TIEMPO no abre cuarto nivel: sus doce días no se subdividen.
+%
+% ⚠️ SIN TITULO dentro de la imagen: lo pone el \caption de LaTeX (norma del TFE, §1.3).
+%
+% ⚠️ ANCHOS. Los cuatro niveles tienen que caber en los 15 cm de la caja de texto, así que
+%    cada columna está medida: 1,9 + 3,7 + 2,3 + 2,9 cm de texto más sus márgenes suman
+%    unos 14,7. NO ensanchar ninguna sin estrechar otra, o la figura se sale de la caja.
+%    Los niveles 3 y 4 van en \scriptsize por el mismo motivo.
+%
+% COLORES. Los tres ejes son categorías hermanas sin orden ni significado físico, así que
+% aquí NO aplica el código de color de la memoria (azulunir = el objeto, acentofig = lo
+% que se le hace). Se toman los tres tonos de la paleta de tipos de circuito del proyecto
+% —src/viz/estilo.py::CIRCUITOS—, ya validados contra daltonismo y contraste. El cuarto
+% nivel hereda el color de su eje, para que se vea de quién cuelga.
+%
+% ⚠️ \shorthandoff{<>} es obligatorio: `babel` en español hace activos < y >, y eso rompe
+%    la sintaxis de puntas de flecha de TikZ.
+% =====================================================================================
+\begingroup
+\shorthandoff{<>}%
+% Dentro de cajas tan estrechas, LaTeX parte «qubits» y «posteriores». Se prohíbe.
+\hyphenpenalty=10000\exhyphenpenalty=10000\relax
+
+\definecolor{ejetipo}{HTML}{E34948}    % rojo    · el eje de tipo de circuito
+\definecolor{ejetam}{HTML}{1BAF7A}     % verde   · el eje de tamaño
+\definecolor{ejetiempo}{HTML}{4A3AA7}  % índigo  · el eje temporal
+
+\begin{tikzpicture}[
+    >={Stealth[length=2mm]},
+    font=\footnotesize,
+    origen/.style = {draw=azulunir, line width=1pt, rounded corners=3pt,
+                     fill=azulunir!6, align=center, inner sep=5pt, text width=1.9cm},
+    grupo/.style  = {draw=#1, line width=0.9pt, rounded corners=3pt, fill=#1!5,
+                     align=left, inner sep=5pt, text width=3.7cm},
+    eje/.style    = {draw=#1, line width=0.9pt, rounded corners=3pt, fill=#1!6,
+                     align=left, inner sep=4pt, text width=2.3cm, font=\scriptsize},
+    hoja/.style   = {draw=#1!55, line width=0.7pt, rounded corners=2pt, fill=#1!3,
+                     align=left, inner sep=4pt, text width=2.9cm, font=\scriptsize},
+    flecha/.style = {->, line width=1pt, draw=#1},
+    ramita/.style = {->, line width=0.7pt, draw=#1!65},
+  ]
+
+  % --- nivel 1: el conjunto -----------------------------------------------------------
+  \node[origen] (datos) at (0,0.6)
+    {\textbf{El conjunto\\de datos}\\[2pt]
+     {\scriptsize\color{gray} $20{.}000$}};
+
+  % --- nivel 2: los tres grupos -------------------------------------------------------
+  \node[grupo=azulunir]  (train) at (3.6, 4.2)
+    {\textbf{Entrenamiento}\\[2pt]
+     $13{.}344$ circuitos\\
+     días $0$--$24$\\
+     aleatorios · $5$--$11$ qubits};
+
+  \node[grupo=azulunir]  (val)   at (3.6, 1.7)
+    {\textbf{Validación}\\[2pt]
+     $2{.}656$ circuitos\\
+     días $25$--$29$\\
+     aleatorios · $5$--$11$ qubits};
+
+  \node[grupo=acentofig] (test)  at (3.6, -1.4)
+    {\textbf{Prueba}\\[2pt]
+     $4{.}000$ circuitos\\
+     días $30$--$41$};
+
+  \draw[flecha=azulunir]  (datos.east) to[out=45,  in=180] (train.west);
+  \draw[flecha=azulunir]  (datos.east) to[out=15,  in=180] (val.west);
+  \draw[flecha=acentofig] (datos.east) to[out=-45, in=180] (test.west);
+
+  % --- nivel 3: los tres ejes, colgando de PRUEBA --------------------------------------
+  \node[eje=ejetipo]   (tipo)   at (8.0,  1.8) {\textbf{\color{ejetipo}TIPO}};
+  \node[eje=ejetam]    (tam)    at (8.0, -1.4) {\textbf{\color{ejetam}TAMAÑO}};
+  \node[eje=ejetiempo] (tiempo) at (8.0, -4.0)
+    {\textbf{\color{ejetiempo}TIEMPO}\\doce días posteriores};
+
+  \draw[flecha=ejetipo]   (test.east) to[out=35,  in=180] (tipo.west);
+  \draw[flecha=ejetam]    (test.east) to[out=0,   in=180] (tam.west);
+  \draw[flecha=ejetiempo] (test.east) to[out=-40, in=180] (tiempo.west);
+
+  % --- nivel 4: cómo se reparte por dentro cada eje ------------------------------------
+  % TIEMPO no abre nivel: los doce días no se subdividen.
+  \node[hoja=ejetipo] (tipoA) at (11.9,  2.7) {$30$\,\% aleatorios};
+  \node[hoja=ejetipo] (tipoB) at (11.9,  0.9) {$70$\,\% seis circuitos específicos nuevos};
+
+  \node[hoja=ejetam]  (tamA)  at (11.9, -0.6) {de $5$ a $11$ qubits};
+  \node[hoja=ejetam]  (tamB)  at (11.9, -2.3) {de $12$ a $15$ qubits};
+
+  \draw[ramita=ejetipo] (tipo.east) to[out=30,  in=180] (tipoA.west);
+  \draw[ramita=ejetipo] (tipo.east) to[out=-30, in=180] (tipoB.west);
+  \draw[ramita=ejetam]  (tam.east)  to[out=30,  in=180] (tamA.west);
+  \draw[ramita=ejetam]  (tam.east)  to[out=-30, in=180] (tamB.west);
+
+\end{tikzpicture}%
+\endgroup

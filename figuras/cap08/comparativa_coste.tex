@@ -1,0 +1,24 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}llrrl@{}}
+        \toprule
+        \textbf{Modelo} & \textbf{Tamaño} & \textbf{Latencia (ms)} & \textbf{Entrenamiento (min)} & \textbf{Máquina} \\
+        \midrule
+        No mitigar & 5 constantes & 0,0000 & 0,0000 & PC local · 8 vCPU \\
+        f constante & 5 constantes & 0,0000 & 0,0000 & PC local · 8 vCPU \\
+        Ridge · 1 variable & 10 coeficientes & 0,0001 & 0,0008 & PC local · 8 vCPU \\
+        Ridge · 34 variables & 175 coeficientes & 0,0001 & 0,0007 & PC local · 8 vCPU \\
+        Random Forest & 239 352 nodos & 0,0869 & 0,3100 & PC local · 8 vCPU \\
+        GNN · SAGE & 1 060 613 pesos & 5,5659 & 149,4000 & VM en nube · 32 vCPU \\
+        GNN · GIN & 1 061 641 pesos & 4,8193 & 152,3000 & VM en nube · 32 vCPU \\
+        GNN · GATv2 & 1 039 205 pesos & 33,9816 & --- & VM en nube · 32 vCPU \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Coste de cada modelo. El tamaño se cuenta en coeficientes (Ridge), nodos de árbol (Random Forest) o pesos (GNN). La latencia es por circuito y las cinco salidas. Se midieron todas en la misma máquina y con los datos en memoria, así que son comparables entre sí; los tiempos de entrenamiento proceden de máquinas distintas. GATv2 no tiene tiempo de entrenamiento porque su barrido se detuvo en la época 21 de 100.}
+    \label{tab:comparativa_coste}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

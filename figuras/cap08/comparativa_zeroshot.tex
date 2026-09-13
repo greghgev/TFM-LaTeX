@@ -1,0 +1,22 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        \textbf{Modelo} & \textbf{media de $Z$} & \textbf{media de $X$} & \textbf{media de $Y$} & \textbf{paridad} & \textbf{corr. de vecinos} \\
+        \midrule
+        No mitigar & $-$0,055 & $-$0,567 & --- & $-$1,164 & $-$0,282 \\
+        f constante & $-$7,751 & $-$11,903 & --- & $-$12,513 & $-$22,667 \\
+        Ridge · 1 variable & $-$0,058 & $-$1,527 & --- & $-$0,063 & $-$1,422 \\
+        Ridge · 34 variables & $-$3,324 & $-$0,459 & --- & 0,438 & $-$4,957 \\
+        Random Forest & 0,004 & $-$0,034 & --- & 0,768 & $-$0,280 \\
+        GNN · SAGE & $-$0,048 & 0,226 & --- & $-$0,493 & $-$0,043 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{$R^2$ sobre $f$ restringido a los seis tipos de circuito zero-shot, los que no aparecen en entrenamiento. \texttt{mean\_Y} solo lo define \texttt{random}, así que no tiene columna aquí.}
+    \label{tab:comparativa_zeroshot}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

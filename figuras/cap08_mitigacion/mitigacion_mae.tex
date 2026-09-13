@@ -1,0 +1,21 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{n (cobertura)} & \textbf{Sin mitigar} & \textbf{Ridge} & \textbf{RF} & \textbf{SAGE} & \textbf{GIN} & \textbf{GATv2} \\
+        \midrule
+        media de $Z$ & 1986 (50\%) & 0,0046 & 0,0139 & 0,0031 & 0,0040 & 0,0048 & 0,0044 \\
+        media de $X$ & 3393 (85\%) & 0,0177 & 0,0088 & 0,0034 & 0,0048 & 0,0037 & 0,0042 \\
+        media de $Y$ & 1096 (27\%) & 0,0044 & 0,0109 & 0,0028 & 0,0039 & 0,0032 & 0,0034 \\
+        paridad & 1825 (46\%) & 0,0111 & 0,0324 & 0,0030 & 0,0098 & 0,0062 & 0,0143 \\
+        corr. de vecinos & 3369 (84\%) & 0,0072 & 0,0373 & 0,0071 & 0,0076 & 0,0058 & 0,0105 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{MAE del observable mitigado frente al de no mitigar. Cualquier valor por encima de la columna «Sin mitigar» significa que ese modelo empeora el resultado. Conjunto de test, por observable. $n$ es el número de casillas evaluables. Ridge = Ridge de 34 variables, RF = Random Forest; SAGE, GIN y GATv2 son las tres convoluciones del MPNN.  Son métricas post-ejecución: se reportan, pero la comparativa la decide el $R^2$ sobre $f$.}
+    \label{tab:mitigacion_mae}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

@@ -1,0 +1,204 @@
+\chapter{Desarrollo de la comparativa}
+\label{cap:comparativa}
+
+% =====================================================================================
+% GUION DEL CAPITULO — ESTRUCTURA FIJADA POR EL AUTOR (sep-2026).
+%
+% 🔴 NO AÑADIR SECCIONES SIN CONSULTARLO. La estructura acordada es exactamente esta:
+%      7.1 Estrategia de entrenamiento   7.3 Random Forest
+%      7.2 Ridge                         7.4 GNN
+%
+% ⚠️ La version anterior del capitulo se DESCARTO entera (sep-2026): duplicaba el
+%    capitulo~\ref{cap:planteamiento} —tenia sus propias secciones de particion,
+%    preprocesado y metricas— y ademas repetia la explicacion de los tres modelos. Si
+%    hace falta recuperar algo, esta en el historial del repositorio.
+%
+% 🔴 REPARTO CON EL CAPITULO 6, que es la regla que evita volver a duplicar:
+%      cap. 6 -> los DATOS y el diseño experimental: de donde salen, que dice la EDA,
+%                como se preprocesan y con que metricas se juzgan.
+%      cap. 7 -> los MODELOS: cual es cada uno, por que esta, con que hiperparametros y
+%                como se ha entrenado.
+%    Si una frase de aqui habla del conjunto de datos, del umbral o de una metrica, esta
+%    en el capitulo equivocado: se cita el apartado del 6 y se sigue.
+%
+% ⚠️ EXTENSION: el capitulo NO debe ser largo. Una figura por modelo, y la tabla de las
+%    tres convoluciones al final de §7.4.
+%
+% FUENTES, por seccion:
+%   7.1 -> notebooks/03_ridge_rf/NOTAS_ENTRENAMIENTO.md
+%          notebooks/04_gnn/NOTAS_ENTRENAMIENTO.md
+%          doc/changes/2026-08_cambio_decisiones.md §4 (la escalera de seis peldaños)
+%   7.2 -> src/baselines.py · scripts/train_ridge.py
+%   7.3 -> src/baselines.py · scripts/train_rf.py · liao2024machine (el mejor tabular)
+%   7.4 -> src/gnn_model.py · src/train.py · configs/gnn_config.yaml
+%          notebooks/04_gnn/NOTAS_ENTRENAMIENTO.md · doc/changes/2026-08_cambio_decisiones.md §9
+%
+% 🔴 CIFRAS PROHIBIDAS (son del dataset v1, obsoleto): «30-70 saltos» de distancia entre
+%    nodos —la del v2 es 44— y «42,7x» / «45,4x» del QFT —la citable es 3,69x—.
+%
+% ⚠️ NINGUN RESULTADO ENTRA AQUI. Este capitulo dice como se entrena; que salio de ello
+%    es el capitulo~\ref{cap:resultados}. Si aparece un R² o un MAE, esta mal colocado.
+% =====================================================================================
+
+
+% =====================================================================================
+\section{Estrategia de entrenamiento}
+\label{sec:entrenamiento}
+% =====================================================================================
+
+La estrategia del entrenamiento se compone de estos seis peldaños:
+
+\begin{enumerate}
+    \item \textbf{No mitigar.} El suelo: si no se bate, el método empeora las cosas y no sirve.
+    \item \textbf{Factor de supervivencia constante}, la media de entrenamiento. ¿Aporta saber la media?
+    \item \textbf{Ridge con una sola variable}, la duración total. ¿Aporta saber cuánto dura
+          el circuito?
+    \item \textbf{Ridge con todas las variables.} ¿Aporta solo la linealidad?
+    \item \textbf{Random Forest.} ¿Aporta la no linealidad?
+    \item \textbf{Red de grafos.} ¿Aporta la estructura del circuito?
+\end{enumerate}
+
+Los tres modelos que se comparan son los tres últimos peldaños y cada uno añade una capacidad sobre el anterior: Ridge es el
+\textbf{baseline} y fija el suelo, Random Forest añade no \textbf{linealidad} y está porque es el mejor modelo tabular de los que compara la referencia \cite{liao2024machine}. La red de grafos cambia la representación de los datos, y la diferencia entre ella y los dos primeros es \textbf{el valor de la
+estructura que la agregación descarta}.
+
+Cabe recalcar una asimetría presente. Ridge y la red de
+grafos se entrenan con una \textbf{pérdida de Huber}, que penaliza los errores grandes de forma lineal y evita que los factores de supervivencia extremos se sesgen el entrenamietno. Sin embargo, \textbf{Random Forest no la admite} y no se emplea.
+
+
+% =====================================================================================
+\section{Ridge}
+\label{sec:sol_ridge}
+% =====================================================================================
+
+Una regresión lineal con penalización $L_2$ \cite{hoerl1970ridge}. No se usan mínimos cuadrados
+básico por un motivo medido en el apartado~\ref{sec:colinealidad}: aun después de descartar las
+veinte columnas redundantes y se prefiere que el modelo recaba información de ella ajustándose solo.
+
+Se ajusta \textbf{un modelo por observable}, cinco en total, sobre las $34$ columnas
+preprocesadas y descartando las filas sin etiqueta de es observable. El único
+hiperparámetro es la constante de regularización, barrida en diez valores de $10^{-3}$ a
+$10^{6}$. El óptimo cae en $100$ para la media de $Z$ y el correlador de vecinos, y en $1{.}000$
+para los otros tres.
+
+La Figura~\ref{fig:ridge_coef} recoge los doce coeficientes de mayor magnitud. Se muestran
+\textbf{con su signo}, que es lo único que este modelo da y los otros dos no: la dirección en
+la que cada variable empuja al factor de supervivencia.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera modelos.dibujar_ridge_coeficientes() y se copia desde
+% TFM-Quantum/figures/modelos/ridge_coeficientes.pdf. Sin titulo interno.
+\begin{figure}[htbp]
+    \centering
+    \caption{Los doce coeficientes mayores de Ridge, con su signo, promediando los cinco
+             observables.}
+    \label{fig:ridge_coef}
+
+    \includegraphics[width=0.92\textwidth]{cap07/ridge_coeficientes}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+% =====================================================================================
+\section{Random Forest}
+\label{sec:sol_rf}
+% =====================================================================================
+
+Un bosque de árboles de decisión \cite{breiman2001random} añade sobre Ridge no linealidad.
+
+Cabe recalcar que este modelo \textbf{no extrapola} y no será util para comparar el \textbf{eje tamaño}.
+
+Se entrena igual que Ridge (un modelo por observable, las mismas $34$ columnas y los mismos
+descartes). El escalado no le afecta, pero \textbf{se le aplican las mismas transformaciones}: no por necesidad, sino para que la única diferencia entre los dos
+modelos tabulares sea el modelo. La rejilla fija $300$ árboles y barre la profundidad máxima
+($\{$sin límite, $6$, $12$, $24\}$), las hojas mínimas ($\{1, 5, 20, 50\}$) y las variables por
+división ($\{\sqrt{\cdot}, 0{,}5, 1{,}0\}$). Los óptimos salen \textbf{poco profundos}: profundidad $6$ en tres
+de los cinco observables, con hojas de $5$ o $50$ muestras y la mitad de las variables por
+división. En la Figura~\ref{fig:rf_imp} se muestra que el modelo se apoya en muy pocas columnas.
+
+% Figura propia. La genera modelos.dibujar_rf_importancias() y se copia desde
+% TFM-Quantum/figures/modelos/rf_importancias.pdf. Sin titulo interno.
+\begin{figure}[htbp]
+    \centering
+    \caption{Las doce variables más importantes para Random Forest, promediando los cinco
+             observables.}
+    \label{fig:rf_imp}
+
+    \includegraphics[width=0.92\textwidth]{cap07/rf_importancias}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Las dos figuras cuentan lo mismo y coinciden con que \textbf{la duración total y la profundidad tiene mayor peso en el modelo},
+con un $0{,}39$ y un $0{,}33$ de importancia frente al $0{,}03$ del siguiente.
+
+
+% =====================================================================================
+\section{La red de grafos}
+\label{sec:gnn}
+% =====================================================================================
+
+Una red de paso de mensajes sobre el grafo del circuito. Es la que más justificación necesita,
+porque el diseño se apartó de la arquitectura de referencia del área.
+
+\textbf{Paso de mensajes y no atención.} El trabajo más cercano \cite{bao2025gtraqem} usa un
+\textit{graph transformer} \emph{sin} paso de mensajes; sin embargo, el computo disponible era insuficiente y por eso ser recurrió a modelos de grafos menos pesados.
+
+\textbf{El resumen global es la pieza que hace funcionar el modelo}
+(Figura~\ref{fig:gnn_arq}). Se escogió incorporar un vector que conecte a todos lo nodos para ahorra la distancia de paso entre cualquier nodo y, así, usar ese vector como atajo. La idea se toma del mismo trabajo\cite{bao2025gtraqem}, con un cambio: allí el
+vector es \textbf{unidireccional}, y eso basta en un \textit{transformer} porque su atención ya
+conecta todo con todo; sin embargo, en una red de paso de mensajes no, y lo que queda es un \textit{pooling} aprendido calculando con
+\textbf{media}. Los grafos entran \textbf{completos}.
+
+% FIGURA PROPIA en TikZ. Codigo en figuras/cap07/gnn_arquitectura_tikz.tex.
+% ⚠️ Lo que la figura tiene que dejar claro son las DOS flechas del resumen global: lee y
+%    devuelve. Es lo que lo distingue de un pooling aprendido, y en prosa no se ve.
+\begin{figure}[!ht]
+    \centering
+    \caption{La arquitectura. El resumen global lee de todos los nodos y les devuelve: son
+             las dos flechas, no una.}
+    \label{fig:gnn_arq}
+
+    \input{figuras/cap07/gnn_arquitectura_tikz}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\textbf{Tres convoluciones, en orden de complejidad creciente} (Tabla~\ref{tab:convs}): se sube
+de peldaño solo si el anterior se queda corto, de modo que si la atención local mejora se sabe
+que aporta, y si no, también.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Las tres convoluciones que se prueban y la configuración con la que se entrenó
+             cada una.}
+    \label{tab:convs}
+    {\footnotesize
+    \begin{tabular}{@{}p{0.20\textwidth}p{0.27\textwidth}rrr@{}}
+        \toprule
+        \textbf{Convolución} & \textbf{Qué añade} & \textbf{Oculta} & \textbf{Tasa}
+            & \textbf{Parámetros} \\
+        \midrule
+        \texttt{SAGEConv} \cite{hamilton2017sage}
+            & Agrega los vecinos por media. Ligera y estable: es la de arranque
+            & $256$ & $10^{-3}$ & $1{,}06$~M \\
+        \texttt{GINConv} \cite{xu2019gin}
+            & Suma estricta más un perceptrón interno. La más expresiva; distingue mejor
+              topologías parecidas
+            & $256$ & $3\cdot10^{-4}$ & $1{,}06$~M \\
+        \texttt{GATv2Conv} \cite{brody2022gatv2}
+            & \textbf{Atención local}: aprende a pesar más a los vecinos con peor telemetría
+            & $160$ & $10^{-3}$ & $1{,}04$~M \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia. Las tres con cuatro capas.}
+\end{table}
+
+\textbf{Las tres variante se prueban con el mismo presupuesto de
+parámetros}
+
+El resto de la rejilla barre la tasa de aprendizaje ($\{3\cdot10^{-4}, 10^{-3},
+3\cdot10^{-3}\}$), la dimensión oculta ($\{128, 192, 256\}$) y el número de capas ($\{4, 6\}$),
+con lotes de $32$ grafos y regularización de $10^{-5}$. El entrenamiento se hace en una máquina
+con tarjeta gráfica en la nube \cite{google2026cloud}, porque en local no hay ninguna.

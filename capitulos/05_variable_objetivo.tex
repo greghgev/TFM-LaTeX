@@ -1,0 +1,591 @@
+\chapter{La variable objetivo}
+\label{cap:variable}
+
+% =====================================================================================
+% BLOQUE «Planteamiento de la comparativa» (1/2). Es LA MEDIDA sobre la que se compara:
+% la norma del tipo 3 exige identificarla antes del desarrollo, y por eso va DELANTE del
+% capitulo 6, que la usa en la EDA, en el preprocesado y en las metricas.
+%
+% CAPITULO DIFERENCIAL: es el resultado propio central del trabajo.
+% APROBADO POR EL DIRECTOR (ago-2026) en su forma de hallazgo.
+%
+% 🔴 ORIGEN DE CADA CIFRA — todas son del dataset v2 y todas son citables:
+%      §5.1  -> notebooks/01_eda/01b_los_observables.ipynb   (train, n = 13.344)
+%      §5.2  -> notebooks/01_eda/01c_la_variable_objetivo.ipynb  (ajuste train, medida val)
+%              + doc/changes/2026-08_cambio_decisiones.md §1, §2 y §3 (submuestras de 3.000)
+%      §5.3  -> notebooks/01_eda/01d_el_umbral.ipynb        (SOLO train)
+%      §5.4  -> notebooks/01_eda/01e_anatomia_de_f.ipynb    (umbral 0,002 ya fijado)
+%
+%    ⚠️ NO se ha traido NADA de doc/hallazgo_objetivo.md: ese documento es del v1, sus
+%       cifras no son citables y ademas describe un experimento sobre OCHO observables y
+%       un umbral de 0,05 que ya no existen.
+%
+% 🔴 DOS COSAS RETIRADAS POR DECISION EXPRESA DEL AUTOR (sep-2026). No reponerlas:
+%
+%      1. La EXPLICACION ARITMETICA de por que Δ no se aprende —que Δ = (1−f)·⟨O⟩exacto
+%         es el producto de un factor aprendible por otro que no lo es—. Ocupaba un
+%         apartado propio detras de §5.2.2. El material sigue en doc/hallazgo_objetivo.md
+%         §2 si algun dia se recupera.
+%
+%      2. TODA mencion a las tres dispersiones (`std_Z`, `std_X`, `std_Y`) que el dataset
+%         guarda y el modelo no usa: son irrelevantes para el trabajo y meterlas es
+%         relleno. Por eso §5.1.1 ya no dice que el fichero guarde ocho observables, y
+%         §5.5 habla solo del termino afin.
+%
+% 🔴 FRONTERA CON EL CAPITULO 6, que es la regla que evita duplicar:
+%      cap. 5 -> QUE es el objetivo y POR QUE es ese. Propiedades medidas de la etiqueta.
+%      cap. 6 -> QUE SE HACE con el: la cota sobre la prediccion (§6.5), la perdida
+%                robusta (§6.4), el tronco compartido (§6.3) y las metricas (§6.5).
+%    Por eso aqui las cotas se DEDUCEN y se COMPRUEBAN sobre las etiquetas, y la regla
+%    que sale de ellas se remite a §\ref{sec:cota} en vez de repetirse.
+%
+% ⚠️ EXTENSION. Si hay que bajarla, el orden de recorte es:
+%      1. la Figura 5.4 (f frente al tamaño): su contenido cabe en dos frases;
+%      2. la Tabla 5.2 (las tres candidatas): la Figura 5.2 ya la dice entera.
+%    NO recortar §5.3: es la unica justificacion documentada del umbral.
+%
+% ⚠️ Solo se numera hasta \subsection (secnumdepth = 2 en la clase book). No usar
+%    \subsubsection: saldria sin numero.
+% =====================================================================================
+
+En este capítulo se reproduce el razonamiento que se siguió para construir la variable
+objetivo, un proceso que supuso grandes desafíos. Se empieza introduciendo el concepto de los
+observables y por qué se eligieron esos cinco. Después se listan las tres candidatas a variable
+objetivo, se mide cuál de ellas es aprendible y se explica cómo se reconstruye la degradación
+sin renunciar a predecir antes de ejecutar. A continuación se justifica el umbral por debajo
+del cual una muestra deja de tener señal que aprender y se dedica un par de páginas a describir
+la anatomía de la elección y las decisiones que se tomaron respecto a su física. El capítulo
+cierra con las limitaciones de las decisiones tomadas.
+
+
+% =====================================================================================
+\section{Los observables}
+\label{sec:observables}
+% =====================================================================================
+% ⚠️ DECISION DE REDACCION: la seccion declara su fuente teorica UNA SOLA VEZ, en el
+%    parrafo de entrada, exactamente igual que hace §2.1. Nielsen y Chuang cubre el
+%    postulado de la medida, el valor esperado de un operador y los operadores de Pauli;
+%    los cinco observables concretos son eleccion propia y se justifican con datos, no
+%    con la cita.
+
+Salvo que se indique lo contrario, la teoría de esta sección sale del mismo libro de cabecera del Capítulo~\ref{cap:fundamentos}: \textit{Quantum Computation and Quantum Information}, de \citeA{nielsen2010quantum}.
+
+
+\subsection{Definición y elección}
+\label{sec:cinco_observables}
+
+Un circuito acaba en un estado $\ket{\psi}$ que no se puede leer: al medir se obtiene una
+cadena de ceros y unos y el estado colapsa (apartado~\ref{sec:bit_qubit}). La única forma de
+extraer información útil es repetir la ejecución y quedarse con un promedio. Lo que se
+promedia es un \textbf{observable}, una magnitud física medible representada por un operador
+$O$, y la cantidad que interesa es su \textbf{valor esperado}:
+
+\begin{equation}
+\label{eq:valor_esperado}
+\langle O \rangle = \bra{\psi} O \ket{\psi} = \boldsymbol{\psi}^\dagger O \boldsymbol{\psi} ,
+\end{equation}
+
+\noindent No es una probabilidad, sino \textbf{un número real}.
+
+Los observables de este trabajo se construyen con los tres \textbf{operadores de Pauli}, $X$,
+$Y$ y $Z$, que son las proyecciones elementales que admite un qubit, una por cada eje de la esfera
+de Bloch (Figura~\ref{fig:pauli}). Los tres tienen los mismos dos autovalores, $+1$ y $-1$: sea
+cual sea el estado y sea cual sea el eje, una medida individual solo puede devolver uno
+de esos dos números. De ahí sale la propiedad siguiente: el
+valor esperado es un promedio de $+1$ y $-1$ y, por tanto, vive en $[-1,1]$ por construcción.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% FIGURA PROPIA en TikZ. Codigo en figuras/cap05/pauli_tikz.tex, con la MISMA geometria
+% que figuras/cap02/bloch_tikz.tex para que las dos se lean como la misma esfera.
+\begin{figure}[htbp]
+    \centering
+    \caption{Los tres operadores de Pauli sobre la esfera de Bloch. Cada uno mide una
+             dirección distinta del mismo estado, y los tres devuelven $+1$ o $-1$.}
+    \label{fig:pauli}
+
+    \input{figuras/cap05/pauli_tikz}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Con esas tres piezas se puede construir cualquier observable de Pauli. Los elegidos para este trabajo son los cinco que se muestran en la Tabla~\ref{tab:observables}: las tres bases de Pauli promediadas sobre todos
+los qubits, y dos correladores, uno global y otro local. Con estos cinco cubrimos lo básico: el fallo en cúbits individuales y los errores que surgen al relacionarlos.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Definiciones tomadas de src/quantum_gen.py::_build_observables y ::_reduce. El orden es
+% el de src/config.py::OBJETIVOS y NO debe cambiarse aqui sin cambiarlo alli.
+\begin{table}[htbp]
+    \centering
+    \caption{Los cinco observables objetivo y qué mide cada uno.}
+    \label{tab:observables}
+    {\footnotesize
+    \begin{tabular}{@{}llp{0.44\textwidth}@{}}
+        \toprule
+        \textbf{Observable} & \textbf{Definición} & \textbf{Qué mide} \\
+        \midrule
+        Media de $Z$ & $\frac{1}{n}\sum_{i} \langle Z_i \rangle$
+            & La magnetización media en la base de medida: cuánto se inclinan los qubits
+              hacia $\ket{0}$ o hacia $\ket{1}$. \\
+        Media de $X$ & $\frac{1}{n}\sum_{i} \langle X_i \rangle$
+            & Lo mismo en la base de las superposiciones. Es independiente de Z.\\
+        Media de $Y$ & $\frac{1}{n}\sum_{i} \langle Y_i \rangle$
+            & Con este se consigue las tres direcciones independientes. \\
+        Paridad & $\langle Z_0 Z_1 \cdots Z_{n-1} \rangle$
+            & Magnitud \textbf{global}: un solo operador sobre todos los qubits a la vez. \\
+        Correlador de vecinos & $\frac{1}{n-1}\sum_{i} \langle Z_i Z_{i+1} \rangle$
+            & Correlación \textbf{local}. \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}
+
+\subsection{Impacto del ruido a un valor esperado}
+\label{sec:ruido_observable}
+
+Los cinco observables están acotados en todo el intervalo $[-1,1]$, pero la mayor parte se acumula en un intervalo más reducido $[-0.5,\, 0.5]$, como se puede observar en el panel izquierdo de la Figura~\ref{fig:observables_ruido}. Además, ese mismo panel sugiere que los valores exactos tras la ejecución se reducen, ya que los rangos usuales de los valores ruidosos son menores. Sin embargo, como se muestra en el panel derecho de la Figura~\ref{fig:observables_ruido}, el ruido afecta de dos maneras:
+\begin{itemize}
+    \item \textbf{Fenómeno de encogimiento}: se produce en gran parte de los circuitos (entre el $86{,}6$\% y el $92{,}4$\% de las veces).
+    \item \textbf{Fenómeno de expansión}: se produce en menor número de circuitos (entre el $7{,}6$\% y el $13{,}4$\%).
+\end{itemize}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera observable.dibujar_rangos_y_efecto() en el cuaderno
+% notebooks/01_eda/01b, y se copia desde figures/eda/observables/02_rangos_y_efecto.pdf.
+% ⚠️ Va SIN titulo dentro de la imagen a proposito: el titulo es el \caption, que es lo que
+%    pide la norma. La funcion `dibujar_rangos` original, que si lleva titulo, se conserva
+%    en src/eda/observable.py para el uso interno del cuaderno.
+% ⚠️ El panel izquierdo NO dibuja los atipicos (`showfliers=False`), asi que su eje no
+%    llega a +-1 aunque el observable si. No escribir a partir de el ninguna afirmacion
+%    sobre el rango COMPLETO: para eso esta la tabla de `observable.rangos()`.
+\begin{figure}[htbp]
+    \centering
+    \caption{Los cinco observables frente al ruido. Izquierda: dónde vive cada uno, con y sin
+             ruido. Derecha: en cuántos circuitos el ruido lo encogió y en cuántos lo agrandó.}
+    \label{fig:observables_ruido}
+
+    \includegraphics[width=\textwidth]{cap05/obs_rangos_y_efecto}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Entonces el ruido puede amplificar y no es una anomalía de la simulación.
+
+% =====================================================================================
+\section{El factor de supervivencia}
+\label{sec:factor}
+% =====================================================================================
+
+\subsection{Candidatas a variable objetivo y elección}
+\label{sec:candidatas}
+
+La pregunta del trabajo, \emph{¿cuánto degrada el ruido?}, tuvo 3 opciones a poder responderlo:
+
+\begin{enumerate}
+    \item \textbf{La degradación con signo}, que era el objetivo de inicial del proyecto:
+          \begin{equation}
+          \label{eq:delta}
+          \Delta = \langle O \rangle_{\text{exacto}} - \langle O \rangle_{\text{ruidoso}} .
+          \end{equation}
+          Es lo que se quiere corregir y pedecirla permitiría sumarla al resultado medido.
+
+    \item \textbf{La magnitud de la degradación}, $|\Delta|$, que renuncia a la dirección del
+          error y no sirve para corregir.
+
+    \item \textbf{El factor de supervivencia}, la fracción de señal que queda tras la
+          ejecución:
+          \begin{equation}
+          \label{eq:f}
+          f = \frac{\langle O \rangle_{\text{ruidoso}}}{\langle O \rangle_{\text{exacto}}} .
+          \end{equation}
+          \begin{itemize}
+            \item $f = 1$, si el cirucito salió intacto.
+            \item $f < 1$, si el ruido redujo.
+            \item $f > 1$, si el ruido amplificó.
+            \item $f = 0$, destruyó la señal completamente.
+          \end{itemize}
+\end{enumerate}
+
+La elección se midió. Se ajustó el mismo modelo, con las mismas variables y la misma partición, cambiando únicamente el objetivo, y se evaluó en validación:
+mismos tipos de circuito y mismo rango de tamaños que el entrenamiento. Se usaron los dos
+modelos tabulares de la comparativa y se repitió todo con tres umbrales de señal distintos (la explicación de estos umbrales se realiza en el Capítulo~\ref{sec:umbral}), para comprobar que la conclusión no dependía de esa constante
+(Tabla~\ref{tab:candidatas} y Figura~\ref{fig:objetivo_r2}).
+
+\begin{table}[htbp]
+    \centering
+    \caption{Coeficiente de determinación en validación de las tres cadidatas (umbral fijo $0.01$). Cada celda
+             es el recorrido sobre los cinco observables.}
+    \label{tab:candidatas}
+    {\footnotesize
+    \begin{tabular}{@{}lcc@{}}
+        \toprule
+        \textbf{Objetivo} & \textbf{Ridge} & \textbf{Random Forest} \\
+        \midrule
+        $\Delta$ con signo & $-0{,}019$ \dots $+0{,}005$ & $-0{,}175$ \dots $-0{,}021$ \\
+        $|\Delta|$         & $+0{,}260$ \dots $+0{,}366$ & $+0{,}167$ \dots $+0{,}303$ \\
+        \textbf{Factor de supervivencia} & $\bm{+0{,}657}$ \dots $\bm{+0{,}782}$
+                                         & $\bm{+0{,}652}$ \dots $\bm{+0{,}804}$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia. Umbral de señal $0{,}01$.}
+\end{table}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera variable_objetivo.dibujar_comparativa_memoria() en el cuaderno
+% notebooks/01_eda/01c, y se copia desde
+% TFM-Quantum/figures/eda/objetivo/02_variable_objetivo_memoria.pdf.
+% ⚠️ Va SIN titulo dentro de la imagen: lo pone el \caption, que es lo que pide la norma.
+%    Los rotulos de cada panel SI se quedan, porque no titulan la figura.
+% ⚠️ Su `figsize` esta calculado para la caja de 15 cm: a \textwidth se imprime a escala
+%    ~0,6, y por eso sus cuerpos de letra son de 11-12 pt en origen. Agrandar la figura sin
+%    subir las fuentes deja la letra ilegible en el PDF.
+\begin{figure}[htbp]
+    \centering
+    \caption{Las tres candidatas del objetivo, por observable y con tres umbrales de señal
+             distintos. Random Forest, coeficiente de determinación en validación.}
+    \label{fig:objetivo_r2}
+
+    \includegraphics[width=\textwidth]{cap05/objetivo_r2}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+El resultado no admite matices de lectura:
+
+\begin{itemize}
+    \item \textbf{La degradación con signo no se aprende.} Su coeficiente de determinación es
+          nulo o negativo en los cinco observables, con los dos modelos y con los tres
+          umbrales.
+    \item \textbf{La magnitud sí se aprende, pero poco.} Renunciar al signo recupera señal predecible. Pero un objetivo sin signo no corrige nada.
+    \item \textbf{El factor de supervivencia es el único aprendible de verdad}, y duplica a $|\Delta|$ en los dos modelos y en los tres umbrales.
+\end{itemize}
+
+\subsection{La reformulación}
+\label{sec:reformulacion}
+
+De las tres candidatas, la única que el modelo puede aprender es el factor de supervivencia, y
+esa es la que se escoge como objetivo de entrenamiento. La degradación se
+reconstruye después, a partir del factor predicho y del valor medido tras ejecución:
+\begin{equation}
+\label{eq:reconstruccion}
+\hat\Delta = \langle O \rangle_{\text{ruidoso}}\cdot\frac{1 - \hat f}{\hat f} .
+\end{equation}
+
+% ⚠️ EL SIGNO ES UNA SUMA, y es un error facil de arrastrar. Delta esta definido en el
+%    dataset como Delta = exacto − ruidoso, luego exacto = ruidoso + Delta. Con una resta,
+%    un modelo PERFECTO duplicaria el error en vez de anularlo. Corregido en sep-2026;
+%    hasta entonces cinco documentos del repositorio ponian la resta.
+
+\textit{Una acalaración}: para reconstruir la degradación, en gran parte de la literatura \citeA{placidi2026deep} recurren al valor ruidoso $\langle O \rangle_{\text{ruidoso}}$ (obtenido tras ejecución en \textbf{hardware cuántico real} y costoso pero acanzable) y del valor $\langle O \rangle_{\text{exacto}}$ (obtenido tras ejecución en \textbf{hardware clásico} y costoso pero con alcance limitado, explicado en el Capítulo~\ref{sec:hardware})
+
+
+
+\begin{center} 
+      \doublebox{
+      \begin{minipage}{0.85\linewidth} \vspace{0.5em}
+             \centering 
+             \textit{Sin embargo, en nuestra propuesta nunca haría falta calcular el valor $\langle O \rangle_{\text{exacto}}$ para poder mitigar el ruido, donde existen actualmente limitaciones a partir de un cierto número de qubits.} \vspace{0.5em} \end{minipage}} 
+\end{center}
+
+
+A partir de la igualdad \ref{eq:reconstruccion}, obtenemos la reconstrucción del valor mitigado así:
+
+\begin{equation}
+\label{eq:mitigado}
+\langle O \rangle_{\text{mitigado}}
+  = \langle O \rangle_{\text{ruidoso}} + \hat\Delta
+  = \frac{\langle O \rangle_{\text{ruidoso}}}{\hat f} .
+\end{equation}
+
+Conviene profundizar en la idea propuesta, ya que este plantemaiento no rompe el \textbf{paradigma pre-ejecución}. Las razones son las siguientes:
+
+\begin{itemize}
+    \item \textbf{La entrada del modelo} es el circuito y la telemetría del chip, y nada más. El modelo \textbf{nunca ve} el resultado de la ejecución, ni al entrenar ni al predecir.
+    \item \textbf{El valor medido entra solo tras la predicción} para mitigar el ruido si corresponde la decisión.
+    \item \textbf{Y la predicción sirve sin ejecutar nada.} El factor predicho es, por sí solo, la respuesta a la pregunta del apartado~\ref{sec:pregunta}: dice qué fracción de la señal sobrevivirá antes de gastar un ciclo de procesador. La reconstrucción es una aplicación posterior y opcional.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \caption{Pipeline de la propuesta de este trabajo}
+    \label{fig:reconstruccion}
+
+    \input{figuras/cap05/reconstruccion_tikz}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+
+% =====================================================================================
+\section{El umbral de señal}
+\label{sec:umbral}
+% =====================================================================================
+% 🔴 REGLA ANTI-FUGA. Todo este apartado esta medido SOLO sobre `train`. Una critica
+%    externa (ago-2026) señalo, con razon, que elegir el umbral mirando validacion o
+%    prueba es fuga: el umbral es una constante estimada a partir de datos como cualquier
+%    otra. El barrido se rehizo. No reponer aqui ninguna cifra de val ni de test salvo la
+%    comprobacion de huerfanas del final, que es un control y no interviene en la eleccion.
+
+El factor de supervivencia es un cociente, y cuando el denominador se acerca a cero se dispara.
+
+\begin{equation}
+\label{eq:divergencia_factor}
+f = \frac{\langle O \rangle_{\text{ruidoso}}}{\langle O \rangle_{\text{exacto}}} \implies \lim_{|\langle O \rangle_{\text{exacto}}| \to 0} |f| = \infty
+\end{equation}
+
+Por lo tanto, surge la necesidad de acotar el denominador.
+
+Para la elección de la cota del valor exacto se ha realizado un barrido previo de un secuencia de umbrales hasta decidir en función de la pérdida de datos frente a la introducción de sesgo por valores muy altos de $f$.
+
+Como se observan en la Tabla~\ref{tab:barrido} y la Figura~\ref{fig:umbral_barrido}, cuanto más alto es el umbral, menos etiquetas quedan y más circuitos se quedan huérfanos (circuitos sin señal en ninguno de los cinco observables), pero más limpia queda la cola del objetivo.
+
+\begin{table}[htbp]
+    \centering
+    \caption{El barrido del umbral de señal, medido sobre el conjunto de entrenamiento.}
+    \label{tab:barrido}
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrrr@{}}
+        \toprule
+        \textbf{Umbral} & \textbf{Etiquetas} & \textbf{Huérfanas}
+            & \textbf{Huérf. $n{=}11$} & \textbf{$f<0$} & \textbf{$f>1$}
+            & \textbf{máx. $|f|$} \\
+        \midrule
+        $0{,}0005$ & $64{.}737$ & $0{,}00$\,\% & $0{,}00$\,\% & $2{,}50$\,\% & $8{,}64$\,\% & $16{,}45$ \\
+        $0{,}0010$ & $63{.}832$ & $0{,}00$\,\% & $0{,}00$\,\% & $2{,}09$\,\% & $8{,}31$\,\% & $11{,}87$ \\
+        $\bm{0{,}0020}$ & $\bm{62{.}125}$ & $\bm{0{,}00}$\textbf{\,\%} & $\bm{0{,}00}$\textbf{\,\%}
+                        & $\bm{1{,}41}$\textbf{\,\%} & $\bm{7{,}85}$\textbf{\,\%} & $\bm{6{,}67}$ \\
+        $0{,}0050$ & $57{.}647$ & $0{,}08$\,\% & $0{,}47$\,\% & $0{,}58$\,\% & $6{,}86$\,\% & $4{,}31$ \\
+        $0{,}0100$ & $51{.}006$ & $0{,}93$\,\% & $4{,}43$\,\% & $0{,}16$\,\% & $6{,}03$\,\% & $2{,}29$ \\
+        $0{,}0500$ & $23{.}943$ & $24{,}33$\,\% & $48{,}13$\,\% & $0{,}00$\,\% & $4{,}06$\,\% & $1{,}77$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia. Sin umbral hay $66{.}720$ etiquetas. En negrita,
+    el umbral elegido.}
+\end{table}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera umbral.dibujar_barrido_memoria() en el cuaderno
+% notebooks/01_eda/01d, y se copia desde
+% TFM-Quantum/figures/eda/umbral/04_barrido_memoria.pdf.
+%
+% El umbral elegido va MARCADO con una vertical en LOS DOS paneles, porque la decision se
+% toma mirandolos a la vez: a su izquierda no se gana limpieza, y a su derecha se empieza a
+% pagar en muestras huerfanas.
+% ⚠️ Va SIN titulo dentro de la imagen: lo pone el \caption, que es lo que pide la norma.
+%    Los rotulos de cada panel SI se quedan, porque no titulan la figura.
+% ⚠️ Su `figsize` esta calculado para la caja de 15 cm: a \textwidth se imprime a escala
+%    ~0,6, y por eso sus cuerpos de letra son de 11-12 pt en origen. Agrandar la figura sin
+%    subir las fuentes deja la letra ilegible en el PDF.
+\begin{figure}[htbp]
+    \centering
+    \caption{Lo que cuesta y lo que limpia cada umbral. Eje de abscisas en escala logarítmico.}
+    \label{fig:umbral_barrido}
+
+    \includegraphics[width=\textwidth]{cap05/umbral_barrido}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+El \textbf{umbral} fijado es $\bm{0{,}002}$, con sus consecuencias:
+
+\begin{itemize}
+    \item \textbf{Conserva el $93{,}1$\,\% de las etiquetas} ($62{.}125$ de $66{.}720$).
+    \item \textbf{Ningún circuito se queda huérfano} en entrenamiento ni en validación, y en el conjunto de
+          prueba solo el $0{,}2$\,\%.
+    \item \textbf{Limpia la mayor parte de los valores máximos altos}: los factores
+          negativos bajan al $1{,}41$\,\% y la cola se recorta de un máximo de $16{,}45$ a uno
+          de $6{,}67$. Un factor negativo significa que el valor medido (el ruidoso) cambió de signo respecto
+          al exacto. Su justificación aparece en el siguiente anexo~\ref{anexo:factor_negativo}.
+    \item \textbf{No penaliza a los circuitos grandes}: con este umbral el porcentaje de huérfanos es nulo en todos los tamaños.
+    \item \textbf{Afecta de forma diferente a cada observable}
+\end{itemize}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera nulos.dibujar_perfil_memoria() en el cuaderno
+% notebooks/01_eda/01f, y se copia desde figures/eda/nulos/02_huecos_memoria.pdf.
+% ⚠️ Va SIN titulo dentro de la imagen: lo pone el \caption. El umbral, que en la version
+%    del cuaderno iba dentro del titulo, baja al pie de figura.
+% ⚠️ Su `figsize` esta calculado para la caja de 15 cm: a \textwidth se imprime a escala
+%    0,76. Agrandarla sin subir las fuentes deja la letra ilegible en el PDF.
+\begin{figure}[htbp]
+    \centering
+    \caption{Qué porcentaje de sus casillas pierde cada observable con el umbral aplicado.}
+    \label{fig:umbral_huecos}
+
+    \includegraphics[width=\textwidth]{cap05/umbral_huecos}
+
+    {\footnotesize Fuente: elaboración propia. Conjunto de entrenamiento, umbral $0{,}002$.}
+\end{figure}
+
+Aclaración importante: 
+
+\begin{center} 
+      \doublebox{
+      \begin{minipage}{0.85\linewidth} \vspace{0.5em}
+             \centering 
+             \textit{El \textbf{umbral = }$\bm{0{,}002}$ se aplica tras predecir a la hora de evaluar, y no antes, reportando el número de circuitos descartados por la cota.} \vspace{0.5em} \end{minipage}} 
+\end{center}
+
+
+% =====================================================================================
+\section{Anatomía de la variable objetivo}
+\label{sec:anatomia}
+% =====================================================================================
+
+\subsection{Rango}
+\label{sec:rango}
+
+\begin{table}[htbp]
+    \centering
+    \caption{El factor de supervivencia por observable, con el umbral de $0{,}002$ aplicado.}
+    \label{tab:anatomia}
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{Etiquetas} & \textbf{Mín.} & \textbf{Q1}
+            & \textbf{Mediana} & \textbf{Q3} & \textbf{Máx.} & \textbf{$f>1$} \\
+        \midrule
+        Media de $Z$        & $12{.}780$ & $-5{,}19$ & $0{,}65$ & $0{,}87$ & $0{,}97$ & $5{,}21$ & $11{,}05$\,\% \\
+        Media de $X$        & $12{.}640$ & $-3{,}05$ & $0{,}61$ & $0{,}83$ & $0{,}96$ & $5{,}21$ & $9{,}87$\,\% \\
+        Media de $Y$        & $12{.}672$ & $-5{,}88$ & $0{,}60$ & $0{,}83$ & $0{,}96$ & $4{,}64$ & $9{,}86$\,\% \\
+        Paridad             & $11{.}413$ & $-3{,}16$ & $0{,}44$ & $0{,}65$ & $0{,}81$ & $5{,}03$ & $1{,}31$\,\% \\
+        Correlador vecinos  & $12{.}620$ & $-3{,}54$ & $0{,}56$ & $0{,}79$ & $0{,}94$ & $6{,}67$ & $6{,}47$\,\% \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia. Conjunto de entrenamiento.}
+\end{table}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera factor.dibujar_distribuciones_memoria() en el cuaderno
+% notebooks/01_eda/01e, y se copia desde
+% TFM-Quantum/figures/eda/factor/06_distribuciones_memoria.pdf.
+%
+% El eje esta recortado a [-0,5 · 1,5] para que se vea la forma; ese recorte cubre el
+% 98,8 % de las etiquetas, y el aviso va DENTRO de la figura, en el hueco que deja la
+% rejilla de 2x3. La cola completa esta en la tabla de al lado.
+% ⚠️ Va SIN titulo dentro de la imagen: lo pone el \caption, que es lo que pide la norma.
+%    Los rotulos de cada panel SI se quedan, porque no titulan la figura.
+% ⚠️ Su `figsize` esta calculado para la caja de 15 cm: a \textwidth se imprime a escala
+%    ~0,6, y por eso sus cuerpos de letra son de 11-12 pt en origen. Agrandar la figura sin
+%    subir las fuentes deja la letra ilegible en el PDF.
+\begin{figure}[htbp]
+    \centering
+    \caption{La distribución del factor de supervivencia en los cinco observables.}
+    \label{fig:f_distribuciones}
+
+    \includegraphics[width=\textwidth]{cap05/f_distribuciones}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Las cinco distribuciones tienen la misma forma (Figura~\ref{fig:f_distribuciones}): la moda
+en uno, una cola larga hacia la izquierda que alcanza valores negativos y una cola corta por encima de uno.
+
+La paridad es la excepción, y en las cinco columnas de la tabla. Su mediana es $0{,}65$
+frente al $0{,}83$--$0{,}87$ del resto de observable y solo el
+$1{,}31$\,\% de sus etiquetas supera el uno, frente al $11$\,\% de la media de $Z$. Es decir, es el observable que más sufre y el que menos se amplifica.
+
+\subsection{Las dos cotas que impone la física}
+\label{sec:cotas}
+% ⚠️ APARTADO BREVE A PROPOSITO: es una derivacion, no una discusion. Manda la formula.
+%    La regla que sale de la cota inferior y su aplicacion al predecir NO van aqui: son
+%    protocolo de evaluacion y viven en §\ref{sec:cota}.
+% Fuente: notebooks/01_eda/01e, secciones 2.1 a 2.4.
+
+Las dos salen del mismo sitio: el valor esperado de un observable de Pauli vive en $[-1,1]$
+(apartado~\ref{sec:cinco_observables}).
+
+\textbf{Cota superior.} Como $|\langle O\rangle_{\text{ruidoso}}| \le 1$, de la definición del factor se sigue
+\begin{equation}
+\label{eq:cota_superior}
+|f| = \frac{|\langle O\rangle_{\text{ruidoso}}|}{|\langle O\rangle_{\text{exacto}}|} \le \frac{1}{|\langle O\rangle_{\text{exacto}}|} .
+\end{equation}
+
+\textbf{Cota inferior.} Sale de desarrollar la reconstrucción de la
+ecuación~\eqref{eq:reconstruccion}:
+
+\begin{equation}
+\label{eq:mitigado_desarrollo}
+\begin{split}
+\langle O\rangle_{\text{mitigado}} &= \langle O\rangle_{\text{ruidoso}} + \Delta = \langle O\rangle_{\text{ruidoso}} + \langle O\rangle_{\text{ruidoso}} \left(\frac{1-f}{f}\right) \\
+&= \langle O\rangle_{\text{ruidoso}} \left(1 + \frac{1-f}{f}\right) = \frac{\langle O\rangle_{\text{ruidoso}}}{f} .
+\end{split}
+\end{equation}
+
+\noindent Es decir, \textbf{el valor mitigado es el medido dividido por el factor}. Y como ese
+valor mitigado es también un valor esperado de Pauli, tiene que caber en el mismo intervalo:
+\begin{equation}
+\label{eq:cota_inferior}
+-1 \le \langle O\rangle_{\text{mitigado}} \le 1
+\quad \Longleftrightarrow \quad \left|\frac{\langle O\rangle_{\text{ruidoso}}}{f}\right| \le 1
+\quad \Longleftrightarrow \quad |f| \ge |\langle O\rangle_{\text{ruidoso}}| .
+\end{equation}
+
+\noindent Queda así localizada la cota inferior, y es \textbf{una por medición}: no es una
+constante, sino un suelo distinto para cada circuito y cada observable.
+
+\noindent \textbf{Ninguna de las $62{.}125$ etiquetas viola ninguna de las dos}, y se acerca a $|f| = |\langle O\rangle_{\text{ruidoso}}|$ solo en los circuitos con valor exacto aproximadamente uno. 
+
+La cota inferior debe aplicarse como un filtro sobre la \emph{predicción}, pues el modelo no garantiza resultados físicos: con $\langle O\rangle_{\text{ruidoso}} = 0{,}01$, predecir $0{,}05$ genera un valor razonable ($0{,}20$), pero $0{,}001$ da $10$, un absurdo físico (ya que deberia de estar contenido en el intervalo $[-1,1]$).
+
+\subsection{El factor de supervivencia frente al tamaño}
+\label{sec:f_tamano}
+
+El conjunto de prueba se plantea para extrapolar de once a quince qubits, así que interesa cómo se
+mueve la etiqueta con el tamaño dentro del rango que sí se entrena
+(Figura~\ref{fig:f_vs_tamano}). Se concluye:
+
+% Figura propia, generada por notebooks/01_eda/01e y copiada desde
+% TFM-Quantum/figures/eda/factor/02_f_vs_tamano.pdf. Solo llega a n=11 porque es el tope
+% de `train`: mas alla no hay entrenamiento y mirarlo seria mirar el conjunto de prueba.
+\begin{figure}[htbp]
+    \centering
+    \caption{Mediana del factor de supervivencia frente al número de qubits, en el conjunto de
+             entrenamiento.}
+    \label{fig:f_vs_tamano}
+
+    \includegraphics[width=0.78\textwidth]{cap05/f_vs_tamano}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\begin{itemize}
+    \item Los cuatro observables promediados sobreviven algo mejor cuanto más grande es el circuito y se sufre mas del fenómeno de amplificación.
+    \item Sin embargo, la paridad se derrumba con el aumento de qubits.
+\end{itemize}
+
+La consecuencia de esto es que los cinco objetivos son muy distintos. Entonces, al describirlos y reportar resultados es necesario tratarlos de forma independiente.
+
+\subsection{Los cinco objetivos entre sí}
+\label{sec:correlacion_objetivos}
+
+Se planteó la siguiente pregunta: ¿un modelo por observable, o uno solo con cinco salidas? Un tronco compartido solo tiene sentido si los cinco tienen algún tipo de correlación.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera factor.dibujar_correlaciones_memoria() en el cuaderno
+% notebooks/01_eda/01e, y se copia desde figures/eda/factor/05_correlaciones_memoria.pdf.
+% ⚠️ Va SIN titulo dentro de la imagen: lo pone el \caption. Los rotulos «Pearson» y
+%    «Spearman» SI se quedan, porque no titulan la figura sino cada panel.
+% ⚠️ UN MAPA DE COLOR POR PANEL, por decision expresa del autor (sep-2026). El precio es
+%    que los dos paneles ya no se comparan por el color; los dos conservan el dominio
+%    [-1, 1] para que la comparacion numerica siga siendo directa.
+% ⚠️ La escala llega a -1 aunque ningun valor baje de 0,40. Es deliberado: es lo que enseña
+%    que las diez correlaciones son positivas y que ninguna roza el cero.
+\begin{figure}[htbp]
+    \centering
+    \caption{Correlación con signo entre los cinco objetivos, medida de dos formas. Cada
+             panel lleva su propia escala de color; las dos van de $-1$ a $+1$.}
+    \label{fig:f_correlaciones}
+
+    \includegraphics[width=\textwidth]{cap05/f_correlaciones}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+La correlación de Spearman oscila entre $0{,}63$ y $0{,}75$, y la de Pearson entre $0{,}4$ y $0{,}6$. Estos datos justifican la elección de un \textbf{tronco común con cinco salidas}.
+
+
+% =====================================================================================

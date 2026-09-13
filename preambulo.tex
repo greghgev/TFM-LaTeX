@@ -43,7 +43,7 @@
 \usepackage{fancybox}
 % --- Tablas y espaciado -----------------------------------------------------------
 \usepackage{booktabs}    % \toprule, \midrule, \bottomrule
-
+\usepackage{placeins}
 % `setspace` se carga pero NO se invoca \onehalfspacing.
 %
 % ⚠️ NO AÑADIR \onehalfspacing. Pese al nombre, en un documento de 11 pt equivale a un
@@ -63,6 +63,17 @@
 % «elaboración propia», sin cuestiones de licencia.
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,calc}
+
+% 🔴 OBLIGATORIO CON TIKZ Y BABEL-ESPANOL. `spanish` convierte `<` y `>` en caracteres
+%    ACTIVOS (son la abreviatura de << >> para las comillas latinas). Con `>` activo,
+%    cualquier opcion de TikZ del tipo `>={Stealth[length=2mm]}` revienta con
+%      «Argument of \language@active@arg> has an extra }»
+%    y arrastra media docena de errores de pgfkeys detras.
+%    \shorthandoff{<>} desactiva SOLO esas dos abreviaturas. No afecta a las comillas
+%    latinas del texto, que en esta memoria se escriben como caracteres UTF-8 (« ») y no
+%    con la abreviatura << >>.
+% ⚠️ Va en \AtBeginDocument porque babel fija las abreviaturas al abrir el documento.
+\AtBeginDocument{\shorthandoff{<>}}
 
 % ⚠️ `tikz` arrastra `xcolor`, que llega DESPUES del `color` que carga
 %    estilo_unir-1.sty y redefine \definecolor. El `azulunir` que el estilo declaró

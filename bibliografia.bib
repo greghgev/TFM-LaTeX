@@ -304,6 +304,117 @@
 
 
 % =====================================================================================
+% 5b. Metodología de trabajo — capítulo 4
+% =====================================================================================
+
+% [ACTAS, SIN DOI] La referencia original de CRISP-DM. Actas de PAKDD 2000, pp. 29-39.
+% ⚠️ NO tiene DOI: es un paper de actas de 2000 anterior a la practica de asignarlos. No es
+%    un DOI sin verificar, es que no existe. Verificado en Semantic Scholar y ResearchGate.
+@inproceedings{wirth2000crispdm,
+  author    = {Wirth, R{\"u}diger and Hipp, Jochen},
+  title     = {{CRISP-DM}: Towards a Standard Process Model for Data Mining},
+  booktitle = {Proceedings of the Fourth International Conference on the Practical
+               Application of Knowledge Discovery and Data Mining},
+  pages     = {29--39},
+  year      = {2000}
+}
+
+% [REVISADO] Revision sistematica que documenta que CRISP-DM sigue siendo el marco de
+% referencia veinte anios despues. Es la cita con DOI que respalda el uso del marco.
+@article{schroer2021crispdm,
+  author  = {Schr{\"o}er, Christoph and Kruse, Felix and G{\'o}mez, Jorge Marx},
+  title   = {A Systematic Literature Review on Applying {CRISP-DM} Process Model},
+  journal = {Procedia Computer Science},
+  volume  = {181},
+  pages   = {526--534},
+  year    = {2021},
+  doi     = {10.1016/j.procs.2021.01.199}
+}
+
+% =====================================================================================
+% 5c. Herramientas empleadas — capítulo 4, «Herramientas empleadas»
+% ⚠️ Las cuatro primeras se han tomado del fichero de cita OFICIAL de cada proyecto, no
+%    de memoria: Qiskit de su CITATION.bib, PyTorch Geometric de arXiv, scikit-learn de
+%    su pagina «About us» y W&B de su pagina para investigadores.
+% =====================================================================================
+
+% [PREPRINT] Cita oficial del SDK, tomada literalmente de Qiskit/qiskit/CITATION.bib.
+% Cubre tambien Qiskit Aer, que es el simulador del mismo ecosistema.
+@misc{javadi2024qiskit,
+  author       = {Javadi-Abhari, Ali and Treinish, Matthew and Krsulich, Kevin and
+                  Wood, Christopher J. and Lishman, Jake and Gacon, Julien and
+                  Martiel, Simon and Nation, Paul D. and Bishop, Lev S. and
+                  Cross, Andrew W. and Johnson, Blake R. and Gambetta, Jay M.},
+  title        = {Quantum computing with {Qiskit}},
+  year         = {2024},
+  eprint       = {2405.08810},
+  archivePrefix= {arXiv},
+  primaryClass = {quant-ph},
+  doi          = {10.48550/arXiv.2405.08810},
+  note         = {Preprint}
+}
+
+% [ACTAS, SIN DOI] NeurIPS 32, pp. 8024-8035. Las actas de NeurIPS no asignan DOI.
+@inproceedings{paszke2019pytorch,
+  author    = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and
+               Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and
+               Gimelshein, Natalia and Antiga, Luca and Desmaison, Alban and
+               K{\"o}pf, Andreas and Yang, Edward and DeVito, Zachary and Raison, Martin and
+               Tejani, Alykhan and Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and
+               Bai, Junjie and Chintala, Soumith},
+  title     = {{PyTorch}: An Imperative Style, High-Performance Deep Learning Library},
+  booktitle = {Advances in Neural Information Processing Systems 32},
+  pages     = {8024--8035},
+  year      = {2019}
+}
+
+% [PREPRINT] DOI comprobado en la propia ficha de arXiv.
+@misc{fey2019pyg,
+  author       = {Fey, Matthias and Lenssen, Jan Eric},
+  title        = {Fast Graph Representation Learning with {PyTorch Geometric}},
+  year         = {2019},
+  eprint       = {1903.02428},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.LG},
+  doi          = {10.48550/arXiv.1903.02428},
+  note         = {Preprint}
+}
+
+% [REVISADO, SIN DOI] JMLR no asigna DOI a sus articulos. Cita oficial del proyecto.
+@article{pedregosa2011scikit,
+  author  = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre and
+             Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and
+             Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and
+             Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and
+             Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and
+             Duchesnay, {\'E}douard},
+  title   = {Scikit-learn: Machine Learning in {Python}},
+  journal = {Journal of Machine Learning Research},
+  volume  = {12},
+  pages   = {2825--2830},
+  year    = {2011}
+}
+
+% [SOFTWARE] Cita oficial de Weights & Biases. No tiene DOI.
+@misc{biewald2020wandb,
+  author = {Biewald, Lukas},
+  title  = {Experiment Tracking with {Weights and Biases}},
+  year   = {2020},
+  note   = {Software disponible en wandb.com},
+  url    = {https://www.wandb.com/}
+}
+
+% [WEB] Servicio de computo. Se cita como recurso en linea; no tiene publicacion asociada.
+% ⚠️ PENDIENTE: fijar la fecha de consulta antes de la entrega.
+@misc{google2026cloud,
+  author       = {{Google}},
+  title        = {Google Cloud Compute Engine},
+  year         = {2026},
+  howpublished = {\url{https://cloud.google.com/compute}},
+  note         = {Consultado en septiembre de 2026}
+}
+
+% =====================================================================================
 % 6. Herramientas de inteligencia artificial — Anexo de declaración
 % =====================================================================================
 % ⚠️ La Guía del TFE §4.4 (p. 22) exige citar las herramientas de IA «según las normas
@@ -343,6 +454,16 @@
 % (Heron 133/156, Nighthawk 120). ⚠️ Es una página viva: reverificar la fecha de
 % consulta antes del depósito. Cubre además el requisito de «enlaces puntuales»
 % (Instrucciones §2.8).
+% [EXTERNO] La pagina de planes de IBM Quantum. Sostiene la cifra de la cuota del plan
+% abierto —diez minutos de procesador al mes— del capitulo 6.
+@misc{ibm2026productos,
+  author       = {{IBM Quantum}},
+  title        = {{IBM} Quantum Computing: products and services},
+  howpublished = {\url{https://www.ibm.com/quantum/products}},
+  year         = {2026},
+  note         = {Consultado el 11 de septiembre de 2026}
+}
+
 @misc{ibm2026hardware,
   author       = {{IBM Quantum}},
   title        = {Hardware for useful quantum computing},
@@ -500,4 +621,66 @@
   year      = {1994},
   publisher = {IEEE Computer Society Press},
   doi       = {10.1109/SFCS.1994.365700}
+}
+
+% =====================================================================================
+% 5. Modelos de aprendizaje automático — teoría (§2.2)
+% =====================================================================================
+
+% [REVISADO] El artículo fundacional de Ridge. Sostiene §2.2.1 entero: el diagnóstico de
+% la colinealidad y la solución de sumar λ a la diagonal de X'X.
+@article{hoerl1970ridge,
+  author  = {Hoerl, Arthur E. and Kennard, Robert W.},
+  title   = {Ridge Regression: Biased Estimation for Nonorthogonal Problems},
+  journal = {Technometrics},
+  volume  = {12},
+  number  = {1},
+  pages   = {55--67},
+  year    = {1970},
+  doi     = {10.1080/00401706.1970.10488634}
+}
+
+% [REVISADO] El artículo original de Random Forest. Fuente del muestreo aleatorio de
+% variables y del resultado sobre fuerza y correlación de §2.2.2.
+@article{breiman2001random,
+  author  = {Breiman, Leo},
+  title   = {Random Forests},
+  journal = {Machine Learning},
+  volume  = {45},
+  number  = {1},
+  pages   = {5--32},
+  year    = {2001},
+  doi     = {10.1023/A:1010933404324}
+}
+
+% CAPÍTULO 2.2.1
+% [REVISADO] GraphSAGE (SAGEConv). Lo relevante para este trabajo es el carácter
+% INDUCTIVO: aprende una función, no un vector por nodo, y por eso vale para grafos
+% nunca vistos. DOI de arXiv emitido vía DataCite.
+@inproceedings{hamilton2017sage,
+  author    = {Hamilton, William L. and Ying, Rex and Leskovec, Jure},
+  title     = {Inductive Representation Learning on Large Graphs},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2017},
+  doi       = {10.48550/arXiv.1706.02216}
+}
+
+% [REVISADO] GATv2 (GATv2Conv). Demuestra que la atención de GAT es ESTÁTICA y la
+% corrige invirtiendo el orden de las operaciones.
+@inproceedings{brody2022gatv2,
+  author    = {Brody, Shaked and Alon, Uri and Yahav, Eran},
+  title     = {How Attentive are Graph Attention Networks?},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2022},
+  doi       = {10.48550/arXiv.2105.14491}
+}
+
+% [REVISADO] GIN (GINConv). El resultado teórico del techo de Weisfeiler-Lehman y la
+% condición de agregación inyectiva. Lista de autores COMPLETA.
+@inproceedings{xu2019gin,
+  author    = {Xu, Keyulu and Hu, Weihua and Leskovec, Jure and Jegelka, Stefanie},
+  title     = {How Powerful are Graph Neural Networks?},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+  doi       = {10.48550/arXiv.1810.00826}
 }

@@ -1,0 +1,21 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{n (cobertura)} & \textbf{Ridge} & \textbf{RF} & \textbf{SAGE} & \textbf{GIN} & \textbf{GATv2} \\
+        \midrule
+        media de $Z$ & 1986 (50\%) & 1,0000 & 1,0000 & 1,0000 & 1,0000 & 1,0000 \\
+        media de $X$ & 3393 (85\%) & 1,0000 & 1,0000 & 1,0000 & 1,0000 & 1,0000 \\
+        media de $Y$ & 1096 (27\%) & 1,0000 & 1,0000 & 1,0000 & 1,0000 & 1,0000 \\
+        paridad & 1825 (46\%) & 1,0000 & 1,0000 & 1,0000 & 1,0000 & 1,0000 \\
+        corr. de vecinos & 3369 (84\%) & 1,0000 & 1,0000 & 1,0000 & 1,0000 & 1,0000 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Acierto de signo del observable mitigado. Conjunto de test, por observable. $n$ es el número de casillas evaluables. Ridge = Ridge de 34 variables, RF = Random Forest; SAGE, GIN y GATv2 son las tres convoluciones del MPNN.  Son métricas post-ejecución: se reportan, pero la comparativa la decide el $R^2$ sobre $f$.}
+    \label{tab:mitigacion_signo}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

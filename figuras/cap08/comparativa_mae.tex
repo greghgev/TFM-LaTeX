@@ -1,0 +1,22 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        \textbf{Modelo} & \textbf{media de $Z$} & \textbf{media de $X$} & \textbf{media de $Y$} & \textbf{paridad} & \textbf{corr. de vecinos} \\
+        \midrule
+        No mitigar & 0,098 & 0,083 & 0,162 & 0,226 & 0,085 \\
+        f constante & 0,183 & 0,190 & 0,202 & 0,267 & 0,229 \\
+        Ridge · 1 variable & 0,088 & 0,080 & 0,138 & 0,095 & 0,081 \\
+        Ridge · 34 variables & 0,103 & 0,063 & 0,104 & 0,070 & 0,095 \\
+        Random Forest & 0,064 & 0,050 & 0,094 & 0,049 & 0,052 \\
+        GNN · SAGE & 0,068 & 0,052 & 0,096 & 0,071 & 0,047 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{MAE sobre $f$ en el conjunto de test, por observable.}
+    \label{tab:comparativa_mae}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

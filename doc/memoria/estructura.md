@@ -12,10 +12,6 @@
 > **Líneas:** 3 (aprendizaje automático: Ridge y Random Forest) y 4 (aprendizaje
 > profundo: la *red de grafos*)
 >
-> ⚠️ **El capítulo «El ruido cuántico» se retiró en sep-2026** por decisión del autor:
-> demasiado técnico para el tribunal y no imprescindible para el argumento. Todos los
-> capítulos posteriores bajan un número.
->
 > ⚠️ **Reestructurado en ago-2026** para encajar en la estructura oficial del tipo 3
 > (*Instrucciones para la redacción del TFE* §2.6). Cambios: se añadieron los capítulos
 > **5 (Objetivos y metodología)** y **11 (Discusión)**, y se fusionaron los antiguos 8 y 9.
@@ -39,6 +35,9 @@
 
 ---
 
+> ⚠️ **Ficheros renumerados en sep-2026** para que el número del fichero coincida con el
+> del capítulo: `03_estado_del_arte.tex` … `11_conclusiones.tex`. Ya no hay hueco.
+
 ## Los once capítulos
 
 Cada capítulo se corresponde con un apartado de la estructura oficial del **tipo 3**.
@@ -49,15 +48,15 @@ explícitamente en §1.4 para que no haya que reconstruirlo.
 |---|---|---|---|---|
 | 1 | Introducción | `01_introduccion.tex` | Introducción | ✅ |
 | 2 | Fundamentos de computación cuántica | `02_fundamentos.tex` | Contexto y estado del arte | ✅ |
-| 3 | Estado del arte | `04_estado_del_arte.tex` | Contexto y estado del arte | ✅ |
-| 4 | **Objetivos y metodología de trabajo** | `05_objetivos_metodologia.tex` | Objetivos y metodología | ✅ ⚠️ nuevo |
-| 5 | Planteamiento de la comparativa: el conjunto de datos | `06_dataset.tex` | Planteamiento | ✅ |
-| 6 | Rigor metodológico ⭐ | `07_rigor_metodologico.tex` | Planteamiento | ✅ |
-| 7 | La variable objetivo ⭐ | `08_variable_objetivo.tex` | Planteamiento | ⚠️ estructura sí, cifras no |
-| 8 | Desarrollo de la comparativa: modelos y protocolo | `09_comparativa.tex` | Desarrollo | ⚠️ diseño sí, resultados no |
-| 9 | Resultados | `10_resultados.tex` | Desarrollo | ❌ bloqueado |
-| 10 | **Discusión y análisis de resultados** | `11_discusion.tex` | Discusión | ❌ bloqueado ⚠️ nuevo |
-| 11 | Conclusiones y trabajo futuro | `12_conclusiones.tex` | Conclusiones | ❌ bloqueado |
+| 3 | Estado del arte | `03_estado_del_arte.tex` | Contexto y estado del arte | ✅ |
+| 4 | **Objetivos y metodología de trabajo** | `04_objetivos_metodologia.tex` | Objetivos y metodología | ✅ ⚠️ nuevo |
+| 5 | Planteamiento de la comparativa: el conjunto de datos | `05_dataset.tex` | Planteamiento | ✅ |
+| 6 | Rigor metodológico ⭐ | `06_rigor_metodologico.tex` | Planteamiento | ✅ |
+| 7 | La variable objetivo ⭐ | `07_variable_objetivo.tex` | Planteamiento | ⚠️ estructura sí, cifras no |
+| 8 | Desarrollo de la comparativa: modelos y protocolo | `08_comparativa.tex` | Desarrollo | ⚠️ diseño sí, resultados no |
+| 9 | Resultados | `09_resultados.tex` | Desarrollo | ❌ bloqueado |
+| 10 | **Discusión y análisis de resultados** | `10_discusion.tex` | Discusión | ❌ bloqueado ⚠️ nuevo |
+| 11 | Conclusiones y trabajo futuro | `11_conclusiones.tex` | Conclusiones | ❌ bloqueado |
 
 Además: **Anexos A–C** y un **Índice de acrónimos** (§2.10, opcional pero recomendable
 con la cantidad de siglas de este trabajo).

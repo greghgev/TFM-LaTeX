@@ -1,0 +1,37 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}llrrrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{Tipo} & \textbf{n (cobertura)} & \textbf{Ridge} & \textbf{SAGE} & \textbf{GIN} & \textbf{GATv2} \\
+        \midrule
+        media de $Z$ & random & 1115 (93\%) & $-$0,0886 & $-$0,0677 & $-$0,0433 & $-$0,0614 \\
+        media de $Z$ & hea & 478 (99\%) & $-$0,4548 & 0,0244 & 0,0182 & $-$0,0534 \\
+        media de $Z$ & bv & 393 (87\%) & $-$18,6262 & $-$0,4535 & $-$1,6733 & $-$0,6507 \\
+        media de $X$ & random & 1102 (92\%) & $-$0,0128 & 0,0310 & $-$0,0047 & 0,0306 \\
+        media de $X$ & hea & 480 (100\%) & $-$0,4058 & $-$0,1228 & 0,0225 & 0,0270 \\
+        media de $X$ & tfim & 454 (100\%) & $-$2,5271 & $-$0,1851 & $-$0,1928 & $-$0,4168 \\
+        media de $X$ & qaoa & 474 (98\%) & $-$0,5957 & $-$0,0509 & 0,0150 & 0,0549 \\
+        media de $X$ & qft & 433 (100\%) & 0,4210 & 1,6268 & 1,6714 & 1,4341 \\
+        media de $X$ & bv & 450 (100\%) & $-$8,9451 & $-$2,9374 & 0,1783 & $-$7,0632 \\
+        media de $Y$ & random & 1096 (92\%) & $-$0,0288 & 0,0072 & $-$0,0010 & $-$0,0138 \\
+        paridad & random & 803 (67\%) & $-$0,0767 & $-$0,0243 & $-$0,0444 & $-$0,0491 \\
+        paridad & hea & 414 (86\%) & $-$1,8361 & $-$0,0800 & $-$0,1848 & $-$0,7562 \\
+        paridad & tfim & 207 (46\%) & $-$0,1014 & $-$3,6979 & $-$3,0845 & $-$1,3929 \\
+        paridad & qaoa & 157 (33\%) & $-$0,2686 & $-$1,5413 & $-$1,4292 & $-$0,7245 \\
+        paridad & ghz & 244 (49\%) & $-$11,7305 & $-$1,4981 & 1,0327 & $-$22,6378 \\
+        corr. de vecinos & random & 1062 (89\%) & 0,0315 & 0,0668 & 0,0672 & 0,0628 \\
+        corr. de vecinos & hea & 472 (98\%) & $-$0,5059 & $-$0,1022 & $-$0,0060 & 0,0007 \\
+        corr. de vecinos & tfim & 454 (100\%) & 2,3819 & 7,7334 & 7,2688 & 5,6370 \\
+        corr. de vecinos & qaoa & 476 (99\%) & $-$2,2851 & 0,4064 & 0,5722 & 0,3239 \\
+        corr. de vecinos & bv & 403 (90\%) & $-$27,6750 & $-$0,7008 & $-$0,8305 & $-$2,4391 \\
+        corr. de vecinos & ghz & 502 (100\%) & $-$4266,8867 & $-$94,6642 & $-$23,4866 & $-$126,7313 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Diferencia de $R^2$ sobre $f$ frente a Random Forest, por el tipo de circuito. Un valor positivo significa que ese modelo supera a Random Forest en esa celda.}
+    \label{tab:v3_tipo_r2_dif}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

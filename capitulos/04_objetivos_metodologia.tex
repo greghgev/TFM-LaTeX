@@ -1,0 +1,180 @@
+\chapter{Objetivos y metodología de trabajo}
+\label{cap:objetivos}
+
+% =====================================================================================
+% GUION. Reescrito en sep-2026 siguiendo el modelo de memoria que aporto el autor.
+% Exigido por «Instrucciones para la redaccion del TFE» §2.5. Los tres elementos son
+% OBLIGATORIOS: (1) objetivo general, (2) objetivos especificos, (3) metodologia.
+%
+% ⚠️ Los objetivos DEBEN ser SMART; la norma lo llama «imprescindible». Por eso §4.1
+%    enuncia el objetivo en un parrafo y DESPUES lo desglosa letra por letra: es la forma
+%    en que el tribunal puede comprobar el criterio sin tener que deducirlo.
+%
+% 🔴 DECISION DEL AUTOR (sep-2026) SOBRE EL CRITERIO DE EXITO: la metrica que decide es el
+%    R² sobre f, NO la mejora sobre no mitigar.
+%    Razon: el diferenciador del trabajo es la pre-ejecucion, y «lo mitigado» necesita el
+%    valor ruidoso, que solo existe DESPUES de ejecutar.
+%    ⚠️ CONSECUENCIA PENDIENTE: el capitulo~\ref{cap:comparativa} dice hoy lo contrario
+%       («un modelo que no bata a no mitigar no sirve, por bueno que sea su R²»).
+%       HAY QUE CORREGIRLO ALLI para que no se contradigan. Aqui manda el R².
+%
+% ⚠️ PENDIENTE: la FECHA de §4.1 es un marcador. No se ha inventado ninguna: hay que
+%    poner la fecha real de entrega en cuanto se conozca. Aparece DOS veces (S/M y T).
+%
+% ⚠️ El objetivo general sigue PENDIENTE DE CONFIRMAR CON EL DIRECTOR.
+% =====================================================================================
+
+Para este trabajo se plantea un objetivo general, del que derivan objetivos
+específicos. Después de definir los objetivos explicaremos la metodología empleada
+para cumplirlos.
+
+\section{Objetivo general}
+\label{sec:objetivo_general}
+
+El objetivo de este trabajo es realizar un \textbf{análisis comparativo de tres
+técnicas de aprendizaje automático que predicen, antes de ejecutar un circuito cuántico y únicamente a
+partir de su estructura y de la calibración del procesador, la degradación que el
+ruido causará en sus resultados}. En dicho análisis se obtiene un conjunto de métricas
+estándar ($R^2$ y MAE), a través de las que se determina cuál de las técnicas ofrece la
+mejor solución, así como si estas técnicas superan una determinada «línea base».
+
+Esta definición cumple los criterios «SMART», ampliamente aceptados como buena práctica para la fijación de objetivos:
+
+\begin{itemize}
+    \item \textbf{S: \textit{Specific}} (específico): comparar tres técnicas de aprendizaje automático (regresión Ridge y Random Forest y tres variantes de GNN) para predecir el \textbf{factor de supervivencia} de los observables tras la degradación por ruido sin ejecutar el circuito. Se observa además si superan la línea base.
+    \item \textbf{M: \textit{Measurable}} (medible): la comparativa se realiza a través de un
+          conjunto de métricas estándar (MAE, RMSE y $R^2$), desglosadas por los tres ejes de
+          generalización y por cada uno de los cincos observables. \textbf{La métrica de referencia que decide entre
+          los modelos es el $R^2$ sobre el factor de supervivencia}, medido sobre el conjunto
+          de prueba. Se toma esta y no la mejora sobre el resultado ya mitigado porque esta
+          última exige conocer el valor ruidoso, que solo existe después de ejecutar, y el
+          trabajo se define precisamente por no ejecutar.
+    \item \textbf{A: \textit{Attainable}} (alcanzable): se apoya en un estado del arte
+          desarrollado en el Capítulo~\ref{cap:sota}, en un conjunto de datos ya generado de
+          veinte mil circuitos con calibración real, y en tres técnicas de modelado documentadas.
+    \item \textbf{R: \textit{Relevant}} (relevante): tal y como se ha expuesto en el
+          Capítulo~\ref{cap:intro}, poder anticipar la degradación permite decidir qué
+          circuitos merece la pena ejecutar sin consumir tiempo de procesador cuántico, un recurso muy caro y escaso en la actualidad.
+    \item \textbf{T: \textit{Time-Related}} (con un tiempo determinado): se establece como
+          fecha fin el 9 de agosto de 2026.
+\end{itemize}
+
+\section{Objetivos específicos}
+\label{sec:objetivos_especificos}
+
+Los objetivos específicos de este trabajo son los siguientes:
+
+\begin{enumerate}
+    \item \textbf{Comprensión de los fundamentos de la computación cuántica}
+    \item \textbf{Construcción del conjunto de datos}, con calibración real del procesador y
+          tres ejes de generalización independientes (tipo de circuito, tamaño y tiempo).
+    \item \textbf{Planteamiento y análisis de la variable objetivo}, esto es, cómo representar el factor de degradación y comprobar si realmente es predecible antes de ejecutar, midiendo el $R^2$ en validación sobre cada candidato.
+    \item \textbf{Realización de la comparativa} entre los tres modelos bajo un mismo protocolo, y determinación de un posible modelo óptimo.
+    \item \textbf{Cuantificación del aporte de la estructura} del circuito frente a un resumen tabular.
+\end{enumerate}
+
+% ⚠️ Cada uno de estos objetivos debe cerrarse con una conclusion en el capitulo 11.
+%    La norma lo pide explicitamente: «cada objetivo del trabajo se enlazara con una
+%    conclusion».
+
+\section{Metodología de trabajo}
+\label{sec:metodologia}
+
+Se sigue una metodología \textbf{empírico-cuantitativa}. Tras haber planteado el problema y haber revisado la información que existe sobre este, se establece la hipótesis de la investigación, a la que puede darse la siguiente forma negativa, a modo de
+hipótesis nula: «\textit{ninguno de los modelos de la comparativa es capaz de predecir la
+degradación por ruido de un circuito cuántico antes de ejecutarlo mejor que los demás, ni de
+superar la línea base establecida por el valor medio de la variable objetivo}». Este estudio
+trata de probar la falsedad de dicha hipótesis.
+
+
+El desarrollo se estructura sobre \textbf{CRISP-DM} \cite{wirth2000crispdm}, el modelo de
+proceso de referencia en proyectos de minería de datos, que sigue siendo el marco más
+empleado dos décadas después de su publicación \cite{schroer2021crispdm}. La
+Tabla~\ref{tab:crispdm} recoge cómo se concreta cada una de sus seis fases en este trabajo.
+
+% ⚠️ FORMATO: la plantilla oficial pone el \caption DEBAJO. Se sigue la plantilla.
+% ⚠️ Anclada con [t] y en \small: con [htbp] y cuerpo normal desplaza el capitulo una
+%    pagina entera.
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{@{}p{0.26\textwidth}p{0.66\textwidth}@{}}
+        \toprule
+        \textbf{Fase de CRISP-DM} & \textbf{Concreción en este trabajo} \\
+        \midrule
+        Comprensión del negocio & Revisión del estado del arte, identificación del hueco y
+        formulación de la hipótesis nula. \\
+        Comprensión de los datos & Análisis exploratorio de la calibración real del procesador
+        y de las etiquetas generadas; detección de las magnitudes que no son predecibles. \\
+        Preparación de los datos & Generación del conjunto, definición de la partición
+        temporal, agregación a variables tabulares y construcción de los grafos. \\
+        Modelado & Implementación y ajuste de los tres modelos con el mismo protocolo,
+        buscando los hiperparámetros contra el conjunto de validación. \\
+        Evaluación & Métricas desglosadas por los tres ejes y por observable, y contraste
+        frente a la línea base. \\
+        Despliegue & Publicación del código y de los artefactos, y documentación de los
+        límites de la solución. \\
+        \bottomrule
+    \end{tabular}
+
+    \caption{Concreción de las fases de CRISP-DM en este trabajo.}
+    \label{tab:crispdm}
+
+    {\footnotesize Fuente: elaboración propia a partir de \citeNP{wirth2000crispdm}.}
+\end{table}
+
+A modo de listado, para alcanzar los objetivos propuestos se siguen los siguientes
+\textbf{pasos}:
+
+\begin{enumerate}
+    \item \textbf{Revisión del estado del arte} y de los trabajos relacionados.
+    \item \textbf{Determinación de los modelos} que forman parte de la comparativa, a partir
+          del análisis del estado del arte.
+    \item \textbf{Diseño y generación del conjunto de datos}, con la calibración real del
+          procesador y los tres ejes de generalización (tipo, tamaño y tiempo).
+    \item \textbf{Análisis exploratorio} de los datos y \textbf{validación de las etiquetas},
+          realizado únicamente sobre el conjunto de entrenamiento.
+    \item \textbf{Determinación de la variable objetivo}, descartando las magnitudes que se
+          midan como no predecibles.
+    \item \textbf{Preparación de los datos}: partición temporal, agregación a variables
+          tabulares y construcción de los grafos.
+    \item \textbf{Implementación} de los tres modelos en Python.
+    \item \textbf{Entrenamiento y ajuste} de los modelos. La búsqueda de hiperparámetros se
+          realiza contra un conjunto de validación \textbf{temporal}, formado por los últimos
+          días de calibración del entrenamiento, y no por validación cruzada aleatoria: una división al azar mezclaría días entre ambos conjuntos, inflando los resultados y ocultando cómo rendirá el modelo ante futuros datos.
+    \item \textbf{Obtención de las métricas} de los distintos modelos: $R^2$ y MAE.
+          desglosadas por eje de generalización y por observable.
+    \item \textbf{Validación de los resultados} y contraste frente a la línea base.
+    \item \textbf{Determinación de un posible modelo óptimo}, estrictamente mejor que el
+          resto, o identificación de otras casuísticas.
+    \item \textbf{Elaboración de las conclusiones.}
+\end{enumerate}
+
+
+\subsection{Tipo de trabajo}
+\label{sec:tipo_trabajo}
+Comparativa de soluciones (tipo 3). Líneas de trabajo: aprendizaje automático (Ridge y Random
+Forest) y aprendizaje profundo (la red neuronal de grafos).
+
+\subsection{Herramientas empleadas}
+\label{sec:herramientas}
+
+La generación del conjunto de datos y la simulación del ruido se realizan con \textbf{Qiskit}
+y su simulador Aer \cite{javadi2024qiskit}. Los modelos tabulares se implementan con
+\textbf{scikit-learn} \cite{pedregosa2011scikit}, y la red neuronal de grafos con
+\textbf{PyTorch} \cite{paszke2019pytorch} y \textbf{PyTorch Geometric}
+\cite{fey2019pyg}. El seguimiento de los experimentos, con su semilla, la versión del código
+y la huella del conjunto de datos, se lleva con \textbf{Weights \& Biases}
+\cite{biewald2020wandb}.
+
+El cómputo se reparte entre la máquina de desarrollo y \textbf{Google Cloud}
+\cite{google2026cloud}. Esta última es una necesidad: las muestras de
+mayor tamaño exigen más memoria de la que tiene la máquina local, y el entrenamiento de la
+red de grafos requiere una unidad de procesamiento gráfico.
+
+\subsubsection{Declaración de uso de herramientas de inteligencia artificial}
+% El detalle NO se repite aqui: vive en el anexo, que es donde la norma espera encontrar
+% una declaracion formal. Aqui solo la mencion y el reenvio.
+El trabajo ha empleado herramientas de inteligencia artificial generativa en tareas concretas
+de programación, generación de figuras, redacción y búsqueda bibliográfica. El detalle
+completo, junto con las tareas que no se han delegado, se recoge en el Anexo~\ref{anexo:ia}.

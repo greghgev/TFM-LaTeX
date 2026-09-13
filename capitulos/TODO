@@ -12,20 +12,20 @@ Capítulo 3:
     ☐
 
 Capítulo 4: 
-    ☐ Mostrar que en el estado del arte se mide siempre mediante una división porque luego de hacer la predicción les hace falta la parte exacta para luego poder mitigar el ruido. Sin embargo, nuestro enfoque ha ido por otro lado: la idea es no necesitar la parte exacta y ver la calidad de los resultados con los datos de calibración. 
+    ✔ Mostrar que en el estado del arte se mide siempre mediante una división porque luego de hacer la predicción les hace falta la parte exacta para luego poder mitigar el ruido. Sin embargo, nuestro enfoque ha ido por otro lado: la idea es no necesitar la parte exacta y ver la calidad de los resultados con los datos de calibración. @done(26-09-10 21:03)
         La Diferencia: 
-            - Los modelos de los papers: Necesitan ejecutar el circuito en la máquina cuántica real primero. Cogen ese resultado ruidoso que da la máquina, se lo dan a la IA como pista principal, y la IA adivina el resultado limpio.  
-            - Tu modelo: Tiene una restricción mucho más dura porque nunca ve el resultado ruidoso como entrada. Tu IA solo mira los planos del circuito (qué operaciones tiene) y la calibración técnica del chip ese día, y adivina el fallo antes de ejecutar nada. **INCLUIR TABLA**.
+            ✔ Los modelos de los papers: Necesitan ejecutar el circuito en la máquina cuántica real primero. Cogen ese resultado ruidoso que da la máquina, se lo dan a la IA como pista principal, y la IA adivina el resultado limpio. @done(26-09-10 21:03)
+            ✔ Tu modelo: Tiene una restricción mucho más dura porque nunca ve el resultado ruidoso como entrada. Tu IA solo mira los planos del circuito (qué operaciones tiene) y la calibración técnica del chip ese día, y adivina el fallo antes de ejecutar nada. **INCLUIR TABLA**. @done(26-09-10 21:03)
         ¿Qué resuelve cada uno?:
-            - Los demás: Solo sirven para corregir un circuito que ya has ejecutado. Te obligan a gastar tiempo de cola y dinero en el hardware cuántico para poder preguntarle a la IA.
-            - El tuyo: Sirve para decidir y corregir. Como adivina el fallo antes de tocar la máquina, te permite tomar la decisión de si merece la pena ejecutar ese circuito hoy en ese chip, o si la máquina está tan mal que es mejor esperar a mañana. Y si decides ejecutarlo, también te sirve para corregir el resultado final con un solo cálculo.
-    ☐ Comparar nuestros métodos frente a otros e indicar si es una adaptación o una reproducibilidad:
-        ☐ La forma de entrenar el GNN se ha adaptado de los papers
-        ☐ Nombrar lo del vector virtual: https://arxiv.org/pdf/1806.01242
+            ✔ Los demás: Solo sirven para corregir un circuito que ya has ejecutado. Te obligan a gastar tiempo de cola y dinero en el hardware cuántico para poder preguntarle a la IA. @done(26-09-10 21:04)
+            ✔ El tuyo: Sirve para decidir y corregir. Como adivina el fallo antes de tocar la máquina, te permite tomar la decisión de si merece la pena ejecutar ese circuito hoy en ese chip, o si la máquina está tan mal que es mejor esperar a mañana. Y si decides ejecutarlo, también te sirve para corregir el resultado final con un solo cálculo. @done(26-09-10 21:04)
+    ✔ Comparar nuestros métodos frente a otros e indicar si es una adaptación o una reproducibilidad: @done(26-09-10 21:04)
+        ✔ La forma de entrenar el GNN se ha adaptado de los papers @done(26-09-10 21:04)
+        ✔ Nombrar lo del vector virtual: https://arxiv.org/pdf/1806.01242 @done(26-09-10 21:04)
 
 Capítulo 5: 
     ☐ Respaldar la elección de los observables con la literatura. Y mostrar otras alternativas que tambien se usan en la literatura.
-    ☐ Hacer énfasis que es una buena introducción a que otras lineas puedan investigar con circuitos más grandes y con más qubits, y que el TFM es un primer paso para poder extrapolar a circuitos más grandes.
+    ✘ Hacer énfasis que es una buena introducción a que otras lineas puedan investigar con circuitos más grandes y con más qubits, y que el TFM es un primer paso para poder extrapolar a circuitos más grandes. @cancelled(26-09-10 21:04)
     ☐ Mostrar que el objetivo del TFM:
         - Ver la comparativa de modelos si GNN gana a Ridge y RF
         - Ver si con el modelo GNN es posible ahorra el tiempo de cola y dinero en el hardware cuántico cuando no sea buena decisión ejecutar un circuito en ese chip ese día.

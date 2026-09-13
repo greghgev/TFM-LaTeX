@@ -1,0 +1,37 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}llrrrrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{Tipo} & \textbf{n (cobertura)} & \textbf{Ridge} & \textbf{RF} & \textbf{SAGE} & \textbf{GIN} & \textbf{GATv2} \\
+        \midrule
+        media de $Z$ & random & 1115 (93\%) & 0,666 & 0,698 & 0,701 & 0,694 & 0,698 \\
+        media de $Z$ & hea & 478 (99\%) & $-$0,090 & 0,092 & 0,088 & 0,003 & 0,117 \\
+        media de $Z$ & bv & 393 (87\%) & $-$0,380 & 0,564 & 0,596 & $-$0,063 & 0,228 \\
+        media de $X$ & random & 1102 (92\%) & 0,666 & 0,684 & 0,685 & 0,683 & 0,686 \\
+        media de $X$ & hea & 480 (100\%) & $-$0,054 & 0,104 & 0,093 & 0,101 & 0,104 \\
+        media de $X$ & tfim & 454 (100\%) & 0,708 & 0,651 & 0,705 & 0,717 & 0,692 \\
+        media de $X$ & qaoa & 474 (98\%) & 0,422 & 0,613 & 0,663 & 0,632 & 0,647 \\
+        media de $X$ & qft & 433 (100\%) & 0,860 & 0,821 & 0,851 & 0,861 & 0,853 \\
+        media de $X$ & bv & 450 (100\%) & $-$0,677 & 0,646 & 0,685 & 0,717 & 0,618 \\
+        media de $Y$ & random & 1096 (92\%) & 0,665 & 0,682 & 0,684 & 0,680 & 0,685 \\
+        paridad & random & 803 (67\%) & 0,923 & 0,934 & 0,912 & 0,905 & 0,899 \\
+        paridad & hea & 414 (86\%) & 0,689 & 0,723 & 0,512 & 0,431 & 0,435 \\
+        paridad & tfim & 207 (46\%) & 0,842 & 0,860 & $-$0,103 & 0,250 & 0,477 \\
+        paridad & qaoa & 157 (33\%) & 0,869 & 0,881 & $-$0,020 & 0,129 & 0,591 \\
+        paridad & ghz & 244 (49\%) & 0,741 & 0,746 & 0,507 & 0,378 & 0,202 \\
+        corr. de vecinos & random & 1062 (89\%) & 0,806 & 0,806 & 0,820 & 0,822 & 0,824 \\
+        corr. de vecinos & hea & 472 (98\%) & $-$0,118 & 0,122 & 0,062 & $-$0,005 & 0,089 \\
+        corr. de vecinos & tfim & 454 (100\%) & 0,706 & 0,707 & 0,673 & 0,731 & 0,697 \\
+        corr. de vecinos & qaoa & 476 (99\%) & 0,484 & 0,614 & 0,660 & 0,655 & 0,652 \\
+        corr. de vecinos & bv & 403 (90\%) & 0,043 & $-$0,091 & 0,141 & $-$0,078 & 0,163 \\
+        corr. de vecinos & ghz & 502 (100\%) & $-$0,149 & 0,105 & 0,480 & $-$0,462 & $-$0,414 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Spearman sobre $f$ en test, desglosado por el tipo de circuito. $n$ es el número de casillas evaluables y \% su cobertura. Ridge = Ridge de 34 variables, RF = Random Forest.}
+    \label{tab:v3_tipo_spearman}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

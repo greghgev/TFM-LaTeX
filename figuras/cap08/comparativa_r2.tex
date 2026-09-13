@@ -1,0 +1,22 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        \textbf{Modelo} & \textbf{media de $Z$} & \textbf{media de $X$} & \textbf{media de $Y$} & \textbf{paridad} & \textbf{corr. de vecinos} \\
+        \midrule
+        No mitigar & $-$0,166 & $-$0,227 & $-$0,302 & $-$0,815 & $-$0,205 \\
+        f constante & $-$0,482 & $-$1,018 & $-$0,157 & $-$0,398 & $-$1,259 \\
+        Ridge · 1 variable & 0,004 & 0,091 & 0,089 & 0,718 & 0,415 \\
+        Ridge · 34 variables & 0,151 & 0,407 & 0,387 & 0,836 & 0,289 \\
+        Random Forest & 0,422 & 0,454 & 0,416 & 0,899 & 0,549 \\
+        GNN · SAGE & 0,361 & 0,501 & 0,423 & 0,807 & 0,614 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{$R^2$ sobre $f$ en el conjunto de test, por observable. Es la métrica que decide la comparativa.}
+    \label{tab:comparativa_r2}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

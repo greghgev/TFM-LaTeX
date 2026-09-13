@@ -1,0 +1,49 @@
+\chapter{El término afín del ruido}
+\label{anexo:factor_negativo}
+
+% =====================================================================================
+% ANEXO CORTO A PROPOSITO. Sale del capitulo 5 para no desviar la linea de trabajo: alli
+% §5.5 solo declara la simplificacion y remite aqui, y §5.3.2 apunta aqui al hablar de los
+% factores negativos.
+%
+% 🔴 ES EL UNICO SITIO DE LA MEMORIA donde se desarrolla el modelo afin. No reponer la
+%    formula ni el descarte de `b` en §5.5: quedaria dicho dos veces.
+%
+% Fuente de las cifras: doc/changes/2026-08_cambio_decisiones.md §1 y §3 (dataset v2,
+% ajuste sobre una submuestra de 3.000 circuitos). Todas citables.
+%
+% ⚠️ El paso de `f = f_real + b/e` es algebra, no una medicion: sale de dividir la
+%    ecuacion afin por `e`. No hace falta respaldarlo con ninguna cifra.
+% =====================================================================================
+
+El factor de supervivencia que define el capítulo~\ref{cap:variable} asume que el ruido es
+\textbf{multiplicativo puro}: que el valor medido es el exacto multiplicado por una fracción
+que sobrevive. Medido, no lo es del todo. El modelo real es \textbf{afín},
+\begin{equation}
+\label{eq:modelo_afin}
+\langle O \rangle_{\text{ruidoso}} = f \cdot \langle O \rangle_{\text{exacto}} + b ,
+\end{equation}
+\noindent donde $b$ es un desplazamiento que \textbf{no depende de cuánta señal había}. Tiene
+explicación física: la relajación hace caer los qubits hacia $\ket{0}$, cuyo valor de $Z$ es
+$+1$, así que el ruido empuja la base $Z$ hacia valores positivos aunque el valor exacto sea
+cero.
+
+\section{Por qué el factor se dispara, y por qué cambia de signo}
+
+La consecuencia se ve dividiendo la ecuación~\eqref{eq:modelo_afin} por el valor exacto, que
+es lo que hace la definición del factor. Escribiendo $e$ para el valor exacto:
+\begin{equation}
+\label{eq:factor_afin}
+\frac{\langle O \rangle_{\text{ruidoso}}}{e} = f + \frac{b}{e} .
+\end{equation}
+
+\noindent El factor que se mide no es $f$, sino $f$ \textbf{más un término que crece cuando el
+denominador se encoge}. Con un valor exacto grande, $b/e$ es despreciable y las dos
+formulaciones coinciden. Con un valor exacto diminuto (que es el caso típico en este conjunto
+de datos, donde la mediana del valor absoluto ronda las tres centésimas) ese término domina, y
+si además $b$ tiene el signo contrario al de $e$, \textbf{el cociente entero se vuelve
+negativo}. De ahí salen los factores negativos del apartado~\ref{sec:umbral}.
+
+\section{Por qué no se modela}
+
+Para simplificar el trabajo.

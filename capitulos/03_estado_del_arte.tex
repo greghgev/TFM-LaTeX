@@ -38,74 +38,61 @@ este criterio porque es el que separa a este trabajo de todo lo demás.
 \label{sec:qem_clasico}
 
 La corrección de errores completa (QEC) exige cientos de qubits físicos por cada qubit
-lógico, una sobrecarga imposible de sustentar en las máquinas actuales \cite{preskill2018nisq}. La
+lógico, inviable para las máquinas actuales \cite{preskill2018nisq}. La
 mitigación de errores (QEM) es la alternativa: no elimina el ruido, sino que
 estima el resultado que se habría obtenido sin él \cite{cai2023quantum}.
 
-Las técnicas de referencia son la \textbf{extrapolación a ruido cero} (ZNE), que amplifica el
-ruido deliberadamente y extrapola hacia atrás hasta el caso ideal \cite{temme2017error}; la
-\textbf{cancelación probabilística de errores} (PEC), insesgada a cambio de un coste en
-muestras que crece exponencialmente con el ruido \cite{cai2023quantum}; y la
-\textbf{mitigación de lectura} (M3), que ataca solo la medición final
-\cite{nation2023suppressing}. Sus planteamientos son distintos, pero comparten los dos rasgos
+Las técnicas de referencia son la \textbf{extrapolación a ruido cero} (ZNE), que trata de estimar cuál habría sido el resultado de un circuito si el ruido del hardware no estuviera presente \cite{temme2017error}; la \textbf{cancelación probabilística de errores} (PEC), que utiliza métodos estadísticos para compensar los errores introducidos durante la ejecución del circuito, aunque requiere un mayor número de ejecuciones \cite{cai2023quantum}; y la \textbf{mitigación de lectura} (M3), centrada en corregir los errores que aparecen al medir el estado final de los qubits \cite{nation2023suppressing}. 
+
+Sus planteamientos son distintos, pero comparten los dos rasgos
 que este trabajo toma como punto de partida: todas \textbf{consumen ejecuciones adicionales}
 del procesador, el recurso más escaso, y todas actúan \textbf{después} de ejecutar.
 
-\section{Modelos sustitutos aprendidos}
+\section{Modelos predictivos}
 \label{sec:ml_qem}
 
-La respuesta al coste anterior fue sustituir las ejecuciones extra por un modelo entrenado.
+Una forma de evitar el elevado coste de las técnicas tradicionales de mitigación consiste en sustituir las ejecuciones extra por un modelo entrenado.
 \citeA{liao2024machine} demostraron que una red puede aprender la corrección directamente a
-partir del valor ruidoso, y validaron el enfoque en hardware IBM real hasta un centenar de
-qubits. De su ablación sale un dato que este trabajo aprovecha: entre los modelos tabulares,
+partir del valor ruidoso, y validaron este enfoque en hardware IBM real hasta un centenar de
+qubits. De sus resultados, sale un dato que este trabajo aprovecha: entre los modelos tabulares,
 \textbf{Random Forest es la mejor referencia}, y por eso entra en la comparativa del
 Capítulo~\ref{cap:comparativa}.
 
-Sobre esa idea, la línea de grafos. GTraQEM \cite{bao2025gtraqem} representa el circuito como
-un DAG y lo procesa con un \textit{graph transformer} apoyado en un \textbf{nodo virtual}
-conectado a todos los demás, que recoge el contexto global; de ahí procede la idea del nodo
-virtual que sí se emplea aquí, aunque no su arquitectura, por las razones del
-Capítulo~\ref{cap:comparativa}. QEMFormer \cite{bao2025qemformer} es el techo actual y combina
-una rama sobre metadatos globales con otra sobre la estructura del DAG.
+Sobre esa idea pero en la línea de grafos, GTraQEM \cite{bao2025gtraqem} representa el circuito como
+un DAG (\textit{Directed Acyclic Graph}) y lo procesa con un \textit{graph transformer} apoyado en un \textbf{nodo virtual}
+conectado a todos los demás, que recoge el contexto global. Esta idea del nodo virtual es una de las características adoptadas en este trabajo, aunque no se emplea la misma arquitectura por los motivos expuestos en el Capítulo~\ref{cap:comparativa}. QEMFormer \cite{bao2025qemformer} se encuentra entre los métodos más avanzados y combina información general del circuito con detalles sobre su estructura.
 
-\textbf{Y aquí está el contraste que define esta memoria:} unos y otros toman el \textbf{valor
+\textbf{Aquí se encuentra una diferencia importante en la memoria con respecto a esos trabajos:} todos ellos toman el \textbf{valor
 ruidoso medido como entrada}, de modo que hay que haber ejecutado el circuito para poder
-corregirlo. La ablación de \citeA{placidi2026deep} lo mide: ese valor es la variable dominante
-y sin ella el modelo se desploma.
+corregirlo. Además, los resultados de \citeA{placidi2026deep} indican que esta información es la que más contribuye al rendimiento del modelo y sin ella el modelo reduce considerablemente su precision.
 
-\section{El paradigma pre-ejecución}
+\section{Técnicas pre-ejecución}
 \label{sec:preejecucion}
 
 Existe una familia distinta que decide \textbf{antes} de gastar la máquina. La herramienta
-oficial de IBM, mapomatic \cite{nation2023suppressing}, puntúa con la calibración del día las
-distintas formas de colocar un mismo circuito sobre el chip y se queda con la mejor; es una
-heurística analítica, sin aprendizaje. \citeA{hartnett2024learning} dan el paso al aprendizaje
+oficial de IBM, mapomatic \cite{nation2023suppressing}, analiza distintas formas de asignar un mismo circuito al hardware disponible y selecciona la que previsiblemente producirá menos errores; es una
+heurística analítica, sin aprendizaje. \citeA{hartnett2024learning} dan un paso más implementando técnicas de aprendizaje
 automático con datos medidos en hardware real.
 
 Un linaje reciente sí predice magnitudes sobre el grafo del circuito antes de ejecutarlo, y es
-lo más cercano a esta propuesta. QuEst \cite{wang2025quest} estima la fiabilidad
-de un circuito para descartarlo, con una salida que no permite recuperar ningún valor mitigado.
-\citeA{liu2026output} predicen el valor de salida con una red de grafos sobre el DAG, con un
-vector por nodo muy parecido al de aquí. 
-SQuASH \cite{martyniuk2025benchmarking} enfrenta una red de grafos a Random Forest sobre los
-mismos circuitos, \textbf{precedente directo de esta comparativa}. Y \citeA{tudisco2025graph}, antes de
-proponer la suya, demuestran que el número de qubits, la profundidad y el recuento de puertas
-\textbf{no bastan} para separar los casos: hay que meter el circuito entero en el modelo en vez
-de resumirlo a mano.
+lo más cercano a esta propuesta. Entre estos trabajos, QuEst \cite{wang2025quest} estima la fiabilidad esperada de un circuito, mientras que \citeA{liu2026output} utilizan una red basada en grafos para predecir directamente el resultado que producirá.  
+SQuASH \cite{martyniuk2025benchmarking} compara una red de grafos con Random Forest sobre los mismos circuitos, \textbf{precedente directo de esta comparativa}. Y \citeA{tudisco2025graph}, antes de
+proponer la suya, demuestran que el número de qubits, la profundidad y el recuento de puertas no bastan para separar los casos: hay que meter el circuito entero en el modelo en vez
+de resumirlo.
 
-Ninguno de los cinco predice la degradación de un observable, y ninguno modela el
-paso del tiempo.
+Ninguno de los cinco predice la degradación de un observable, y ninguno modela el paso del tiempo.
 
 \section{El hardware cambia con el tiempo}
 \label{sec:drift}
 
-\citeA{hirasaki2023detection} midieron que las tasas de error no se degradan de forma gradual,
-sino a \textbf{saltos bruscos} que aparecen en cualquier momento, y que la recalibración diaria
-no basta para capturarlos. \citeA{huo2026anchor} lo confirman desde el otro extremo: el mismo
-programa ejecutado en momentos distintos devuelve resultados inconsistentes. Esto 
+\citeA{hirasaki2023detection} midieron que las tasas de error no se degradan de forma progresiva,
+sino a saltos bruscos que aparecen en cualquier momento, y que la recalibración diaria
+no basta para capturarlos. \citeA{huo2026anchor} lo confirman por otro lado: el mismo
+programa ejecutado en momentos distintos devuelve resultados diferentes. Esto 
 justifica que el conjunto de datos de esta memoria tenga un eje temporal. 
 
-\section{El hueco}
+
+\section{El hueco en la literatura}
 \label{sec:gap}
 
 % ⚠️ FORMATO: la plantilla oficial pone el \caption DEBAJO. Se sigue la plantilla.
@@ -146,8 +133,8 @@ La Tabla~\ref{tab:hueco} resume el corpus frente a los cuatro rasgos que definen
 Ninguna fila reúne las cuatro columnas: 
 
 \begin{enumerate}
-    \item \textbf{Pre-ejecución estricta} (la entrada del modelo nunca incluye el resultado medido).
-    \item  \textbf{Magnitud y no un orden}, que es lo único que permite corregir y no solo descartar.
-    \item  La \textbf{multi-salida} sobre varios observables y sin codificar la identidad del qubit, que deja al modelo aceptar tamaños no vistos.
-    \item La \textbf{deriva temporal como eje explícito}, con días de calibración reales y disjuntos entre entrenamiento y prueba.
+    \item \textbf{Pre-ejecución} (la entrada del modelo nunca incluye el resultado medido).
+    \item  \textbf{Magnitud}, que es lo único que permite corregir y no solo descartar.
+    \item  La \textbf{multi-salida} sobre varios observables.
+    \item El \textbf{paso del tiempo como eje }, con días de calibración reales y disjuntos entre entrenamiento y prueba.
 \end{enumerate}

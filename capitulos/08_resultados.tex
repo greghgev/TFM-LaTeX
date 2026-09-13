@@ -1,0 +1,253 @@
+\chapter{Resultados y Discusiones}
+\label{cap:resultados}
+
+% =====================================================================================
+% GUION. Escrito en sep-2026 sobre el conjunto de prueba ya evaluado.
+%
+% 🔴 ORIGEN DE CADA CIFRA. Todas salen de estos tres ficheros y de ningun otro:
+%      §8.1  -> notebooks/05_comparativa/05c_comparativa_escala.ipynb
+%      §8.2  -> notebooks/05_comparativa/05d_mitigacion.ipynb
+%      reglas -> notebooks/05_comparativa/METRICAS_Y_EVALUACION.md
+%
+% ⚠️ EL GUION ANTERIOR DECIA que toda interpretacion se fuera «al capitulo 11». Ese
+%    capitulo no existe: la memoria tiene nueve. Y el titulo del capitulo —y el de la
+%    estructura oficial del tipo 3— es «Resultados y discusion». Asi que la discusion va
+%    aqui, pegada a la cifra que la sostiene, y las conclusiones del capitulo 9 se quedan
+%    con lo que responde a los objetivos.
+%
+% ⚠️ FIGURAS. Las genera 05c/05d y se copian solas a figuras/cap08_v3/ y
+%    figuras/cap08_mitigacion/. Ya vienen SIN titulo interno: lo que llevan arriba son
+%    rotulos de panel. No regenerarlas a mano.
+%
+% ⚠️ De las 18 figuras y 15 tablas que exporta 05c entran CUATRO figuras y dos tablas
+%    compactas, por decision de extension. El resto —MAE y Spearman de los tres ejes, las
+%    vistas en diferencias y las tablas por dia— se queda en el cuaderno; si hiciera falta
+%    reponer algo, el sitio es un anexo, no este capitulo.
+% =====================================================================================
+
+Este capítulo mide lo que los tres modelos del capítulo~\ref{cap:comparativa} hacen sobre el
+conjunto de prueba. Se separa en dos partes: primero lo que el
+modelo \textbf{aprende} (el factor de supervivencia, predicho antes de ejecutar) y después lo
+que el modelo \textbf{sirve}, es decir, cuánto se acerca al valor exacto el observable una vez
+corregido.
+
+Además, se reportan el porcentaje de circuitos que se ha salvado de la \textbf{cota inferior del factor de supervivencia}.
+
+
+% =====================================================================================
+\section{Resultados sobre el factor de supervivencia}
+\label{sec:res_factor}
+% =====================================================================================
+
+Antes de mirar la prueba conviene revisar la medida en validación
+Tabla~\ref{tab:escalera_val}: mismos tipos de circuito y mismo rango de tamaños que el entrenamiento.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Cifras: 05c, celda de `cmp.tabla_escalera`, columna «R² val». Redondeadas a dos
+% decimales a proposito: la tercera no separa a ningun par de modelos.
+\begin{table}[htbp]
+    \centering
+    \caption{Coeficiente de determinación sobre el factor, en validación.}
+    \label{tab:escalera_val}
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        & \textbf{media $Z$} & \textbf{media $X$} & \textbf{media $Y$}
+        & \textbf{paridad} & \textbf{corr. vec.} \\
+        \midrule
+        No mitigar            & $-0{,}43$ & $-0{,}61$ & $-0{,}53$ & $-1{,}78$ & $-0{,}84$ \\
+        Factor constante      & $-0{,}00$ & $-0{,}00$ & $-0{,}00$ & $-0{,}01$ & $-0{,}01$ \\
+        Ridge · 1 variable    & $0{,}39$ & $0{,}49$ & $0{,}44$ & $0{,}62$ & $0{,}59$ \\
+        Ridge · 34 variables  & $0{,}41$ & $0{,}52$ & $0{,}45$ & $0{,}65$ & $0{,}60$ \\
+        \textbf{Random Forest} & $\bm{0{,}42}$ & $\bm{0{,}53}$ & $\bm{0{,}46}$ & $\bm{0{,}67}$ & $\bm{0{,}61}$ \\
+        GNN · SAGE            & $0{,}41$ & $0{,}52$ & $0{,}46$ & $0{,}64$ & $0{,}60$ \\
+        GNN · GIN             & $0{,}41$ & $0{,}51$ & $0{,}45$ & $0{,}63$ & $0{,}59$ \\
+        GNN · GATv2           & $0{,}40$ & $0{,}52$ & $0{,}45$ & $0{,}60$ & $0{,}57$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia. Entre $2{.}282$ y $2{.}519$ circuitos por
+    celda, según el observable.}
+\end{table}
+
+La escalera dice tres cosas. La primera, que \textbf{no mitigar es peor que
+no hacer nada}, de modo que el listón de verdad no es el cero sino un factor constante. La segunda,
+que \textbf{casi todo lo aprendible se aprende con una sola variable}: la duración total del
+circuito ya consigue entre el $39$\,\% y el $62$\,\% de la métrica, y las treinta y tres
+restantes añaden tres puntos como mucho (y en el correlador de vecinos, tres milésimas). Y la tercera, que \textbf{dentro de la distribución
+de entrenamiento los cinco modelos empatan} y aunque Random Forest gana por un margen que no se ve en una gráfica.
+
+Para desempatar entre los 5 modelos se comprobará en el conjunto de prueba.
+
+\subsection{Eje temporal: la deriva del hardware}
+\label{sec:res_tiempo}
+
+La deriva se mide \textbf{en limpio}: solo circuitos aleatorios y de hasta once qubits, de modo
+que lo único que varía entre celdas es el día de calibración
+(Figura~\ref{fig:res_deriva}). Sin fijar el tipo y el tamaño, lo que se estaría midiendo es
+otro eje.
+
+% Figura ya exportada por 05c (v3_deriva_r2). Es la medida LIMPIA de deriva; la version
+% mezclada (v3_tiempo_r2) trae ademas tipos y tamaños nuevos y no es interpretable.
+\begin{figure}[htbp]
+    \centering
+    \caption{Coeficiente de determinación sobre el factor, por día de calibración, sobre
+             circuitos aleatorios de hasta once qubits.}
+    \label{fig:res_deriva}
+
+    \includegraphics[width=\textwidth]{cap08_v3/v3_deriva_r2}
+
+    {\footnotesize Fuente: elaboración propia. Entre $29$ y $60$ circuitos por celda.}
+\end{figure}
+
+El resultado es que \textbf{no hay deriva medible en doce días}: los cinco modelos suben y bajan juntos, con diferencias
+entre ellos.
+
+El modelo que destaca un poco por encima de un observable en concreto (paridad) es Random Forest, pero no es concluyente.
+
+\subsection{Eje de tamaño: extrapolación a circuitos mayores}
+\label{sec:res_tamano}
+
+El entrenamiento llega hasta once qubits y la prueba hasta quince, así que los cuatro últimos
+puntos de la Figura~\ref{fig:res_tamano} son extrapolación. Cabe destacar que Random Forest no
+puede extrapolar por construcción.
+
+% Figura ya exportada por 05c (v3_tamano_r2). La linea a trazos marca el ultimo tamaño que
+% existe en entrenamiento.
+\begin{figure}[htbp]
+    \centering
+    \caption{Coeficiente de determinación sobre el factor, por número de qubits. La línea a
+             trazos marca el último tamaño presente en el entrenamiento.}
+    \label{fig:res_tamano}
+
+    \includegraphics[width=\textwidth]{cap08_v3/v3_tamano_r2}
+
+    {\footnotesize Fuente: elaboración propia. Entre $69$ y $360$ circuitos por celda.}
+\end{figure}
+
+Dentro del rango conocido (5-11 qubits) los cinco modelos vuelven a moverse juntos, con Ridge algo por debajo y seperándose del resto en el observable correlador de vecinos. Lo interesante empieza a la derecha de la línea:
+
+\begin{itemize}
+    \item \textbf{La media de $X$ es donde la red de grafos gana.} A catorce y
+          quince qubits saca a Random Forest $0{,}21$ y $0{,}23$ puntos de coeficiente. Es el único sitio de todo el trabajo donde la estructura del circuito sirve para predecir más que el resumen.
+    \item \textbf{La media de $Z$ se hunde para todos.}
+    \item \textbf{La paridad aguanta entera.} Se mantiene entre $0{,}89$ y $0{,}95$ hasta los
+          quince qubits, y es el único observable que cruza la frontera sin sufrir, encabezado por Random Forest.
+\end{itemize}
+
+En resumen, \textbf{existe ventaja del grafo pero local}: aparece solo al extrapolar en tamaño, y solo en el observable donde queda señal que extrapolar.
+
+\subsection{Eje de tipo: algoritmos nunca vistos}
+\label{sec:res_tipo}
+
+Es el eje más exigente de los tres. El entrenamiento es aleatorio al cien por cien, así que los
+seis tipos con estructura del conjunto de prueba se evalúan a ciegas, y dentro de cada
+tipo de observable.
+
+% Figura ya exportada por 05c (v3_tipo_r2). Las celdas que se salen del eje van marcadas
+% con un triangulo; el valor exacto esta en la tabla del cuaderno.
+\begin{figure}[htbp]
+    \centering
+    \caption{Coeficiente de determinación sobre el factor, por tipo de circuito. Las celdas
+             que se salen del eje van marcadas.}
+    \label{fig:res_tipo}
+
+    \includegraphics[width=\textwidth]{cap08_v3/v3_tipo_r2}
+
+    {\footnotesize Fuente: elaboración propia. Entre $157$ y $1{.}115$ circuitos por celda.}
+\end{figure}
+
+Por lo general, \textbf{el coeficiente de determinación cae en la mayoría de los casos}. Y se destacan dos hallazgos
+
+\begin{itemize}
+    \item \textbf{En circuitos aleatorios (el caso conocido) todos funcionan}, entre
+          $0{,}31$ y $0{,}57$, con Random Forest y las redes de grafos encabezan el primer puesto por
+          centésimas.
+    \item \textbf{La red de grafos gana en pocos casos} por enciam de Random Forest: predice mejor qft y bv en media X, en media de Y con random y tfim en correlación de vecinos.
+    \item \textbf{En el resto de tipos con estructura nadie aprende gran cosa.} Random Forest gana por lo general en el resto. 
+\end{itemize}
+
+Sumando los tres ejes, el veredicto sobre la métrica que decide es \textbf{Random Forest}: gana
+en validación, va en cabeza dentro del rango de tamaños conocido, y en el eje temporal gana con soltura. Las redes de grafos lo superan en dos sitios concretos:
+grandes la media de $X$ al extrapolar en tamaño, y algunos circuitos especificos y de un observable concreto que no tienen relevancia. Entonces, se responde a la pregunta con la que se cerró el capítulo~\ref{cap:variable}:
+
+\begin{center}
+    \doublebox{
+    \begin{minipage}{0.85\linewidth} \vspace{0.5em}
+        \centering
+        \textit{La estructura del circuito \textbf{sí} aporta información que el resumen
+        agregado descarta, pero solo en la extrapolación del número de qubits. En el régimen conocido,
+        treinta y cuatro columnas bastan.}
+        \vspace{0.5em}
+    \end{minipage}}
+\end{center}
+
+
+% =====================================================================================
+\section{Resultados sobre la mitigación}
+\label{sec:res_mitigacion}
+% =====================================================================================
+
+Este apartado mide la
+distancia entre lo bien que prefice el factor y lo bien que corrige.
+Por contrucción, un valor negativo significa que \textbf{habría sido mejor no tocar nada}.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Cifras: 05d, tablas `mitigacion_mae` (columna «Sin mitigar») y `mitigacion_mejora`.
+\begin{table}[htbp]
+    \centering
+    \caption{Mejora relativa del observable corregido frente a no corregir.}
+    \label{tab:mitigacion}
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrrrr@{}}
+        \toprule
+        & & \textbf{Sin mitigar} & \multicolumn{5}{c}{\textbf{Mejora relativa}} \\
+        \cmidrule(l){4-8}
+        \textbf{Observable} & \textbf{$n$} & \textbf{MAE} & \textbf{Ridge}
+            & \textbf{RF} & \textbf{SAGE} & \textbf{GIN} & \textbf{GATv2} \\
+        \midrule
+        media $Z$    & $1{.}986$ & $0{,}0046$ & $-1{,}99$ & $\bm{+0{,}33}$ & $+0{,}14$ & $-0{,}02$ & $+0{,}06$ \\
+        media $X$    & $3{.}393$ & $0{,}0177$ & $+0{,}50$ & $\bm{+0{,}81}$ & $+0{,}73$ & $+0{,}79$ & $+0{,}76$ \\
+        media $Y$    & $1{.}096$ & $0{,}0044$ & $-1{,}49$ & $\bm{+0{,}37}$ & $+0{,}10$ & $+0{,}28$ & $+0{,}22$ \\
+        paridad      & $1{.}825$ & $0{,}0111$ & $-1{,}91$ & $\bm{+0{,}73}$ & $+0{,}12$ & $+0{,}44$ & $-0{,}29$ \\
+        corr. vec.   & $3{.}369$ & $0{,}0072$ & $-4{,}19$ & $+0{,}01$ & $-0{,}05$ & $\bm{+0{,}19}$ & $-0{,}46$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia. Conjunto de prueba.}
+\end{table}
+
+% Figura ya exportada por 05d (mitigacion_mejora).
+\begin{figure}[htbp]
+    \centering
+    \caption{Mejora relativa sobre no mitigar, por observable y modelo. El cero es
+             exactamente no corregir.}
+    \label{fig:res_mitigacion}
+
+    \includegraphics[width=\textwidth]{cap08_mitigacion/mitigacion_mejora}
+
+    {\footnotesize Fuente: elaboración propia. Conjunto de prueba.}
+\end{figure}
+
+El resultado que más dice del problema es el de Ridge. Su coeficiente sobre el factor era
+\textbf{positivo en los cinco observables} (entre $0{,}41$ y $0{,}65$ en validación) y aun así,
+aplicado, \textbf{empeora el resultado en cuatro de los cinco}.Por tanto, \textbf{un buen ajuste sobre el
+factor no garantiza una buena mitigación}, y este trabajo lo mide en lugar de suponerlo.
+
+En cuanto al resto. \textbf{Random Forest es el único que nunca empeora}, de $+0{,}01$ a
+$+0{,}81$, y es el mejor en cuatro de los cinco observables. Entre las redes, GIN es la más
+consistente y la única que aporta algo en el correlador de vecinos. Y la media de $X$ es el
+único observable donde los cinco modelos ayudan, con mejoras de entre el $50$\,\% y el
+$81$\,\%.
+
+Queda un matiz que una media no puede dar. Medida como \textbf{proporción de circuitos que
+mejoran}, Ridge corrige bien el $73$\,\% de las veces en la paridad y aun así su mejora media
+es de $-1{,}91$. GIN mejora más circuitos ($93$\,\% frente a $89$\,\%) y sin
+embargo su mejora media es menor ($+0{,}44$ frente a $+0{,}73$) de Random Forest, porque acierta más veces pero
+falla más fuerte. Las dos métricas cuentan historias distintas.
+
+
+Uniendo las dos mitades del capítulo, el trabajo termina con dos conclusiones que no coinciden.
+Sobre la métrica que decide (la capacidad de predecir antes de ejecutar) el resumen tabular
+basta en el régimen conocido y la estructura del grafo solo gana al extrapolar. Sobre la
+aplicación, el orden es el mismo pero la distancia es mucho.

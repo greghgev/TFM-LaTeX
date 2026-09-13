@@ -1,0 +1,22 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        \textbf{Modelo} & \textbf{media de $Z$} & \textbf{media de $X$} & \textbf{media de $Y$} & \textbf{paridad} & \textbf{corr. de vecinos} \\
+        \midrule
+        No mitigar & 0,000 & 0,000 & 0,000 & 0,000 & 0,000 \\
+        f constante & $-$4,770 & $-$0,998 & $-$2,749 & $-$0,758 & $-$5,628 \\
+        Ridge · 1 variable & $-$1,818 & 0,220 & $-$4,050 & $-$2,716 & $-$1,997 \\
+        Ridge · 34 variables & $-$1,987 & 0,503 & $-$1,494 & $-$1,908 & $-$4,192 \\
+        Random Forest & 0,326 & 0,807 & 0,368 & 0,732 & 0,013 \\
+        GNN · SAGE & 0,143 & 0,728 & 0,100 & 0,124 & $-$0,053 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Mejora relativa del error del observable mitigado frente a no mitigar. Positiva significa que el modelo ayuda.}
+    \label{tab:comparativa_mejora}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

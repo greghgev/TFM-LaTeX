@@ -1,0 +1,509 @@
+\chapter{Planteamiento de la comparativa}
+\label{cap:planteamiento}
+
+% =====================================================================================
+% GUION Y FUENTES DEL CAPITULO (sep-2026)
+%
+% Este capitulo es el BLOQUE «Planteamiento de la comparativa» de la estructura oficial
+% del tipo 3 (Instrucciones §2.6). La norma pide de el: identificar el problema concreto,
+% las soluciones alternativas a evaluar, LOS CRITERIOS DE EXITO y LAS MEDIDAS QUE SE VAN A
+% TOMAR. De ahi el orden: datos -> exploracion -> preprocesado -> modelos -> entrenamiento
+% -> criterios y metricas.
+%
+% ⚠️ REPARTO CON EL CAPITULO 5 (decision del autor, sep-2026): TODO lo relativo a la
+%    variable objetivo —Δ, el factor de supervivencia f, el umbral de señal y la eleccion
+%    de los cinco observables— vive en el capitulo~\ref{cap:variable}, que va DELANTE.
+%    Aqui se usa f dando por sabido lo que significa. No reabrir esa discusion.
+%
+% ⚠️ REPARTO CON EL CAPITULO 7: este capitulo DISEÑA (que se va a hacer y por que); el
+%    capitulo~\ref{cap:comparativa} EJECUTA (que salio del barrido, hiperparametros
+%    elegidos, curvas, incidencias). 🔴 NINGUNA CIFRA DE RENDIMIENTO ENTRA AQUI, ni de
+%    validacion ni de test: si entra, el capitulo se contradice en cuanto se rehaga una
+%    tabla, y los resultados quedan repartidos en dos sitios.
+%
+% FUENTES, por seccion:
+%   6.1 -> TFM-Quantum/doc/dataset_info.md · doc/memoria/materiales.md §1 y §2
+%   6.2 -> notebooks/01_eda/01a,01g,01h,01i · notebooks/01_eda_gnn/01j,01k
+%   6.3 -> notebooks/02_preprocesado/DECISIONES_TOMADAS.md · src/preprocesado{,_gnn}.py
+%   6.4 -> notebooks/04_gnn/NOTAS_ENTRENAMIENTO.md · doc/changes/2026-08_cambio_decisiones.md §9
+%   6.5 -> notebooks/03_ridge_rf/NOTAS_ENTRENAMIENTO.md · notebooks/04_gnn/NOTAS_...md
+%   6.6 -> notebooks/05_comparativa/METRICAS_Y_EVALUACION.md
+%
+% 🔴 CIFRAS PROHIBIDAS (son del dataset v1, obsoleto): «30-70 saltos» de distancia entre
+%    nodos (la del v2 es 44), «42,7x» y «45,4x» del QFT (la citable es 3,69x), y
+%    «0,344 -> 0,035» de la calidad de puerta al fijar el tamaño (en el v2 sube).
+% =====================================================================================
+
+
+\section{El conjunto de datos}
+\label{sec:dataset}
+% =====================================================================================
+% ⚠️ RECORTADO A TRES PAGINAS (sep-2026), por decision del autor. Lo que salio de aqui:
+%
+%   * el bloque «Lo que solo aparece en los datos reales» —las 17 puertas rotas los 42
+%     dias, el 0,92 % de calibraciones que violan T2 <= 2·T1, la `rz` con error cero en
+%     las 6.552 medidas y la correlacion 1,000000 entre `id`, `sx` y `x`—. Es anatomia
+%     del chip, no planteamiento de la comparativa. Si se repone, su sitio es un anexo.
+%   * el detalle de los 1.952 registros de calibracion por dia frente a los 976 del
+%     conjunto base.
+%   * la decision sobre las puertas averiadas, que baja de parrafo a frase.
+%
+% Las cifras de todo lo retirado siguen en doc/auditoria_dataset.md y en
+% notebooks/00_anatomia_del_dataset/.
+% =====================================================================================
+
+\subsection{Razón de construirlo}
+\label{sec:gemelo}
+
+Para la obtención del conjunto de datos, la única vía posible fue fabricarlo mediante simuladores. Las razones son las siguientes:
+
+\begin{itemize}
+    \item \textbf{Cuota.} El plan abierto de IBM concede diez minutos de procesador al mes
+          \cite{ibm2026productos}.
+          Etiquetar veinte mil circuitos con ese presupuesto no era posible de forma gratuita.
+    \item \textbf{Latencia.} Los trabajos entran en una cola compartida, y veinte mil
+          ejecuciones con su espera no caben en el calendario establecido.
+    \item \textbf{La etiqueta no existe en el hardware.} El modelo tiene que aprender la \emph{diferencia} entre el resultado ideal y el ruidoso, y una máquina cuántica \textbf{solo devuelve el segundo} (Si el valor exacto se pudiera medir en la máquina, no habría nada que mitigar).
+\end{itemize}
+
+De ahí el planteamiento: un \textbf{gemelo digital}. Cada circuito se simula dos veces, una sin
+ruido y otra con el ruido del procesador reconstruido a partir de su calibración real de ese
+día. El valor ideal no se estima, se calcula; y el ruido no se inventa, se reconstruye.
+
+Este planteamiento fija el tamaño máximo de los circuitos. Simular el estado de $n$ qubits exige seguir $2^n$ amplitudes: unos $4{,}3$~GB para catorce qubits y $17{,}2$~GB para quince, \textbf{por proceso}. El tope que se establece es de \textbf{quince qubits} debido a la memoria disponible.
+
+\subsection{El procesador y su calibración}
+\label{sec:calibracion}
+
+El procesador imitado es \texttt{ibm\_kingston}, de la familia \textbf{Heron r2}: $156$ qubits
+y una puerta de dos qubits nativa que es la \textbf{CZ}, simétrica, sobre un conjunto base
+$\{$\texttt{cz}, \texttt{id}, \texttt{rz}, \texttt{sx}, \texttt{x}$\}$. Todos los circuitos se
+transpilan a ese conjunto, así que lo que el modelo ve no son las puertas que escribió el
+usuario, sino las que la máquina ejecutaría de verdad.
+
+De ese procesador se descargaron \textbf{$42$ días completos} de calibración, del 13 de junio
+al 27 de julio de 2026. Cada día aporta, por qubit, su $T_1$, su $T_2$, el error de lectura en
+las dos direcciones y la duración de la medida; y por cada puerta física del chip, su error y
+su duración reales.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia, de notebooks/00_anatomia_del_dataset/, copiada desde
+% TFM-Quantum/figures/00_anatomia/chip/04_drift_42_dias.pdf.
+\begin{figure}[htbp]
+    \centering
+    \caption{Recalibración diaria del procesador a lo largo de los $42$ días.}
+    \label{fig:drift_t1}
+
+    \includegraphics[width=0.92\textwidth]{cap06/drift_t1}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Falta la colocación (véase el panel izquierdo de la Figura~\ref{fig:chip}). Cada circuito se sitúa sobre una \textbf{región conexa aleatoria} de qubits físicos, distinta en cada muestra, en lugar de usar siempre los mismos. Así el modelo ve una variedad amplia de calidades de qubits. Del muestreo se excluye un solo qubit, el $146$, que no tiene $T_1$ ni $T_2$ medidos ninguno de los
+$42$ días: está averiado, y su telemetría no es un dato sino un hueco.
+
+
+Las puertas que el chip reporta como averiadas \textbf{se mantienen} ya que es un fenómeno usual y aprendible.
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Dos figuras propias, de notebooks/00_anatomia_del_dataset/00b, copiadas desde
+%   figures/00_anatomia/chip/12_mapa_averias_memoria.pdf
+%   figures/00_anatomia/chip/13_region_memoria.pdf
+% Las dos SIN titulo dentro de la imagen: lo pone el \caption.
+% ⚠️ A media anchura los numeros de qubit NO se leen, y es una decision consciente del
+%    autor (sep-2026): la figura vale para ver DONDE estan las averias y DONDE cae la
+%    region, no para localizar un qubit concreto. No «arreglarlo» agrandandolas.
+\begin{figure}[htbp]
+    \centering
+    \caption{El chip por dentro. A la izquierda, la región
+             conexa sobre la que se coloca un circuito concreto. A la derecha, las averías y la invalidez del qubit $146$.}
+    \label{fig:chip}
+
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap06/region_chip}
+    \end{minipage}
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{cap06/mapa_averias}
+    \end{minipage}\hfill
+    
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\subsection{Contenido del dataset}
+\label{sec:composicion}
+
+El conjunto tiene \textbf{$20{.}000$ muestras} y $18{.}147{.}608$ nodos, repartidas en
+$16{.}000$ de entrenamiento y validación y $4{.}000$ de prueba. Cada muestra es un circuito de
+entre $5$ y $15$ qubits y entre $5$ y $50$ capas lógicas de profundidad. Los dos extremos de la
+profundidad están elegidos por la misma razón: por debajo de cinco capas apenas hay ruido que
+medir, y por encima de cincuenta la decoherencia ha destruido ya toda la señal.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+
+El reparto entre entrenamiento y prueba se organiza para que el conjunto de prueba obligue a generalizar en \textbf{tres
+direcciones independientes} (Figura~\ref{fig:tres_ejes}):
+
+% FIGURA PROPIA en TikZ. Codigo en figuras/cap06/tres_ejes_tikz.tex.
+% ⚠️ SUSTITUYE a dos cosas: a la antigua tabla `tab:ejes`, que decia lo mismo en prosa
+%    numerada, y al PNG `02_los_tres_ejes` del cuaderno 00b, que eran tres cajas en fila.
+%    El abanico dice ademas que los tres ejes SALEN del mismo conjunto.
+\begin{figure}[htbp]
+    \centering
+    \caption{Cómo se reparte el conjunto, y de dónde salen los tres ejes de generalización.}
+    \label{fig:tres_ejes}
+
+    \input{figuras/cap06/tres_ejes_tikz}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Tipo.} El entrenamiento es aleatorio al $100$\,\% (del mismo modo validación) y en prueba se incluyen, a parte de circutios aleatorios, seis circuitos con estructura diferente escogida por elección frecuente en la literatura (véase la Tabla~\ref{tab:tipos}). Si el modelo acierta en ellos, es porque aprendió física del ruido y no patrones de circuito.
+    \item \textbf{Tamaño.} El entrenamiento llega hasta once qubits y la prueba hasta quince.
+    \item \textbf{Tiempo.} Los días de calibración de los dos grupos son \textbf{disjuntos}: del 13 de junio al 14 de julio para entrenar, del 15 al 27 de julio para probar. El modelo se evalúa sobre un estado del chip que no vio al entrenar.
+\end{itemize}
+
+El conjunto de prueba consta de un $30$\,\% de
+circuitos aleatorios que se divide por la mitad
+entre circuitos de hasta once qubits y circuitos de doce a quince. Los primeros permiten medir la deriva temporal con el tipo y el tamaño fijos; los segundos, la extrapolación en
+tamaño con el tipo fijo. El resto del conjunto de prueba son 6 circuitos específicos, elegidos por frecuencia en la literatura, y divididos de la misma forma por número de qubits. En la Tabla~\ref{tab:tipos} aparece la justificación de la elección de estos cirucitos por la literatura.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Los siete tipos de circuito y la razón de que estén.}
+    \label{tab:tipos}
+    {\footnotesize
+    \begin{tabular}{@{}llp{0.52\textwidth}@{}}
+        \toprule
+        \textbf{Tipo} & \textbf{Dónde aparece} & \textbf{Por qué está} \\
+        \midrule
+        Aleatorio & entrenamiento y prueba
+            & Es la física del ruido sin la estructura de ningún algoritmo. Es el $100$\,\% del
+              entrenamiento. \\
+        HEA & solo prueba
+            & \textit{Hardware-Efficient Ansatz}, el circuito de referencia de los algoritmos
+              variacionales. \\
+        TFIM & solo prueba
+            & Simulación de un hamiltoniano de Ising con campo transverso; referencia estándar
+              en los bancos de prueba de mitigación. \\
+        QAOA & solo prueba
+            & El algoritmo de optimización combinatoria más citado del estado del arte. \\
+        QFT & solo prueba
+            & Transformada de Fourier cuántica. \textbf{Aportación propia}: ningún trabajo de
+              mitigación por aprendizaje automático la evalúa de forma sistemática. \\
+        GHZ & solo prueba
+            & El circuito de entrelazamiento por excelencia, y un caso extremo: su
+              magnetización media es nula por construcción. \\
+        Bernstein--Vazirani & solo prueba
+            & Salida determinista, un régimen de ruido completamente distinto al del circuito
+              aleatorio. \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}
+
+% =====================================================================================
+\section{Análisis exploratorio}
+\label{sec:eda}
+% ⚠️ SECCION BREVE A PROPOSITO (sep-2026, decision del autor): aqui solo se enuncia QUE se
+%    buscaba en el analisis. Los hallazgos concretos se citan mas adelante, cada uno en el
+%    punto donde decide algo, en lugar de listarlos dos veces. El desarrollo completo esta
+%    en notebooks/01_eda/ y en notebooks/02_preprocesado/DECISIONES_TOMADAS.md.
+
+Antes de fijar un preprocesado o una arquitectura se hizo un análisis descriptivo del conjunto de datos.
+Sus objetivos fueron:
+
+\begin{itemize}
+    \item \textbf{Localizar las casillas sin etiqueta} y decidir qué hacer con ellas.
+    \item \textbf{Análsis de relación entre las variables y el factor de supervivencia.}
+    \item \textbf{Reducir la dimensionalidad} descartando las columnas redundantes.
+    \item \textbf{Comprobación de escalas y asimetrías}, que son las que deciden qué
+          transformaciones hacen falta antes de entrenar.
+    \item \textbf{Análisis de la información que sobrevive dentro de un mismo circuito}, porque es
+          la única que el grafo puede aprovechar y el resumen tabular no.
+    \item \textbf{Análisis descriptivo de la forma de los grafos} 
+\end{itemize}
+
+De ese análisis salen las decisiones de preprocesado del apartado~\ref{sec:prep} y del
+diseño de los modelos del capítulo~\ref{cap:comparativa}. Los apartados que siguen recogen lo que
+se concluyó en cada uno de esos frentes.
+
+\subsection{Observables sin etiqueta}
+\label{sec:eda_nulos}
+
+El umbral de señal del capítulo~\ref{cap:variable} deja sin etiqueta entre el $4{,}2$\,\% y el
+$14{,}5$\,\% de las casillas, según el observable, y la paridad es con diferencia la más
+castigada. Aun así, el $69{,}6$\,\% de los circuitos de entrenamiento conserva los cinco
+objetivos completos y ninguno se queda sin ninguna etiqueta. 
+
+La idea de imputar las varibles se descartó porque los valores que eliminaba el umbral, fijado en $0.002$, eran datos que no se podían deducir de ningún otro porque a partir de ese umbral no existia ningún dato que pudiera deducir.
+
+\textbf{Decisión: no se imputa
+nada}, y se entrena de la siguiente forma:
+\begin{itemize}
+    \item Cinco modelos Ridge, uno por cada observable.
+    \item Cinco modelos Random Forest, uno por cada observable.
+    \item Tres modelos distintos multi-salida GNN con máscara booleana.
+\end{itemize}
+
+\subsection{Relación de cada familia de variables con la degradación}
+\label{sec:relaciones}
+
+La familia que más predice el tiempo del circuito medido frente a la decoherencia, con tres columnas.
+
+De todas las familias, la única que no aporta apenas valor es  la telemetría del hardware con trece columnas. 
+
+\textbf{Decisión: se quedan todas}, porque no afecta ni a Ridge ni a Random Forest, y porque
+dentro del grafo sí varían (apartado~\ref{sec:variacion_intra}).
+
+% Figura propia, de notebooks/01_eda/01h, copiada desde figures/eda/relaciones/02_familias.pdf.
+\begin{figure}[htbp]
+    \centering
+    \caption{Cuánto predice cada familia de variables, por observable, medido de dos
+             formas.}
+    \label{fig:familias}
+
+    \includegraphics[width=\textwidth]{cap06/familias}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\subsection{Telemetría de un mismo circuito y forma de los grafos}
+\label{sec:variacion_intra}
+
+La correlación del apartado anterior se mide sobre la fila, que promedia el circuito
+entero. Falta por saber qué sobrevive a ese promedio, ya que es lo que separa a los
+dos modelos: el resumen tabular solo ve la media y el grafo ve nodo a nodo.
+
+\textbf{La telemetría del qubit sigue variando dentro de un mismo circuito}
+(Figura~\ref{fig:variacion_intra}) y es la única señal que el grafo puede aprovechar y la tabla no.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia, de notebooks/01_eda_gnn/01j, copiada desde
+% figures/eda_gnn/nodos/05_variacion_intra_memoria.pdf.
+% ⚠️ Es la version de memoria: sin titulo, sin las dims que no varian, con nombres legibles
+%    y con la telemetria RESALTADA, que es el argumento del apartado.
+\begin{figure}[htbp]
+    \centering
+    \caption{Cuánto varía la telemetría del qubit dentro de un mismo circuito.}
+    \label{fig:variacion_intra}
+
+    \includegraphics[width=\textwidth]{cap06/variacion_intra}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+Los grafos de este conjunto son \textbf{muy profundos}
+(Figura~\ref{fig:forma_grafos}): mediana de $805$ nodos, mínimo de $18$ y máximo de $5{.}056$, con las aristas creciendo de forma
+lineal con los nodos. Ese factor decide una cosa del modelo de grafos: cualquier resumen que
+\emph{sume} los nodos mediría el tamaño del circuito en lugar de su contenido
+(apartado~\ref{sec:gnn}).
+
+% Figura propia, de notebooks/01_eda_gnn/01k, copiada desde
+% figures/eda_gnn/grafos/01_tamano.pdf.
+\begin{figure}[htbp]
+    \centering
+    \caption{Tamaño de los grafos del conjunto de entrenamiento. La línea marca la mediana.}
+    \label{fig:forma_grafos}
+
+    \includegraphics[width=\textwidth]{cap06/forma_grafos}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\subsection{Colinealidad}
+\label{sec:colinealidad}
+
+De las $54$ columnas candidatas
+(Figura~\ref{fig:colinealidad}) hay $11$ \textbf{identidades exactas} y numerosos\textbf{bloques redundantes} con
+correlaciones de hasta $0{,}999$.
+
+\textbf{Decisión: se descartan $20$ columnas y quedan $34$}, conservando un representante de
+cada bloque. La matriz que queda después está en el apartado~\ref{sec:prep}.
+
+% Figura propia, de notebooks/01_eda/01g, copiada desde
+% figures/eda/entradas/01_colinealidad.pdf.
+% ⚠️ Esta es la de las 54 columnas. La version REDUCIDA, de 34, va en §\ref{sec:prep}:
+%    las dos juntas enseñan lo que el descarte se lleva por delante.
+\begin{figure}[htbp]
+    \centering
+    \caption{Correlación entre las $54$ variables candidatas, antes de descartar nada.}
+    \label{fig:colinealidad}
+
+    \includegraphics[width=0.88\textwidth]{cap06/colinealidad}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+\subsection{Escalas, asimetrías y ángulos}
+\label{sec:escalas}
+
+\begin{itemize}
+    \item \textbf{Las escalas son muy diferentes}: $10{,}5$ órdenes de magnitud entre la
+          columna más pequeña y la más grande de la tabla, y $8{,}3$ en el vector de nodo.
+          \textbf{Decisión: normalizar.}
+    \item \textbf{Asimetría fuerte en $34$ columnas}, casi todas recuentos con cola larga a la
+          derecha. \textbf{Decisión: logaritmo antes del escalado.}
+    \item \textbf{Cinco columnas tienen recorrido intercuartílico nulo}, entre ellas las dos de
+          puertas rotas, que valen cero en el $87$\,\% de los circuitos. 
+          
+          \textbf{Decisión: esas
+          cinco no pueden llevar escalado robusto}, porque dividiría por cero.
+\end{itemize}
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia, de notebooks/01_eda_gnn/01j, copiada desde
+% figures/eda_gnn/nodos/02_escalas.pdf.
+
+
+% =====================================================================================
+\section{Preprocesado}
+\label{sec:prep}
+% ⚠️ REESCRITO EN CLAVE DE DECISIONES (sep-2026). El razonamiento largo de cada una
+%    esta en notebooks/02_preprocesado/DECISIONES_TOMADAS.md.
+
+La regla que se siguió durante todo el preprocesado ha sido:
+
+\begin{center}
+    \doublebox{
+    \begin{minipage}{0.85\linewidth} \vspace{0.5em}
+        \centering
+\textit{Toda constante estimada a partir de los datos (medias, escalas, umbrales o cualquier intercepto) se ajusta únicamente con \textbf{\texttt{train}} para evitar la fuga de información (data leakage)}.
+        \vspace{0.5em}
+    \end{minipage}}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Partición temporal}: días $0$--$24$ para entrenar, $25$--$29$ para validar y $30$--$41$ para probar.
+    \item \textbf{Las filas}: \begin{itemize}
+        \item \textbf{No se imputa nada.}
+        \item \textbf{Los factores negativos se predicen, pero no se evalúan.} Son el $1{,}41$\,\%
+          de \texttt{train}.
+        \item \textbf{Los factores mayores que uno no se tocan.} Son el $7{,}85$\,\% de las
+          etiquetas y son representativos.
+        \item Los modelos tabulares ajustan \textbf{un modelo por observable} y eliminan las filas
+          sin etiqueta de ese observable; los modelos de grafos son \textbf{multi-salida} y se
+          queda con todas las etiquetas, tapando con una máscara las casillas que faltan.
+    \end{itemize}
+    
+    \item \textbf{Rama tabular:} \begin{itemize}
+        \item Se descartaron las 20 columnas seleccionadas redundantes (véase el resultado en Figura~\ref{fig:colinealidad_limpia})
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia, de notebooks/01_eda/01g, copiada desde
+% figures/eda/entradas/02_colinealidad_limpia.pdf.
+% ⚠️ Es la version REDUCIDA, de 34 columnas. La de las 54 esta en §\ref{sec:colinealidad}:
+%    van separadas a proposito, para que se vea el antes y el despues del descarte.
+\begin{figure}[htbp]
+    \centering
+    \caption{Correlación entre las $34$ variables que quedan tras el descarte.}
+    \label{fig:colinealidad_limpia}
+
+    \includegraphics[width=0.88\textwidth]{cap06/colinealidad_limpia}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+        \item Luego se aplicaron en este orden: una \textbf{transformación logarítmica} a todas las columnas con asimetría en modulo mayor que uno, y \textbf{escalado} (Nota: a Ranfom Rorest se aplicaron las mismas transformaciones, aunque no sirvieran, para entrenar en ambos modelo con el mismo conjunto de datos). 
+    \end{itemize}
+    \item \textbf{Rama de grafo:} \begin{itemize}
+        \item El vector nodo pasa de 25 dimensiones a 21.
+        \item La \textbf{poda de 5 dimensiones}, reflejado el motivo en la Tabla~\ref{tab:poda}.
+        \item \textbf{Los ceros:} En el $78{,}88$\,\% de los nodos las seis dimensiones del qubit objetivo valen cero porque no hay segundo qubit. Tras estandarizar valen distinto a cero e introduce información falsa. \textbf{Solución:} ajustar con los nodos de dos qubits y \textbf{después reimponer el cero exacto}. 
+        \item \textbf{El ángulo se sustituye por dos columnas:} seno y su coseno.
+        \item \textbf{Las constantes se congelan.} El resto se estandariza ajustando solo con el conjunto de entrenamiento,
+        y las constantes \textbf{se leen de un fichero}.
+    \end{itemize}
+\end{itemize}
+
+
+\begin{table}[htbp]
+    \centering
+    \caption{Las cinco dimensiones podadas del vector de nodo, y su motivo.}
+    \label{tab:poda}
+    {\footnotesize
+    \begin{tabular}{@{}lp{0.60\textwidth}@{}}
+        \toprule
+        \textbf{Dimensión} & \textbf{Motivo} \\
+        \midrule
+        tipo \texttt{id} & \textbf{Cero nodos} de este tipo \\
+        duración de medida (control) & \textbf{Constante} en $2{,}18$~$\mu$s \\
+        aridad & \textbf{Idéntica} a otra dimensión \\
+        duración de medida (objetivo) & \textbf{Redundante}\\
+        día & \textbf{Fuera del rango} de entrenamiento el $100$\,\% de las veces \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}
+
+El preprocesado tabular y el del grafo son \textbf{independientes}. Comparten la partición y el umbral, pero no comparten el tratamiento.
+
+
+% =====================================================================================
+% =====================================================================================
+\section{Métricas y validación}
+\label{sec:criterios}
+% =====================================================================================
+% ⚠️ SECCION SIN SUBAPARTADOS Y ACOTADA A DOS O TRES PAGINAS (sep-2026, decision del
+%    autor). Tampoco lleva tablas. No trocearla otra vez ni reponerlas.
+%
+% 🔴 TRES ETIQUETAS DE AQUI SE CITAN DESDE FUERA, y ahora las tres resuelven a esta misma
+%    seccion. NO renombrarlas ni quitarlas:
+%      sec:metrica_decide -> capitulo 8      sec:cota -> capitulo 5 (dos veces)
+%      sec:reportar       -> capitulo 7
+%
+% ⚠️ SOLO TRES METRICAS: R², MAE y mejora relativa. Spearman se retiro en sep-2026 por
+%    decision del autor, aunque el codigo la siga calculando.
+%
+% Fuente: notebooks/05_comparativa/METRICAS_Y_EVALUACION.md · src/evaluacion.py
+% =====================================================================================
+
+El criterio general está fijado en los objetivos del capítulo~\ref{cap:objetivos}: \textbf{batir
+a no mitigar}, y hacerlo \textbf{fuera de la distribución de entrenamiento}. 
+
+\label{sec:metrica_decide}%
+
+\begin{center}
+    \doublebox{
+    \begin{minipage}{0.85\linewidth} \vspace{0.5em}
+        \centering
+        \textit{La métrica principal es el \textbf{coeficiente de determinación sobre el factor
+        de supervivencia}, por observable.}
+        \vspace{0.5em}
+    \end{minipage}}
+\end{center}
+
+Además, para medir la fidelidad del valor mitigado se emplearán MAE y la `mejora relativa'.
+
+\begin{equation}
+\label{eq:metricas}
+R^2 = 1 - \frac{\sum_i (f_i - \hat f_i)^2}{\sum_i (f_i - \bar f)^2} ,
+\qquad
+\text{MAE} = \frac{1}{n}\sum_i \left| f_i - \hat f_i \right| ,
+\end{equation}
+
+\begin{equation}
+\label{eq:mejora_relativa}
+\text{mejora relativa} = 1 - \frac{\text{MAE}(\langle O\rangle_{\text{mitigado}})}
+                                  {\text{MAE}(\langle O\rangle_{\text{ruidoso}})} .
+\end{equation}
+
+\label{sec:cota}%
+La evaluación aplica además la \textbf{cota inferior del factor} deducida en el
+apartado~\ref{sec:cotas}: una predicción por debajo de $|\langle O\rangle_{\text{ruidoso}}|$ produciría un valor corregido
+imposible, así que antes de reconstruir se sube hasta la cota y se reporta qué porcentaje de
+predicciones la tocó.
+\begin{equation}
+\label{eq:cota}
+\hat f_{\text{final}} = \max\left(\hat f,\; |\langle O\rangle_{\text{ruidoso}}|\right),
+\end{equation}
+
+\noindent donde $\langle O\rangle_{\text{ruidoso}}$ es el valor esperado medido con ruido.
+
+\label{sec:reportar}%
+Por último, todo lo anterior se reporta \textbf{desglosado por los tres ejes de
+generalización} (tipo, tamaño y tiempo) descritos en el apartado~\ref{sec:composicion}. 

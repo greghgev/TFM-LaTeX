@@ -1,0 +1,56 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}llrrrrr@{}}
+        \toprule
+        \textbf{Pel.} & \textbf{Modelo} & \textbf{Observable} & \textbf{n val} & \textbf{Spearman} & \textbf{Frac. mejorada} & \textbf{\% cota} \\
+        \midrule
+        0 & Sin mitigar & media de $Z$ & 2\,517 & --- & 0,0000 & 0,0000 \\
+        0 & Sin mitigar & media de $X$ & 2\,494 & --- & 0,0000 & 0,0000 \\
+        0 & Sin mitigar & media de $Y$ & 2\,519 & --- & 0,0000 & 0,0000 \\
+        0 & Sin mitigar & paridad & 2\,282 & --- & 0,0000 & 0,0000 \\
+        0 & Sin mitigar & corr. de vecinos & 2\,488 & --- & 0,0000 & 0,0000 \\
+        1 & f cte. & media de $Z$ & 2\,517 & --- & 0,5137 & 0,0795 \\
+        1 & f cte. & media de $X$ & 2\,494 & --- & 0,5409 & 0,0000 \\
+        1 & f cte. & media de $Y$ & 2\,519 & --- & 0,5359 & 0,0000 \\
+        1 & f cte. & paridad & 2\,282 & --- & 0,6170 & 0,3067 \\
+        1 & f cte. & corr. de vecinos & 2\,488 & --- & 0,5510 & 0,0804 \\
+        2 & Ridge-1 & media de $Z$ & 2\,517 & 0,7211 & 0,6806 & 0,0795 \\
+        2 & Ridge-1 & media de $X$ & 2\,494 & 0,7768 & 0,6640 & 0,3208 \\
+        2 & Ridge-1 & media de $Y$ & 2\,519 & 0,7624 & 0,6582 & 0,3176 \\
+        2 & Ridge-1 & paridad & 2\,282 & 0,8872 & 0,7770 & 2,0596 \\
+        2 & Ridge-1 & corr. de vecinos & 2\,488 & 0,8294 & 0,6821 & 0,5225 \\
+        3 & Ridge & media de $Z$ & 2\,517 & 0,7379 & 0,6671 & 0,0000 \\
+        3 & Ridge & media de $X$ & 2\,494 & 0,8014 & 0,6969 & 0,1203 \\
+        3 & Ridge & media de $Y$ & 2\,519 & 0,7847 & 0,7011 & 0,0397 \\
+        3 & Ridge & paridad & 2\,282 & 0,8870 & 0,8155 & 0,8764 \\
+        3 & Ridge & corr. de vecinos & 2\,488 & 0,8303 & 0,7243 & 0,4823 \\
+        4 & RF & media de $Z$ & 2\,517 & 0,7429 & 0,7243 & 0,0000 \\
+        4 & RF & media de $X$ & 2\,494 & 0,8046 & 0,7578 & 0,0000 \\
+        4 & RF & media de $Y$ & 2\,519 & 0,7879 & 0,7348 & 0,0000 \\
+        4 & RF & paridad & 2\,282 & 0,8945 & 0,8598 & 0,0876 \\
+        4 & RF & corr. de vecinos & 2\,488 & 0,8338 & 0,7697 & 0,0000 \\
+        5 & SAGE & media de $Z$ & 2\,517 & 0,7449 & 0,6861 & 0,0000 \\
+        5 & SAGE & media de $X$ & 2\,494 & 0,8063 & 0,7265 & 0,0000 \\
+        5 & SAGE & media de $Y$ & 2\,519 & 0,7889 & 0,7201 & 0,0000 \\
+        5 & SAGE & paridad & 2\,282 & 0,8705 & 0,8506 & 0,1753 \\
+        5 & SAGE & corr. de vecinos & 2\,488 & 0,8342 & 0,7572 & 0,0000 \\
+        5 & GIN & media de $Z$ & 2\,517 & 0,7434 & 0,7120 & 0,0000 \\
+        5 & GIN & media de $X$ & 2\,494 & 0,8046 & 0,7149 & 0,0000 \\
+        5 & GIN & media de $Y$ & 2\,519 & 0,7866 & 0,7253 & 0,0000 \\
+        5 & GIN & paridad & 2\,282 & 0,8635 & 0,8738 & 0,0876 \\
+        5 & GIN & corr. de vecinos & 2\,488 & 0,8334 & 0,7637 & 0,0000 \\
+        5 & GATv2 & media de $Z$ & 2\,517 & 0,7457 & 0,6567 & 0,0000 \\
+        5 & GATv2 & media de $X$ & 2\,494 & 0,8077 & 0,7113 & 0,0000 \\
+        5 & GATv2 & media de $Y$ & 2\,519 & 0,7884 & 0,6812 & 0,0000 \\
+        5 & GATv2 & paridad & 2\,282 & 0,8585 & 0,7883 & 0,1315 \\
+        5 & GATv2 & corr. de vecinos & 2\,488 & 0,8316 & 0,6909 & 0,0000 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Métricas de apoyo de cada peldaño, en validación. Spearman mide la capacidad de ordenar circuitos; la fracción mejorada, en qué proporción de ellos la corrección acerca el valor mitigado al exacto; y la última columna, qué porcentaje de las predicciones tuvo que recortar la cota física. Las tres se miden en validación.}
+    \label{tab:v2_escalera_apoyo}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

@@ -1,0 +1,65 @@
+% =====================================================================================
+% La arquitectura del MPNN — figura propia en TikZ.
+%
+% Lo que tiene que quedar claro y no se entiende sin dibujo: el resumen global es
+% BIDIRECCIONAL. Lee de todos los nodos y DEVUELVE a todos los nodos, y esa flecha de
+% vuelta es la que lo distingue de un pooling aprendido. Por eso hay dos flechas entre la
+% capa de mensajes y el resumen, y no una.
+%
+% CODIGO DE COLOR, el de la memoria:
+%   azulunir  -> el dato (el grafo de entrada y la salida)
+%   acentofig -> lo que se le hace (las capas y el resumen)
+%
+% ⚠️ \shorthandoff{<>} es obligatorio: `babel` en español hace activos < y >.
+% =====================================================================================
+\begingroup
+\shorthandoff{<>}%
+\hyphenpenalty=10000\exhyphenpenalty=10000\relax
+
+\begin{tikzpicture}[
+    >={Stealth[length=2mm]},
+    font=\footnotesize,
+    dato/.style  = {draw=azulunir, line width=0.9pt, rounded corners=3pt, fill=azulunir!6,
+                    align=center, inner sep=5pt, text width=2.1cm},
+    capa/.style  = {draw=acentofig, line width=0.9pt, rounded corners=3pt,
+                    fill=acentofig!8, align=center, inner sep=5pt, text width=2.3cm},
+    resumen/.style = {draw=acentofig, line width=1.2pt, rounded corners=3pt,
+                      fill=acentofig!16, align=center, inner sep=5pt, text width=2.6cm},
+  ]
+
+  % --- la cadena principal -------------------------------------------------------------
+  \node[dato]  (entrada) at (0,0)
+    {\textbf{Grafo}\\{\scriptsize $21$ dims por nodo}};
+  \node[capa]  (mp)      at (3.4,0)
+    {\textbf{Paso de mensajes}\\{\scriptsize $4$ capas · aristas dirigidas}};
+  \node[capa]  (lectura) at (7.2,0)
+    {\textbf{Lectura}\\{\scriptsize resumen $\oplus$ \textit{pooling}}};
+  \node[dato]  (salida)  at (10.4,0)
+    {\textbf{$\hat f$}\\{\scriptsize cinco salidas}};
+
+  \draw[->, azulunir,  line width=1pt] (entrada.east) -- (mp.west);
+  \draw[->, acentofig, line width=1pt] (mp.east)      -- (lectura.west);
+  \draw[->, azulunir,  line width=1pt] (lectura.east) -- (salida.west);
+
+  % --- el resumen global, encima, con SUS DOS flechas ------------------------------------
+  \node[resumen] (virtual) at (3.4,2.0)
+    {\textbf{Resumen global}\\{\scriptsize un vector por grafo · pesos propios}};
+
+  \draw[->, acentofig, line width=1pt] ($(mp.north)+(-0.42,0)$) -- ($(virtual.south)+(-0.42,0)$)
+        node[midway, left=1pt, font=\scriptsize, text=black] {lee};
+  \draw[->, acentofig, line width=1pt] ($(virtual.south)+(0.42,0)$) -- ($(mp.north)+(0.42,0)$)
+        node[midway, right=1pt, font=\scriptsize, text=black] {devuelve};
+
+  \draw[->, acentofig, line width=0.8pt, dotted]
+        (virtual.east) to[out=0, in=110] (lectura.north);
+
+  % --- la nota que justifica la vuelta ---------------------------------------------------
+  \node[align=left, font=\scriptsize, text=gray, text width=3.7cm] at (8.9,2.1)
+    {con $4$ capas un nodo alcanza\\el $1{,}25$\,\% de los pares:\\el resumen es la única vía\\al largo alcance};
+
+  % --- lo que envuelve cada capa ---------------------------------------------------------
+  \node[align=center, font=\scriptsize, text=gray] at (3.4,-1.35)
+    {cada capa: normalización + conexión residual};
+
+\end{tikzpicture}%
+\endgroup

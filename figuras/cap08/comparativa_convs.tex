@@ -1,0 +1,19 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        \textbf{Modelo} & \textbf{media de $Z$} & \textbf{media de $X$} & \textbf{media de $Y$} & \textbf{paridad} & \textbf{corr. de vecinos} \\
+        \midrule
+        GNN · SAGE & 0,361 & 0,501 & 0,423 & 0,807 & 0,614 \\
+        GNN · GIN & 0,370 & 0,484 & 0,415 & 0,809 & 0,620 \\
+        GNN · GATv2 & 0,361 & 0,491 & 0,402 & 0,826 & 0,601 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{$R^2$ sobre $f$ de las tres convoluciones, con el presupuesto de parámetros igualado.}
+    \label{tab:comparativa_convs}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

@@ -1,0 +1,100 @@
+% =====================================================================================
+% Los tres operadores de Pauli sobre la esfera de Bloch — figura propia en TikZ.
+%
+% Tres viñetas con la MISMA esfera. En cada una se resalta el eje que ese operador mide y
+% se marcan sus dos autoestados, que son los dos unicos resultados posibles de la medida:
+%     Z -> eje vertical,      |0> (+1) arriba,        |1> (-1) abajo
+%     X -> eje de la izq.,    |+> (+1),               |-> (-1)
+%     Y -> eje de la derecha, |+i> (+1),              |-i> (-1)
+% El mensaje es que medir X, Y o Z no es medir tres cosas, sino preguntarle al MISMO
+% estado por tres direcciones distintas, y que las tres respuestas valen +1 o -1. De ahi
+% que el valor esperado viva en [-1, 1], que es lo que gobierna el resto del capitulo 5.
+%
+% GEOMETRIA: la misma que en figuras/cap02/bloch_tikz.tex, para que las dos figuras se
+% lean como la misma esfera. El ecuador es una elipse de semiejes \R y \K*\R, y un punto
+% del ecuador se parametriza con el angulo de pantalla t: (\R cos t, \K \R sin t).
+%     \Tx = 235° -> eje x, abajo a la izquierda      \Ty = 0° -> eje y, a la derecha
+%
+% CODIGO DE COLOR, el mismo que en el resto de la memoria:
+%   azulunir   -> el QUBIT y sus estados
+%   acentofig  -> lo que se le HACE: aqui, el eje que se esta midiendo
+%   gris       -> los otros dos ejes, que en esa viñeta no se miden
+%
+% ⚠️ \shorthandoff{<>} es obligatorio: `babel` en español hace activos < y >, y eso rompe
+%    la sintaxis de puntas de flecha de TikZ.
+% =====================================================================================
+\begingroup
+\shorthandoff{<>}%
+\begin{tikzpicture}[>={Stealth[length=1.9mm]}, line width=0.5pt, font=\footnotesize]
+
+  \pgfmathsetmacro{\R}{1.25}    % radio de cada esfera
+  \pgfmathsetmacro{\K}{0.30}    % achatamiento del ecuador en perspectiva
+  \pgfmathsetmacro{\Tx}{235}    % angulo de pantalla del eje x
+  \pgfmathsetmacro{\D}{4.45}    % separacion entre viñetas
+  \pgfmathsetmacro{\Rp}{2.6}    % radio de los puntos, en pt
+  \pgfmathsetmacro{\DD}{2*\D}   % desplazamiento de la tercera viñeta
+
+  % --- coordenadas de los cuatro extremos ecuatoriales -------------------------------
+  \pgfmathsetmacro{\Xa}{\R*cos(\Tx)}     \pgfmathsetmacro{\Ya}{\K*\R*sin(\Tx)}
+  \pgfmathsetmacro{\Xb}{-\Xa}            \pgfmathsetmacro{\Yb}{-\Ya}
+
+  % --- una esfera con sus tres ejes en gris, reutilizable ----------------------------
+  \newcommand{\esferabase}{%
+    \draw[gray!55] (0,0) circle (\R);
+    \draw[gray!55, dashed] (0,0) ellipse ({\R} and {\K*\R});
+    \draw[gray!55] (0,-\R) -- (0,\R);
+    \draw[gray!55] (\Xa,\Ya) -- (\Xb,\Yb);
+    \draw[gray!55] (-\R,0) -- (\R,0);%
+  }
+
+  % ===================================================================================
+  % 1) Z — el eje vertical
+  % ===================================================================================
+  \begin{scope}[xshift=0cm]
+    \esferabase
+    \draw[acentofig, line width=1.2pt] (0,-\R) -- (0,\R);
+    \fill[azulunir] (0,\R) circle (\Rp pt);
+    \fill[azulunir] (0,-\R) circle (\Rp pt);
+    \node[above=1pt, azulunir] at (0,\R)  {$\ket{0}$};
+    \node[below=1pt, azulunir] at (0,-\R) {$\ket{1}$};
+    \node[right=3pt, acentofig] at (0,{0.62*\R})  {$+1$};
+    \node[right=3pt, acentofig] at (0,{-0.62*\R}) {$-1$};
+    \node[font=\small] at (0,{-1.62*\R}) {$\langle Z \rangle$};
+  \end{scope}
+
+  % ===================================================================================
+  % 2) X — el eje que en perspectiva sale hacia el lector
+  % ===================================================================================
+  \begin{scope}[xshift=\D cm]
+    \esferabase
+    \draw[acentofig, line width=1.2pt] (\Xa,\Ya) -- (\Xb,\Yb);
+    \fill[azulunir] (\Xa,\Ya) circle (\Rp pt);
+    \fill[azulunir] (\Xb,\Yb) circle (\Rp pt);
+    \node[below left=-1pt,  azulunir] at (\Xa,\Ya) {$\ket{+}$};
+    \node[above right=-1pt, azulunir] at (\Xb,\Yb) {$\ket{-}$};
+    % Los autovalores se desplazan PERPENDICULARES al eje (hacia arriba y a la
+    % izquierda), porque puestos encima del propio eje se pisaban con los kets.
+    \node[acentofig] at ({0.62*\Xa-0.10},{0.62*\Ya+0.25}) {$+1$};
+    \node[acentofig] at ({0.62*\Xb-0.10},{0.62*\Yb+0.25}) {$-1$};
+    \node[font=\small] at (0,{-1.62*\R}) {$\langle X \rangle$};
+  \end{scope}
+
+  % ===================================================================================
+  % 3) Y — el eje horizontal
+  % ===================================================================================
+  \begin{scope}[xshift=\DD cm]
+    \esferabase
+    \draw[acentofig, line width=1.2pt] (-\R,0) -- (\R,0);
+    \fill[azulunir] (\R,0) circle (\Rp pt);
+    \fill[azulunir] (-\R,0) circle (\Rp pt);
+    \node[right=2pt, azulunir] at (\R,0)  {$\ket{{+}i}$};
+    \node[left=2pt,  azulunir] at (-\R,0) {$\ket{{-}i}$};
+    % Por encima de la elipse del ecuador: pegados al eje quedaban sobre la linea
+    % de puntos y se leian mal.
+    \node[acentofig] at ({0.58*\R},0.44)  {$+1$};
+    \node[acentofig] at ({-0.58*\R},0.44) {$-1$};
+    \node[font=\small] at (0,{-1.62*\R}) {$\langle Y \rangle$};
+  \end{scope}
+
+\end{tikzpicture}%
+\endgroup

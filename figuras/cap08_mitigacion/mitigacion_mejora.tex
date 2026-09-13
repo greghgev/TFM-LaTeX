@@ -1,0 +1,21 @@
+% Generado por src/comparativa.py — no editar a mano, se regenera.
+\begin{table}[htbp]
+    \centering
+    {\footnotesize
+    \begin{tabular}{@{}lrrrrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{n (cobertura)} & \textbf{Ridge} & \textbf{RF} & \textbf{SAGE} & \textbf{GIN} & \textbf{GATv2} \\
+        \midrule
+        media de $Z$ & 1986 (50\%) & $-$1,9873 & 0,3258 & 0,1433 & $-$0,0236 & 0,0616 \\
+        media de $X$ & 3393 (85\%) & 0,5029 & 0,8067 & 0,7283 & 0,7913 & 0,7600 \\
+        media de $Y$ & 1096 (27\%) & $-$1,4941 & 0,3677 & 0,0998 & 0,2758 & 0,2222 \\
+        paridad & 1825 (46\%) & $-$1,9077 & 0,7323 & 0,1237 & 0,4435 & $-$0,2881 \\
+        corr. de vecinos & 3369 (84\%) & $-$4,1920 & 0,0135 & $-$0,0527 & 0,1918 & $-$0,4580 \\
+        \bottomrule
+    \end{tabular}}
+
+    \caption{Mejora relativa del error frente a no mitigar. Positiva significa que el modelo ayuda; negativa, que habría sido mejor no corregir. Conjunto de test, por observable. $n$ es el número de casillas evaluables. Ridge = Ridge de 34 variables, RF = Random Forest; SAGE, GIN y GATv2 son las tres convoluciones del MPNN.  Son métricas post-ejecución: se reportan, pero la comparativa la decide el $R^2$ sobre $f$.}
+    \label{tab:mitigacion_mejora}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{table}

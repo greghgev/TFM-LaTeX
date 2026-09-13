@@ -1,0 +1,70 @@
+% =====================================================================================
+% Donde entra cada dato en la reformulacion — figura propia en TikZ.
+%
+% ES LA CONTRAFIGURA DE LA 1.2 (cap01/mlqem_flujo). Alli el trazo rojo discontinuo es el
+% valor ruidoso medido entrando COMO ENTRADA DEL MODELO, que es lo que obliga a ejecutar
+% el circuito antes de poder corregirlo. Aqui el mismo trazo rojo discontinuo entra
+% SOLO en la aritmetica final, a la derecha de la linea de puntos que separa el antes del
+% despues. Las dos figuras se leen juntas: es el argumento de que la reformulacion no
+% rompe el paradigma pre-ejecucion.
+%
+% CODIGO DE COLOR, el mismo que en el resto de la memoria:
+%   azulunir     -> el dato que el modelo SI ve antes de ejecutar
+%   acentofig    -> lo que se le HACE (el modelo, la aritmetica)
+%   rojoclasico  -> el valor medido, que solo existe DESPUES de ejecutar
+%                   (equivale al #b3261e del SVG de la figura 1.2)
+%
+% ⚠️ La flecha de f-sombrero CRUZA la linea de puntos a proposito: la prediccion nace
+%    antes de ejecutar y se usa despues. Lo que NO cruza —y es el punto de la figura— es
+%    el trazo rojo, que se queda entero a la derecha.
+%
+% ⚠️ \shorthandoff{<>} es obligatorio: `babel` en español hace activos < y >, y eso rompe
+%    la sintaxis de puntas de flecha de TikZ. Va tambien en el preambulo, pero se repite
+%    aqui para que el fichero sea autocontenido si se compila suelto.
+% =====================================================================================
+\begingroup
+\shorthandoff{<>}%
+\begin{tikzpicture}[
+    >={Stealth[length=2mm]},
+    line width=0.6pt,
+    font=\footnotesize,
+    caja/.style   = {draw=azulunir, line width=0.8pt, rounded corners=2pt,
+                     align=center, inner sep=4pt, minimum height=8mm, minimum width=21mm},
+    opera/.style  = {draw=acentofig, fill=acentofig!8, line width=0.9pt,
+                     rounded corners=2pt, align=center, inner sep=5pt,
+                     minimum height=9mm},
+    medido/.style = {draw=rojoclasico, line width=0.8pt, rounded corners=2pt,
+                     align=center, inner sep=4pt, minimum height=8mm},
+  ]
+
+  % --- Columna 1: lo que el modelo ve, y es TODO lo que ve --------------------------
+  \node[caja] (circ) at (0,0.85)  {Circuito\\transpilado};
+  \node[caja] (tele) at (0,-0.85) {Telemetría\\del chip};
+
+  % --- Columna 2: el modelo ---------------------------------------------------------
+  \node[opera, minimum width=15mm] (modelo) at (3.3,0) {Modelo};
+
+  \draw[->, azulunir] (circ.east) -- (modelo.west);
+  \draw[->, azulunir] (tele.east) -- (modelo.west);
+
+  % --- Columna 3: la aritmetica de la correccion ------------------------------------
+  \node[opera, minimum width=12mm] (arit) at (8.0,0) {$\displaystyle \frac{r}{\hat f}$};
+
+  % La prediccion cruza la frontera: nace antes de ejecutar y se consume despues.
+  \draw[->, acentofig] (modelo.east) -- node[above, midway, text=black] {$\hat f$}
+        (arit.west);
+
+  \draw[->] (arit.east) -- ++(0.8,0)
+        node[right, align=left, inner sep=2pt] {$\langle O\rangle$\\mitigado};
+
+  % --- El valor medido: entra SOLO aqui, y desde el lado de «despues» ----------------
+  \node[medido] (med) at (8.0,-2.0) {$\langle O\rangle_{\text{ruidoso}} = r$\\medido al ejecutar};
+  \draw[->, rojoclasico, dashed, line width=0.9pt] (med.north) -- (arit.south);
+
+  % --- La frontera: antes / despues de ejecutar --------------------------------------
+  \draw[dotted, gray, line width=0.9pt] (6.1,-2.85) -- (6.1,1.75);
+  \node[gray, above] at (3.0,1.6)  {antes de ejecutar};
+  \node[gray, above] at (8.4,1.6)  {después de ejecutar};
+
+\end{tikzpicture}
+\endgroup
