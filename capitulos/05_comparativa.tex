@@ -1,0 +1,454 @@
+\chapter{Desarrollo de la comparativa}
+\label{cap:comparativa}
+
+% =====================================================================================
+% GUION DEL CAPITULO — ESTRUCTURA FIJADA POR EL AUTOR.
+%
+% 🔴 La estructura acordada es exactamente esta:
+%      5.1 Ridge · 5.2 Random Forest · 5.3 La red de grafos · 5.4 Coste
+%    ⚠️ §5.4 se AÑADIO en sep-2026: la tabla de coste compara los tres modelos a la vez y
+%       no cabe dentro de ninguno. PENDIENTE DE VISTO BUENO DEL AUTOR.
+%
+% ⚠️ AMPLIADO (sep-2026) POR INDICACION DEL TUTOR. Pidio atacar cada solucion por separado
+%    diciendo, de cada una: los DATOS que ve, el PREPROCESADO exclusivo y la ARQUITECTURA
+%    e HIPERPARAMETROS con los que se quedo. Por eso cada seccion tiene ahora esos tres
+%    bloques en ese orden, y por eso el capitulo paso de 3 a ~11 paginas.
+%
+% 🔴 EL PREPROCESADO EXCLUSIVO SE MOVIO AQUI DESDE §4.4 (sep-2026, indicacion del tutor).
+%    En el capitulo 4 se queda SOLO lo comun: la particion, el umbral y la regla de no
+%    fuga. Lo que es propio de una rama vive con su modelo. NO devolverlo al capitulo 4:
+%    estaria en los dos sitios.
+%
+% 🔴 REPARTO CON EL CAPITULO 4, que es la regla que evita volver a duplicar:
+%      cap. 4 -> los DATOS y el diseño experimental: de donde salen, que dice la EDA, como
+%                se parten, con que umbral y con que metricas se juzgan.
+%      cap. 5 -> los MODELOS: que ve cada uno, como se le prepara la entrada, con que
+%                hiperparametros y como se ha entrenado.
+%
+% FUENTES, por seccion:
+%   5.1 -> src/baselines.py · models/ridge/*_barrido.csv · models/ridge_simple/*_barrido.csv
+%   5.2 -> src/baselines.py · models/rf/*_barrido.csv · liao2024machine
+%   5.3 -> src/gnn_model.py · src/train.py · configs/gnn_config.yaml
+%          notebooks/04_gnn/NOTAS_ENTRENAMIENTO.md
+%          logs/barrido_gnn.csv · logs/barrido_gnn_conv_shard*.csv · logs/historial_gnn_*.json
+%   5.4 -> logs/comparativa/coste.csv (lo produce src/comparativa.py::tabla_coste)
+%
+% 🔴 CIFRAS PROHIBIDAS (son del dataset v1, obsoleto): «30-70 saltos» de distancia entre
+%    nodos —la del v2 es 44— y «42,7x» / «45,4x» del QFT —la citable es 3,69x—.
+%
+% ⚠️ NINGUN RESULTADO DE TEST ENTRA AQUI. Las cifras de validacion SI: son el criterio con
+%    el que se eligieron los hiperparametros, y sin ellas no se puede justificar la
+%    eleccion. Lo que no puede aparecer es una metrica sobre `test`: eso es el
+%    capitulo~\ref{cap:resultados}.
+% =====================================================================================
+
+Los tres modelos resuelven el mismo problema con la misma partición, el mismo umbral de señal
+y las mismas métricas, fijados todos en el capítulo~\ref{cap:planteamiento}. El cambio entre un modelo y otro es la preparación de los datos de entrada, y es eso lo que recoge este
+capítulo: de cada modelo, los datos que consume, el preprocesado correspondiente y los
+hiperparámetros seleccionados.
+
+Una aclaración sobre las cifras que aparecen. Todas las cifras de este capítulo son del conjunto de
+\textbf{validación}, ya que son el criterio con el que se eligió cada hiperparámetro. Ninguna
+es de prueba: el conjunto de prueba no se toca hasta el capítulo~\ref{cap:resultados}.
+
+
+% =====================================================================================
+\section{Ridge}
+\label{sec:sol_ridge}
+% =====================================================================================
+
+Una regresión lineal con penalización $L_2$ \cite{hoerl1970ridge}. Es el \textbf{baseline} de
+la comparativa: fija el suelo que los otros dos tienen que batir para justificar su coste.
+
+El modelo recibe una fila por circuito. Se ajusta \textbf{un modelo por observable}, cinco en total, y cada uno
+descarta las filas que no tienen etiqueta de \emph{su} observable, porque el umbral de señal
+del apartado~\ref{sec:umbral} deja sin objetivo a muestras distintas según el observable. La
+Tabla~\ref{tab:datos_tabular} recoge con cuántas filas se entrena cada uno.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Filas con etiqueta por observable, en entrenamiento y en validación.}
+    \label{tab:datos_tabular}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        & \textbf{media $Z$} & \textbf{media $X$} & \textbf{media $Y$}
+        & \textbf{paridad} & \textbf{corr. vec.} \\
+        \midrule
+        Entrenamiento & $12{.}780$ & $12{.}640$ & $12{.}672$ & $11{.}413$ & $12{.}620$ \\
+        Validación    & $2{.}566$  & $2{.}526$  & $2{.}551$  & $2{.}292$  & $2{.}516$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Sobre $13{.}344$ y $2{.}656$ circuitos
+    respectivamente. La paridad es la que más pierde por el umbral establecido}
+\end{table}
+
+\subsection*{El preprocesado}
+
+El conjunto tabular trae $54$ columnas y el modelo ve $34$. Tres decisiones, en este orden:
+
+\begin{itemize}
+    \item \textbf{Se descartan $20$ columnas redundantes}, conservando un representante de
+          cada bloque correlado (apartado~\ref{sec:colinealidad}). La
+          Figura~\ref{fig:colinealidad_limpia} es la matriz que queda después.
+    \item \textbf{Transformación logarítmica} a toda columna con asimetría mayor que uno en
+          módulo.
+    \item \textbf{Escalado} de todas las columnas.
+\end{itemize}
+
+Ninguna de las tres se ajusta con validación: las constantes salen solo de entrenamiento, que
+es la regla del apartado~\ref{sec:prep}.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia, de notebooks/01_eda/01g, copiada desde
+% figures/eda/entradas/02_colinealidad_limpia.pdf.
+% ⚠️ MOVIDA AQUI DESDE §4.4 (sep-2026). Es la version REDUCIDA, de 34 columnas; la de las
+%    54 sigue en §\ref{sec:colinealidad}, a proposito: juntas enseñan lo que el descarte
+%    se lleva por delante.
+\begin{figure}[htbp]
+    \centering
+    \caption{Correlación entre las $34$ variables que quedan tras el descarte.}
+    \label{fig:colinealidad_limpia}
+
+    \includegraphics[width=\textwidth]{cap06/colinealidad_limpia}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+No se usan mínimos cuadrados ordinarios precisamente por esa matriz: aun después del descarte
+queda correlación entre columnas, y la penalización $L_2$ reparte el peso entre las
+correlacionadas.
+
+\subsection*{Los hiperparámetros}
+
+El único es la constante de regularización, barrida en diez valores de $10^{-3}$ a $10^{6}$ y
+elegida por el coeficiente de determinación sobre validación. La
+Tabla~\ref{tab:hiper_ridge} recoge el elegido para cada observable.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Constante de regularización elegida para cada observable.}
+    \label{tab:hiper_ridge}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}lrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{$\alpha$ · una variable} & \textbf{$\alpha$ · $34$ variables} \\
+        \midrule
+        media $Z$          & $100$    & $100$ \\
+        media $X$          & $1{.}000$ & $1{.}000$ \\
+        media $Y$          & $1{.}000$ & $1{.}000$ \\
+        paridad            & $100$    & $1{.}000$ \\
+        corr. de vecinos   & $1{.}000$ & $100$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Elegida por $R^2$ sobre validación, en una
+    rejilla de diez valores.}
+\end{table}
+
+Los valores son altos, entre $100$ y $1{.}000$ sobre columnas ya escaladas, lo que dice que el
+ajuste necesita bastante penalización. La columna de la
+izquierda es el peldaño de una sola variable de la Figura~\ref{fig:peldanos}: el mismo modelo
+viendo solo la duración total, para que la diferencia entre los dos peldaños sea únicamente
+cuántas columnas entran.
+
+La Figura~\ref{fig:ridge_coef} recoge los doce coeficientes de mayor magnitud. Se muestran
+\textbf{con su signo}, que es lo único que este modelo da y los otros dos no: la dirección en
+la que cada variable empuja al factor de supervivencia.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera modelos.dibujar_ridge_coeficientes() y se copia desde
+% TFM-Quantum/figures/modelos/ridge_coeficientes.pdf. Sin titulo interno.
+\begin{figure}[htbp]
+    \centering
+    \caption{Los doce coeficientes mayores de Ridge, con su signo, promediando los cinco
+             observables.}
+    \label{fig:ridge_coef}
+
+    \includegraphics[width=0.92\textwidth]{cap07/ridge_coeficientes}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+
+% =====================================================================================
+\section{Random Forest}
+\label{sec:sol_rf}
+% =====================================================================================
+
+Un bosque de árboles de decisión \cite{breiman2001random}. Añade sobre Ridge una sola cosa,
+\textbf{la no linealidad}, y está en la comparativa porque es el mejor modelo tabular de los
+que compara la referencia del área \cite{liao2024machine}.
+
+Conviene decir de entrada su límite: \textbf{un árbol no extrapola}. Su predicción para una
+entrada fuera del rango visto es la de la hoja más cercana, así que en el eje de tamaño parte
+con una desventaja estructural que no es un defecto del ajuste.
+
+El modelo recibe exactamente los mismos datos que Ridge: las mismas $34$ columnas, un modelo por observable y los
+mismos descartes de la Tabla~\ref{tab:datos_tabular}.
+
+\subsection*{El preprocesado}
+
+También el mismo, y aquí hay una decisión que conviene justificar. A un árbol \textbf{no le
+afecta} el escalado ni la transformación logarítmica. Aun así \textbf{se le aplican las dos}. El
+motivo es mantener una misma entrada a ambos modelos.
+
+\subsection*{Los hiperparámetros}
+
+La rejilla fija $300$ árboles y barre tres ejes: la profundidad máxima ($\{$sin límite, $6$,
+$12$, $24\}$), las hojas mínimas ($\{1, 5, 20, 50\}$) y las variables por división
+($\{\sqrt{\cdot}, 0{,}5, 1{,}0\}$). Son $48$ combinaciones por observable, $240$ ajustes en
+total. La Tabla~\ref{tab:hiper_rf} recoge la ganadora de cada uno.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Hiperparámetros elegidos para cada observable.}
+    \label{tab:hiper_rf}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrr@{}}
+        \toprule
+        \textbf{Observable} & \textbf{Profundidad} & \textbf{Hojas mínimas}
+            & \textbf{Variables por división} \\
+        \midrule
+        media $Z$          & $6$  & $50$ & $0{,}5$ \\
+        media $X$          & $24$ & $50$ & $0{,}5$ \\
+        media $Y$          & $12$ & $50$ & $0{,}5$ \\
+        paridad            & $6$  & $5$  & $0{,}5$ \\
+        corr. de vecinos   & $6$  & $5$  & $1{,}0$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Los cinco con $300$ árboles. Elegidos por
+    $R^2$ sobre validación entre $48$ combinaciones.}
+\end{table}
+
+Los óptimos salen \textbf{poco profundos}: profundidad $6$ en tres de los cinco observables, y
+hojas de $50$ muestras en los tres primeros. Un bosque al que se permite crecer sin restricciones termina sobreajustándose, lo que sugiere que la informaci\'on contenida en estas variables es relativamente simple. La \'unica excepci\'on es la media de $X$, cuyo rendimiento \'optimo se alcanza con una profundidad de 24.
+
+% Figura propia. La genera modelos.dibujar_rf_importancias() y se copia desde
+% TFM-Quantum/figures/modelos/rf_importancias.pdf. Sin titulo interno.
+\begin{figure}[htbp]
+    \centering
+    \caption{Las doce variables más importantes para Random Forest, promediando los cinco
+             observables.}
+    \label{fig:rf_imp}
+
+    \includegraphics[width=0.92\textwidth]{cap07/rf_importancias}
+
+    {\footnotesize Fuente: elaboración propia.}
+\end{figure}
+
+La Figura~\ref{fig:rf_imp} y la Figura~\ref{fig:ridge_coef} transmiten la misma conclusión: la \textbf{duración total} y la \textbf{profundidad} concentran la mayor parte de la capacidad predictiva del modelo, con importancias de $0{,}39$ y $0{,}33$, respectivamente, frente al $0{,}03$ de la siguiente variable. A pesar de basarse en criterios de ajuste diferentes, ambos modelos se basan sus predicciones principalmente en estas dos características.
+
+% =====================================================================================
+\section{La red de grafos}
+\label{sec:gnn}
+% =====================================================================================
+
+Para el último eslabón de la escalera, se ha seleccionado una red de paso de mensajes sobre el grafo del circuito. Requiere de una justificación detallada porque es la que se aparta más de la arquitectura de referencia del área.
+
+El trabajo más cercano \cite{bao2025gtraqem} usa un
+\textit{graph transformer} \emph{sin} paso de mensajes. Aquí se descartó por cómputo: la
+atención es cuadrática en el número de nodos y los grafos de este conjunto llegan a $5{.}056$,
+de modo que la máquina disponible no daba para ello.
+
+Lo que el modelo recibe no es una fila, sino \textbf{el circuito entero}: un grafo dirigido con una puerta por nodo. Los
+grafos van de $18$ a $5{.}056$ nodos y
+\textbf{entran completos}, sin truncar. Cada nodo llega con $21$ dimensiones.
+
+A diferencia de los dos tabulares, aquí hay \textbf{un solo modelo con cinco salidas}, no cinco
+modelos. El tronco es compartido y la última capa tiene cinco neuronas, una por observable.
+Eso obliga a dos cosas que en los tabulares no hacían falta y que se detallan más abajo: una
+pérdida enmascarada y la estandarización de los cinco objetivos.
+
+\subsection*{El preprocesado del grafo}
+
+Es \textbf{independiente} del tabular. Comparten la partición y el umbral de señal, pero no
+comparten ni una transformación. Cuatro decisiones:
+
+\begin{itemize}
+    \item \textbf{El vector de nodo pasa de $25$ dimensiones a $21$.} Se podan cinco y se añade
+          una por la codificación del ángulo. Los motivos de la poda, en la
+          Tabla~\ref{tab:poda}.
+    \item \textbf{El ángulo se sustituye por su seno y su coseno.} Los ángulos no vienen
+          envueltos (van de $-12{,}43$ a $18{,}87$ radianes)
+    \item \textbf{Los ceros de relleno se reimponen.} En el $78{,}88$\,\% de los nodos las seis
+          dimensiones del qubit objetivo valen cero porque no hay segundo qubit. Al
+          estandarizar dejarían de valer cero e introducirían información falsa, así que la
+          escala se ajusta con los nodos de dos qubits y después se vuelve a poner el cero
+          exacto.
+    \item \textbf{Las constantes de escalado se congelan en un fichero} y se leen.
+\end{itemize}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Las cinco dimensiones podadas del vector de nodo, y su motivo.}
+    \label{tab:poda}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}lp{0.60\textwidth}@{}}
+        \toprule
+        \textbf{Dimensión} & \textbf{Motivo} \\
+        \midrule
+        tipo \texttt{id} & \textbf{Cero nodos} de este tipo \\
+        duración de medida (control) & \textbf{Constante} en $2{,}18$~$\mu$s \\
+        aridad & \textbf{Idéntica} a otra dimensión \\
+        duración de medida (objetivo) & \textbf{Redundante} \\
+        día & \textbf{Fuera del rango} de entrenamiento el $100$\,\% de las veces \\
+        \bottomrule
+    \end{tabular}}
+\end{table}
+
+\subsection*{La arquitectura}
+
+La Figura~\ref{fig:gnn_arq} la resume. Cuatro piezas, y la tercera es la que sostiene el
+modelo:
+
+\begin{enumerate}
+    \item \textbf{Aristas estrictamente dirigidas.} El ruido se acumula hacia adelante en el
+          tiempo.
+    \item \textbf{Conexiones residuales\footnote{Técnica arquitectónica que suma el estado previo de un nodo a su nuevo valor tras procesar la información de la capa ($h_{l+1} = \text{Capa}(h_l) + h_l$). Actúa como un ancla de memoria que garantiza que las características locales de la puerta cuántica original no se diluyan bajo el resumen global.} y normalización de capa} tras cada actualización de mensajes, para mitigar el \textit{over-smoothing}\footnote{Fenómeno en las redes neuronales de grafos (GNNs) en el que, tras sucesivas operaciones de agregación de información procedente del vecindario o del contexto global, las representaciones de los nodos tienden a converger hacia valores muy similares. Como consecuencia, se pierde la capacidad de distinguir características locales y estructurales de cada nodo, reduciendo su poder discriminativo y dificultando la diferenciación entre ellos.} provocado por el resumen global.
+    \item \textbf{Un resumen global bidireccional}: lee de todos los nodos y \emph{devuelve} a
+          todos. Está implementado como un vector
+          por grafo con sus \textbf{propios pesos}, separado de la convolución.
+    \item \textbf{Lectura final}: el vector de resumen concatenado con el \textit{pooling}
+          global de los nodos.
+\end{enumerate}
+
+La idea del resumen global se toma del mismo trabajo \cite{bao2025gtraqem}, con un cambio. Allí
+es \textbf{unidireccional}, y en un \textit{transformer} basta, porque su atención ya conecta
+todo con todo. Sin embargo, en una red de paso de mensajes se tiene que recorrer los nodos. El resumen es la única vía al largo alcance.
+
+% FIGURA PROPIA en TikZ. Codigo en figuras/cap07/gnn_arquitectura_tikz.tex.
+% ⚠️ Lo que la figura tiene que dejar claro son las DOS flechas del resumen global: lee y
+%    devuelve. Es lo que lo distingue de un pooling aprendido, y en prosa no se ve.
+\begin{figure}[!ht]
+    \centering
+    \caption{La arquitectura. El resumen global lee de todos los nodos y les devuelve: son
+             las dos flechas, no una.}
+    \label{fig:gnn_arq}
+
+    \input{figuras/cap07/gnn_arquitectura_tikz}
+
+    {\footnotesize Fuente: Claude Code \cite{anthropic_claude}.}
+\end{figure}
+
+El resumen se calcula con \textbf{media}
+
+\subsection*{La pérdida}
+
+Se añaden estas dos decisiones por necesidad de los datos:
+
+\begin{itemize}
+    \item \textbf{Huber en lugar del error cuadrático.} El factor de supervivencia llega a
+          valores de seis y siete con mediana menor que uno, y con error cuadrático esos pocos
+          extremos sesgan el ajuste. Hay precedente publicado para la misma decisión en este
+          problema \cite{aktar2024graph}. El umbral donde Huber pasa de cuadrático a lineal se fijó en $0{,}5$. 
+    \item \textbf{Enmascarada.} El objetivo no tiene etiqueta donde no hay señal, y dónde falta
+          cambia según la muestra y según el observable. Como el modelo tiene cinco salidas
+          compartiendo tronco, la pérdida se calcula solo sobre las casillas con etiqueta y se
+          normaliza por cuántas había, no por el total.
+\end{itemize}
+
+Los cinco objetivos se \textbf{estandarizan} antes de entrenar, porque el tronco es compartido
+y el de mayor varianza se llevaría el ajuste. Las constantes salen solo de entrenamiento y
+viajan dentro del punto de control: sin ellas las predicciones no se pueden devolver a la
+escala de $f$.
+
+\subsection*{El barrido}
+
+Se barre sobre la convolución más ligera y después se trasladan los ganadores a las otras dos.
+La rejilla recorre la tasa de aprendizaje ($\{3\cdot10^{-4}, 10^{-3}, 3\cdot10^{-3}\}$), la
+dimensión oculta ($\{128, 192, 256\}$) y el número de capas ($\{4, 6\}$): dieciocho
+configuraciones, con lotes de $32$ grafos, regularización de $10^{-5}$ y parada temprana con
+paciencia de quince épocas. La Tabla~\ref{tab:barrido_gnn} recoge las cinco mejores y la peor.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Las mejores configuraciones del barrido, y la peor, sobre \texttt{SAGEConv}.}
+    \label{tab:barrido_gnn}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}rrrrrr@{}}
+        \toprule
+        \textbf{Tasa} & \textbf{Oculta} & \textbf{Capas} & \textbf{Épocas}
+            & \textbf{Mejor época} & \textbf{Minutos} \\
+        \midrule
+        $10^{-3}$        & $256$ & $4$ & $29$ & $14$ & $149{,}4$ \\
+        $3\cdot10^{-4}$  & $256$ & $6$ & $29$ & $14$ & $215{,}1$ \\
+        $3\cdot10^{-3}$  & $128$ & $6$ & $22$ & $7$  & $56{,}2$ \\
+        $3\cdot10^{-3}$  & $192$ & $6$ & $20$ & $5$  & $84{,}8$ \\
+        $10^{-3}$        & $256$ & $6$ & $43$ & $28$ & $298{,}5$ \\
+        \midrule
+        $10^{-3}$        & $192$ & $4$ & $22$ & $7$  & $61{,}6$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Ordenadas por $R^2$ medio sobre validación; la
+    última fila es la peor de las dieciocho. Entre la mejor y la peor hay $23$ milésimas de
+    $R^2$ y un factor de cinco en tiempo de cómputo.}
+\end{table}
+
+La lectura del barrido es que \textbf{la rejilla apenas separa}: entre la mejor configuración y
+la peor hay veintitrés milésimas de coeficiente de determinación, mientras que el tiempo de
+cómputo se multiplica por cinco. La elegida
+es la primera fila: tasa $10^{-3}$, dimensión oculta $256$ y cuatro capas.
+
+\subsection*{Las tres convoluciones}
+
+Se prueban \textbf{escalando}, en orden de complejidad creciente (Tabla~\ref{tab:convs}): se
+sube de peldaño solo si el anterior se queda corto, de modo que si la atención local mejora se
+sabe que aporta, y si no, también.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Las tres convoluciones que se prueban y la configuración con la que se entrenó
+             cada una.}
+    \label{tab:convs}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}p{0.20\textwidth}p{0.27\textwidth}rrr@{}}
+        \toprule
+        \textbf{Convolución} & \textbf{Qué añade} & \textbf{Oculta} & \textbf{Tasa}
+            & \textbf{Parámetros} \\
+        \midrule
+        \texttt{SAGEConv} \cite{hamilton2017sage}
+            & Agrega los vecinos por media. Ligera y estable. Es la primera
+            & $256$ & $10^{-3}$ & $1{.}060{.}613$ \\
+        \texttt{GINConv} \cite{xu2019gin}
+            & Suma estricta más un perceptrón interno. La más expresiva; distingue mejor
+              topologías parecidas
+            & $256$ & $3\cdot10^{-4}$ & $1{.}061{.}641$ \\
+        \texttt{GATv2Conv} \cite{brody2022gatv2}
+            & \textbf{Atención local}: aprende a pesar más a los vecinos con peor telemetría
+            & $160$ & $10^{-3}$ & $1{.}039{.}205$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Las tres con cuatro capas.}
+\end{table}
+
+Las tres se entrenan con el \textbf{mismo presupuesto de parámetros}, alrededor de $1{,}05$
+millones, con un $2$\,\% de diferencia entre la mayor y la menor. Cabe recalcar que es importante establecer presupuestos pareceidos para que la diferencia marcada sea la arquitectónica. Es la razón de que \texttt{GATv2Conv} lleve dimensión
+oculta $160$ y no $256$: su mecanismo de atención tiene más pesos por unidad de anchura, y a
+$256$ se habría ido muy por encima del presupuesto.
+
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+% Figura propia. La genera modelos.dibujar_curvas_entrenamiento_memoria() y se copia desde
+% TFM-Quantum/figures/modelos/gnn_curvas.pdf. Sin titulo interno.
+% ⚠️ La curva de GATv2 se reconstruye del .log, no de un JSON: sus ejecuciones se cortaron
+%    en la epoca 21 y el historial no llego a escribirse. Esta dicho en el texto.
+\begin{figure}[htbp]
+    \centering
+    \caption{Pérdida de entrenamiento y de validación, época a época, para las tres
+             convoluciones.}
+    \label{fig:gnn_curvas}
+
+    \includegraphics[width=\textwidth]{cap07/gnn_curvas}
+
+    {\footnotesize Fuente: elaboración propia. La línea vertical marca la época del punto de
+    control que se conservó.}
+\end{figure}
+
+La Figura~\ref{fig:gnn_curvas} muestra las curvas de entrenamiento y validación de los tres modelos. Se pueden destacar 2 aspectos. Primero, la parada temprana funciona correctamente: el mejor modelo se obtiene en las épocas 14, 8 y 8, y a partir de esos puntos la pérdida de validación deja de mejorar. Segundo, no se observa sobreajuste en ninguno de los tres casos, ya que las curvas de validación no muestran un aumento sostenido respecto al entrenamiento.
+
+El entrenamiento se hizo en una máquina con tarjeta gráfica en la nube \cite{google2026cloud},
+porque en local no hay ninguna.

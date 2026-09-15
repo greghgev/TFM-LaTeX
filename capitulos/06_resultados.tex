@@ -1,4 +1,4 @@
-\chapter{Resultados y Discusiones}
+\chapter{Discusión y análisis de resultados}
 \label{cap:resultados}
 
 % =====================================================================================
@@ -50,7 +50,7 @@ Tabla~\ref{tab:escalera_val}: mismos tipos de circuito y mismo rango de tamaños
     \caption{Coeficiente de determinación sobre el factor, en validación.}
     \label{tab:escalera_val}
     {\footnotesize
-    \begin{tabular}{@{}lrrrrr@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrr@{}}
         \toprule
         & \textbf{media $Z$} & \textbf{media $X$} & \textbf{media $Y$}
         & \textbf{paridad} & \textbf{corr. vec.} \\
@@ -66,7 +66,7 @@ Tabla~\ref{tab:escalera_val}: mismos tipos de circuito y mismo rango de tamaños
         \bottomrule
     \end{tabular}}
 
-    {\footnotesize Fuente: elaboración propia. Entre $2{.}282$ y $2{.}519$ circuitos por
+    {\footnotesize Entre $2{.}282$ y $2{.}519$ circuitos por
     celda, según el observable.}
 \end{table}
 
@@ -199,7 +199,7 @@ Por contrucción, un valor negativo significa que \textbf{habría sido mejor no 
     \caption{Mejora relativa del observable corregido frente a no corregir.}
     \label{tab:mitigacion}
     {\footnotesize
-    \begin{tabular}{@{}lrrrrrrr@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrrrr@{}}
         \toprule
         & & \textbf{Sin mitigar} & \multicolumn{5}{c}{\textbf{Mejora relativa}} \\
         \cmidrule(l){4-8}
@@ -214,7 +214,7 @@ Por contrucción, un valor negativo significa que \textbf{habría sido mejor no 
         \bottomrule
     \end{tabular}}
 
-    {\footnotesize Fuente: elaboración propia. Conjunto de prueba.}
+    {\footnotesize Conjunto de prueba.}
 \end{table}
 
 % Figura ya exportada por 05d (mitigacion_mejora).
@@ -231,7 +231,7 @@ Por contrucción, un valor negativo significa que \textbf{habría sido mejor no 
 
 El resultado que más dice del problema es el de Ridge. Su coeficiente sobre el factor era
 \textbf{positivo en los cinco observables} (entre $0{,}41$ y $0{,}65$ en validación) y aun así,
-aplicado, \textbf{empeora el resultado en cuatro de los cinco}.Por tanto, \textbf{un buen ajuste sobre el
+aplicado, \textbf{empeora el resultado en cuatro de los cinco}. Por tanto, \textbf{un buen ajuste sobre el
 factor no garantiza una buena mitigación}, y este trabajo lo mide en lugar de suponerlo.
 
 En cuanto al resto. \textbf{Random Forest es el único que nunca empeora}, de $+0{,}01$ a
@@ -250,4 +250,138 @@ falla más fuerte. Las dos métricas cuentan historias distintas.
 Uniendo las dos mitades del capítulo, el trabajo termina con dos conclusiones que no coinciden.
 Sobre la métrica que decide (la capacidad de predecir antes de ejecutar) el resumen tabular
 basta en el régimen conocido y la estructura del grafo solo gana al extrapolar. Sobre la
-aplicación, el orden es el mismo pero la distancia es mucho.
+aplicación, el orden es el mismo pero la distancia entre los modelos es mayor.
+
+
+% =====================================================================================
+% TABLA POR EJE — añadida sep-2026 a peticion del autor. Va DELANTE de la tabla resumen
+% final a proposito: primero el desglose por eje, que es interpretable, y despues la
+% mezcla de los 4.000, que no lo es tanto.
+%
+% 🔴 EJES AISLADOS, no ejes "a secas". Cada bloque fija los otros dos:
+%      TIPO    -> estructurados y de HASTA 11 qubits  (1.816 circuitos)
+%      TAMAÑO  -> aleatorios y de 12 a 15 qubits      (603)
+%      TIEMPO  -> aleatorios y de hasta 11 qubits     (595)
+%    Asi los tres son DISJUNTOS y una caida se puede atribuir a un eje. Sin aislar, los
+%    2.802 estructurados y los 1.589 grandes comparten 986 circuitos y una caida en
+%    «tipo» podria venir en realidad del tamaño. Es el mismo criterio con el que
+%    §\ref{sec:res_tiempo} mide la deriva «en limpio».
+%    ⚠️ Suman 3.014 de los 4.000: quedan fuera los 986 que son estructurados Y grandes.
+%
+% 🔴 LA MEDIA DE Y VA CON RAYA EN EL BLOQUE DE TIPO. No es un hueco ni un fallo: ningun
+%    circuito estructurado define ese observable, asi que no hay ni una casilla que medir.
+%
+% PROCEDENCIA: evaluacion.evaluar() sobre logs/predicciones/pred_<modelo>_test.parquet,
+% filtrando cada subconjunto. Mismo filtro que el resto del capitulo.
+%
+% ⚠️ NEGRITA = el mayor de la columna ANTES de redondear. En el bloque temporal casi todo
+%    empata a dos decimales: eso NO es una errata, es el resultado.
+% =====================================================================================
+\begin{table}[htbp]
+    \centering
+    \caption{Coeficiente de determinación sobre el factor, por eje de generalización.}
+    \label{tab:resumen_ejes}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        & \textbf{media $Z$} & \textbf{media $X$} & \textbf{media $Y$}
+        & \textbf{paridad} & \textbf{corr. vec.} \\
+        \midrule
+        \multicolumn{6}{@{}l}{\textit{Eje de tipo} — circuitos estructurados, hasta $11$ qubits} \\
+        \midrule
+        Ridge · $34$ variables & $-1{,}32$ & $-0{,}15$ & --- & $0{,}43$ & $-4{,}22$ \\
+        Random Forest          & $\bm{-0{,}01}$ & $0{,}18$ & --- & $\bm{0{,}70}$ & $-0{,}09$ \\
+        GNN · SAGE             & $-0{,}02$ & $0{,}09$ & --- & $-0{,}45$ & $-0{,}09$ \\
+        GNN · GIN              & $-0{,}15$ & $\bm{0{,}24}$ & --- & $-0{,}23$ & $\bm{0{,}05}$ \\
+        GNN · GATv2            & $-0{,}10$ & $-0{,}07$ & --- & $0{,}06$ & $-0{,}28$ \\
+        \midrule
+        \multicolumn{6}{@{}l}{\textit{Eje de tamaño} — circuitos aleatorios, de $12$ a $15$ qubits} \\
+        \midrule
+        Ridge · $34$ variables & $0{,}14$ & $0{,}35$ & $0{,}38$ & $0{,}60$ & $0{,}56$ \\
+        Random Forest          & $\bm{0{,}30}$ & $0{,}37$ & $0{,}43$ & $\bm{0{,}82}$ & $0{,}51$ \\
+        GNN · SAGE             & $0{,}17$ & $\bm{0{,}43}$ & $\bm{0{,}45}$ & $0{,}80$ & $0{,}62$ \\
+        GNN · GIN              & $0{,}22$ & $0{,}36$ & $0{,}43$ & $0{,}74$ & $\bm{0{,}62}$ \\
+        GNN · GATv2            & $0{,}19$ & $0{,}42$ & $0{,}42$ & $0{,}74$ & $0{,}61$ \\
+        \midrule
+        \multicolumn{6}{@{}l}{\textit{Eje temporal} — circuitos aleatorios, hasta $11$ qubits} \\
+        \midrule
+        Ridge · $34$ variables & $0{,}54$ & $0{,}54$ & $0{,}39$ & $0{,}68$ & $0{,}49$ \\
+        Random Forest          & $0{,}53$ & $0{,}55$ & $0{,}39$ & $\bm{0{,}71}$ & $0{,}48$ \\
+        GNN · SAGE             & $\bm{0{,}55}$ & $0{,}54$ & $0{,}39$ & $0{,}65$ & $\bm{0{,}49}$ \\
+        GNN · GIN              & $0{,}54$ & $\bm{0{,}55}$ & $\bm{0{,}39}$ & $0{,}66$ & $0{,}49$ \\
+        GNN · GATv2            & $0{,}54$ & $0{,}54$ & $0{,}38$ & $0{,}64$ & $0{,}49$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Cada eje fija los otros dos, de modo que los
+    tres subconjuntos son disjuntos y una caída se puede atribuir a un eje y no a la mezcla. La raya en la media de $Y$ del eje de
+    tipo no es un hueco: ningún circuito estructurado define ese observable. En negrita, el
+    mejor de cada columna antes de redondear.}
+\end{table}
+
+La Tabla~\ref{tab:resumen_final} cierra el capítulo con las dos métricas juntas, sobre el
+conjunto de prueba entero y sin separar por ejes.
+
+% =====================================================================================
+% TABLA RESUMEN — añadida sep-2026 por indicación del tutor («una tabla al final a modo de
+% resumen que compare todas las métricas y de todos los modelos»).
+%
+% ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
+%
+% 🔴 DOS BLOQUES Y NO UNA COLUMNA POR METRICA. Los cinco observables NO se promedian —viven
+%    en escalas distintas—, asi que cada bloque conserva sus cinco columnas. Es la misma
+%    regla que gobierna el resto del capitulo.
+%
+% 🔴 PROCEDENCIA DE LAS CIFRAS. Se calculan con `evaluacion.evaluar()` sobre los parquet de
+%    logs/predicciones/pred_<modelo>_test.parquet, es decir, con EL MISMO filtro que el
+%    resto del trabajo (casilla con señal y `f` real no negativa). Comprobado: el bloque de
+%    mejora relativa reproduce exactamente la Tabla~\ref{tab:mitigacion}.
+%    ⚠️ El R² sobre PRUEBA de GIN y GATv2 no aparecia antes en la memoria: los CSV de
+%       logs/comparativa/comparativa_r2.csv solo traen hasta SAGE. Se calculo aqui.
+%
+% ⚠️ NEGRITA = el mayor de la columna ANTES de redondear. En la media de Y, SAGE (0,4231) y
+%    Random Forest (0,4159) redondean los dos a 0,42 y solo uno va en negrita: no es una
+%    errata. Dicho en el pie.
+% =====================================================================================
+
+
+\begin{table}[htbp]
+    \centering
+    \caption{Resumen de la comparativa: los ocho peldaños frente a las dos métricas, por
+             observable, sobre el conjunto de prueba completo (sin distinción de eje).}
+    \label{tab:resumen_final}
+    {\footnotesize
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrr@{}}
+        \toprule
+        & \textbf{media $Z$} & \textbf{media $X$} & \textbf{media $Y$}
+        & \textbf{paridad} & \textbf{corr. vec.} \\
+        \midrule
+        \multicolumn{6}{@{}l}{\textit{Coeficiente de determinación sobre el factor de
+            supervivencia}} \\
+        \midrule
+        No mitigar             & $-0{,}17$ & $-0{,}23$ & $-0{,}30$ & $-0{,}82$ & $-0{,}20$ \\
+        Factor constante       & $-0{,}48$ & $-1{,}02$ & $-0{,}16$ & $-0{,}40$ & $-1{,}26$ \\
+        Ridge · $1$ variable   & $0{,}00$ & $0{,}09$ & $0{,}09$ & $0{,}72$ & $0{,}42$ \\
+        Ridge · $34$ variables & $0{,}15$ & $0{,}41$ & $0{,}39$ & $0{,}84$ & $0{,}29$ \\
+        Random Forest          & $\bm{0{,}42}$ & $0{,}45$ & $0{,}42$ & $\bm{0{,}90}$ & $0{,}55$ \\
+        GNN · SAGE             & $0{,}36$ & $\bm{0{,}50}$ & $\bm{0{,}42}$ & $0{,}81$ & $0{,}61$ \\
+        GNN · GIN              & $0{,}37$ & $0{,}48$ & $0{,}41$ & $0{,}81$ & $\bm{0{,}62}$ \\
+        GNN · GATv2            & $0{,}36$ & $0{,}49$ & $0{,}40$ & $0{,}83$ & $0{,}60$ \\
+        \midrule
+        \multicolumn{6}{@{}l}{\textit{Mejora relativa sobre no mitigar}} \\
+        \midrule
+        No mitigar             & $0{,}00$ & $0{,}00$ & $0{,}00$ & $0{,}00$ & $0{,}00$ \\
+        Factor constante       & $-4{,}77$ & $-1{,}00$ & $-2{,}75$ & $-0{,}76$ & $-5{,}63$ \\
+        Ridge · $1$ variable   & $-1{,}82$ & $0{,}22$ & $-4{,}05$ & $-2{,}72$ & $-2{,}00$ \\
+        Ridge · $34$ variables & $-1{,}99$ & $0{,}50$ & $-1{,}49$ & $-1{,}91$ & $-4{,}19$ \\
+        Random Forest          & $\bm{0{,}33}$ & $\bm{0{,}81}$ & $\bm{0{,}37}$ & $\bm{0{,}73}$ & $0{,}01$ \\
+        GNN · SAGE             & $0{,}14$ & $0{,}73$ & $0{,}10$ & $0{,}12$ & $-0{,}05$ \\
+        GNN · GIN              & $-0{,}02$ & $0{,}79$ & $0{,}28$ & $0{,}44$ & $\bm{0{,}19}$ \\
+        GNN · GATv2            & $0{,}06$ & $0{,}76$ & $0{,}22$ & $-0{,}29$ & $-0{,}46$ \\
+        \bottomrule
+    \end{tabular}}
+
+    {\footnotesize Conjunto de prueba al completo ($4000$ circuitos), con el mismo filtro que
+    el resto del capítulo. En negrita, el mejor de cada columna antes de redondear:
+    en la media de $Y$ los dos primeros redondean a $0{,}42$ y solo uno está en negrita.}
+\end{table}

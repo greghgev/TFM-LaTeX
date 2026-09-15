@@ -139,7 +139,7 @@ tiene una limitación:
     \caption{El esquema general de la mitigación por aprendizaje automático.}
     \label{fig:mlqem}
 
-    {\footnotesize Fuente: elaboración propia.}
+    {\footnotesize Fuente: Claude Code \cite{anthropic_claude}.}
 \end{figure}
 
 Para conseguir el valor ideal existen varios métodos pero se ejecutan en ordenadores clásicos. Como mostraremos más adelante, los ordenadores clásicos son incapaces de reproducir los procesos de los ordenadores cuánticos a partir de un número de qubits.
@@ -226,14 +226,49 @@ La última decisión de diseño que distingue esta propuesta de los enfoques hab
 
 \section{Estructura de la memoria}
 \label{sec:estructura}
-% Redactada (sep-2026) con la numeracion ya cerrada: nueve capitulos y cinco anexos.
-% Guion acordado: decir explicitamente a que bloque de la estructura oficial del tipo 3
-% (Instrucciones §2.6) corresponde cada capitulo, para que el tribunal no lo reconstruya.
-% ⚠️ Si se mueve, funde o parte algun capitulo, hay que rehacer estos parrafos.
+% ⚠️ REESCRITA (sep-2026). La version anterior remitia a \ref{cap:fundamentos} y
+%    \ref{cap:sota} como si fueran CAPITULOS, y desde la reestructuracion son las
+%    SECCIONES 2.1 y 2.2: el texto imprimia «los capitulos 2.1 y 2.2». Corregido.
+%
+% 🔴 SI SE MUEVE, FUNDE O PARTE UN CAPITULO, HAY QUE REHACER ESTA LISTA. Es el unico
+%    sitio de la memoria donde se enumeran los siete de corrido, asi que un desajuste
+%    aqui se ve a la primera.
+%
+% Guion acordado: una lista, un parrafo corto por capitulo, y que el numero de capitulos
+% se vea de un vistazo. Nada de prosa corrida.
 
+La memoria se organiza en \textbf{siete capítulos} y dos anexos:
 
-Los capítulos~\ref{cap:fundamentos} y~\ref{cap:sota} forman el \textbf{contexto y estado del arte}: el primero introduce lo necesario para leer el resto, del qubit a las puertas y al circuito como grafo acíclico dirigido; el segundo revisa la mitigación de errores y su coste, los modelos predictivos publicados y las técnicas que actúan antes de ejecutar, y delimita el hueco que ocupa este trabajo. El capítulo~\ref{cap:objetivos} recoge los \textbf{objetivos y la metodología}.
+\begin{enumerate}
+    \item \textbf{Introducción.} Presenta para qué sirve un ordenador cuántico y por qué el
+          ruido limita hoy lo que puede resolver, delimita el problema concreto que se aborda y
+          enuncia la propuesta.
 
-El \textbf{planteamiento de la comparativa} se reparte entre los capítulos~\ref{cap:variable} y~\ref{cap:planteamiento}: el primero fija qué se predice y por qué —los observables elegidos, el factor de supervivencia y el umbral de señal—; el segundo describe el conjunto de datos y sus tres ejes de generalización, el preprocesado y las métricas.
+    \item \textbf{Contexto y estado del arte.} Reúne lo imprescindible para leer el resto —del
+          qubit a las puertas y al circuito como grafo acíclico dirigido— y revisa lo publicado,
+          ordenado por cuándo actúa cada familia de métodos respecto a la ejecución. Cierra
+          marcando el hueco que este trabajo ocupa.
 
-El capítulo~\ref{cap:comparativa} contiene el \textbf{desarrollo de la comparativa}, con la estrategia de entrenamiento y la ejecución de los tres modelos; el capítulo~\ref{cap:resultados} presenta y discute los \textbf{resultados} sobre el conjunto de prueba, primero los del factor de supervivencia y después los de la mitigación; y el capítulo~\ref{cap:conclusiones} enlaza cada objetivo con su conclusión y recoge limitaciones y trabajo futuro. Cierran la memoria los anexos.
+    \item \textbf{Objetivos y metodología de trabajo.} Fija el objetivo general y los cinco
+          específicos, la métrica que decide entre modelos y el proceso con el que se llega a
+          ellos.
+
+    \item \textbf{Planteamiento de la comparativa.} Es el capítulo de diseño. Establece qué se
+          predice (los observables, el factor de supervivencia y el umbral de señal), de dónde
+          salen los datos y cómo se parten en tres ejes de generalización, y con qué métricas se
+          juzga.
+
+    \item \textbf{Desarrollo de la comparativa.} Ataca los tres modelos uno a uno: qué datos ve
+          cada uno, qué preprocesado es exclusivamente suyo y con qué arquitectura e
+          hiperparámetros se quedó.
+
+    \item \textbf{Discusión y análisis de resultados.} Presenta lo que salió, separando dos
+          preguntas distintas: cuánto acierta cada modelo al predecir el factor, y cuánto mejora
+          el observable una vez aplicado.
+
+    \item \textbf{Conclusiones y trabajo futuro.} Enlaza cada objetivo con su conclusión, declara
+          las limitaciones del trabajo y propone las líneas que las cierran.
+\end{enumerate}
+
+Los anexos recogen las herramientas empleadas y la declaración de uso de herramientas de
+inteligencia artificial.

@@ -159,11 +159,11 @@ networks.
 \include{capitulos/01_introduccion}
 
 % --- Contexto y estado del arte (10–15 páginas en total, es el tope de la norma) ------
-\include{capitulos/02_fundamentos}
-\include{capitulos/03_estado_del_arte}
+\include{capitulos/02_contexto_y_estado_del_arte}
+% \include{capitulos/03_estado_del_arte}
 
 % --- Objetivos y metodología de trabajo ---------------------------------------------
-\include{capitulos/04_objetivos_metodologia}
+\include{capitulos/03_objetivos_metodologia}
 
 % --- Planteamiento de la comparativa ------------------------------------------------
 % ⚠️ REESTRUCTURADO (sep-2026), por decisión del autor. Dos cambios:
@@ -178,17 +178,21 @@ networks.
 %       expresa del autor. No reintroducirlo: su material (el bug de las etiquetas del v1,
 %       el límite de determinismo del transpilador y las dos trampas de medición) sigue en
 %       TFM-Quantum/doc/changes/ si algún día se recupera.
-\include{capitulos/05_variable_objetivo}        % ⭐ resultado propio
-\include{capitulos/06_planteamiento_comparativa}
+      % ⭐ resultado propio
+
+\include{capitulos/04_1_variable_objetivo}  
+
+\include{capitulos/04_2_planteamiento_comparativa}
+
 
 % --- Desarrollo de la comparativa ---------------------------------------------------
-\include{capitulos/07_comparativa}     % ⏳ la EJECUCIÓN: barrido, hiperparámetros, incidencias
+\include{capitulos/05_comparativa}     % ⏳ la EJECUCIÓN: barrido, hiperparámetros, incidencias
 
 % --- Resultados y discusión ---------------------------------------------------------
-\include{capitulos/08_resultados}      % ⏳ BLOQUEADO: resultados Y su discusión
+\include{capitulos/06_resultados}      % ⏳ BLOQUEADO: resultados Y su discusión
 
 % --- Conclusiones -------------------------------------------------------------------
-\include{capitulos/09_conclusiones}    % ⏳ BLOQUEADO: depende del capítulo 8
+\include{capitulos/07_conclusiones}    % ⏳ BLOQUEADO: depende del capítulo 8
 
 % =====================================================================================
 % Bibliografía
@@ -203,6 +207,8 @@ networks.
 \appendix
 
 % Va el primero de los anexos por ser una declaración exigida por la normativa.
+
+\include{capitulos/anexo_herramientas}
 \include{capitulos/anexo_ia}
 
 % \chapter{Código fuente y datos analizados}
@@ -212,8 +218,11 @@ networks.
 %    En el repositorio no debe haber commit de ningún otro usuario del repositorio.»
 % PENDIENTE: URL del repositorio, una vez esté limpio.
 
-% Sale del capitulo 5 (§5.3 y §5.5 remiten aqui) para no desviar la linea de trabajo.
-\include{capitulos/anexo_factor_negativo}
+% 🔴 ANEXO «El termino afin del ruido» RETIRADO (sep-2026, indicacion del tutor). Su
+%    contenido, resumido a una sola ecuacion, vive ahora en §\ref{sec:umbral}, junto a
+%    los factores negativos que explica. El fichero capitulos/anexo_factor_negativo.tex
+%    sigue en disco por si hiciera falta recuperarlo, pero NO se incluye.
+% \include{capitulos/anexo_factor_negativo}
 
 % \chapter{Catálogo completo de las variables agregadas}
 % PENDIENTE.

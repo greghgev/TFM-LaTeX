@@ -1,5 +1,3 @@
-\chapter{Planteamiento de la comparativa}
-\label{cap:planteamiento}
 
 % =====================================================================================
 % GUION Y FUENTES DEL CAPITULO (sep-2026)
@@ -35,7 +33,7 @@
 % =====================================================================================
 
 
-\section{El conjunto de datos}
+\section{Creación del conjunto de datos}
 \label{sec:dataset}
 % =====================================================================================
 % ⚠️ RECORTADO A TRES PAGINAS (sep-2026), por decision del autor. Lo que salio de aqui:
@@ -51,9 +49,6 @@
 % Las cifras de todo lo retirado siguen en doc/auditoria_dataset.md y en
 % notebooks/00_anatomia_del_dataset/.
 % =====================================================================================
-
-\subsection{Razón de construirlo}
-\label{sec:gemelo}
 
 Para la obtención del conjunto de datos, la única vía posible fue fabricarlo mediante simuladores. Las razones son las siguientes:
 
@@ -72,8 +67,7 @@ día. El valor ideal no se estima, se calcula; y el ruido no se inventa, se reco
 
 Este planteamiento fija el tamaño máximo de los circuitos. Simular el estado de $n$ qubits exige seguir $2^n$ amplitudes: unos $4{,}3$~GB para catorce qubits y $17{,}2$~GB para quince, \textbf{por proceso}. El tope que se establece es de \textbf{quince qubits} debido a la memoria disponible.
 
-\subsection{El procesador y su calibración}
-\label{sec:calibracion}
+
 
 El procesador imitado es \texttt{ibm\_kingston}, de la familia \textbf{Heron r2}: $156$ qubits
 y una puerta de dos qubits nativa que es la \textbf{CZ}, simétrica, sobre un conjunto base
@@ -131,8 +125,6 @@ Las puertas que el chip reporta como averiadas \textbf{se mantienen} ya que es u
     {\footnotesize Fuente: elaboración propia.}
 \end{figure}
 
-\subsection{Contenido del dataset}
-\label{sec:composicion}
 
 El conjunto tiene \textbf{$20{.}000$ muestras} y $18{.}147{.}608$ nodos, repartidas en
 $16{.}000$ de entrenamiento y validación y $4{.}000$ de prueba. Cada muestra es un circuito de
@@ -156,7 +148,7 @@ direcciones independientes} (Figura~\ref{fig:tres_ejes}):
 
     \input{figuras/cap06/tres_ejes_tikz}
 
-    {\footnotesize Fuente: elaboración propia.}
+    {\footnotesize Fuente: Claude Code \cite{anthropic_claude}.}
 \end{figure}
 
 \begin{itemize}
@@ -175,7 +167,7 @@ tamaño con el tipo fijo. El resto del conjunto de prueba son 6 circuitos espec�
     \caption{Los siete tipos de circuito y la razón de que estén.}
     \label{tab:tipos}
     {\footnotesize
-    \begin{tabular}{@{}llp{0.52\textwidth}@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}llp{0.52\textwidth}@{}}
         \toprule
         \textbf{Tipo} & \textbf{Dónde aparece} & \textbf{Por qué está} \\
         \midrule
@@ -201,12 +193,10 @@ tamaño con el tipo fijo. El resto del conjunto de prueba son 6 circuitos espec�
               aleatorio. \\
         \bottomrule
     \end{tabular}}
-
-    {\footnotesize Fuente: elaboración propia.}
 \end{table}
 
 % =====================================================================================
-\section{Análisis exploratorio}
+\section{Análisis exploratorio de los datos}
 \label{sec:eda}
 % ⚠️ SECCION BREVE A PROPOSITO (sep-2026, decision del autor): aqui solo se enuncia QUE se
 %    buscaba en el analisis. Los hallazgos concretos se citan mas adelante, cada uno en el
@@ -317,26 +307,29 @@ lineal con los nodos. Ese factor decide una cosa del modelo de grafos: cualquier
 \subsection{Colinealidad}
 \label{sec:colinealidad}
 
-De las $54$ columnas candidatas
-(Figura~\ref{fig:colinealidad}) hay $11$ \textbf{identidades exactas} y numerosos\textbf{bloques redundantes} con
-correlaciones de hasta $0{,}999$.
-
-\textbf{Decisión: se descartan $20$ columnas y quedan $34$}, conservando un representante de
-cada bloque. La matriz que queda después está en el apartado~\ref{sec:prep}.
-
-% Figura propia, de notebooks/01_eda/01g, copiada desde
-% figures/eda/entradas/01_colinealidad.pdf.
-% ⚠️ Esta es la de las 54 columnas. La version REDUCIDA, de 34, va en §\ref{sec:prep}:
-%    las dos juntas enseñan lo que el descarte se lleva por delante.
 \begin{figure}[htbp]
     \centering
     \caption{Correlación entre las $54$ variables candidatas, antes de descartar nada.}
     \label{fig:colinealidad}
 
-    \includegraphics[width=0.88\textwidth]{cap06/colinealidad}
+    \includegraphics[width=\textwidth]{cap06/colinealidad}
 
     {\footnotesize Fuente: elaboración propia.}
 \end{figure}
+
+
+De las $54$ columnas candidatas
+(Figura~\ref{fig:colinealidad}) hay $11$ \textbf{identidades exactas} y numerosos\textbf{bloques redundantes} con
+correlaciones de hasta $0{,}999$.
+
+\textbf{Decisión: se descartan $20$ columnas y quedan $34$}, conservando un representante de
+cada bloque. La matriz que queda después está en el apartado~\ref{sec:sol_ridge}, junto al
+primer modelo que la consume.
+
+% Figura propia, de notebooks/01_eda/01g, copiada desde
+% figures/eda/entradas/01_colinealidad.pdf.
+% ⚠️ Esta es la de las 54 columnas. La version REDUCIDA, de 34, va en §\ref{sec:sol_ridge}:
+%    las dos juntas enseñan lo que el descarte se lleva por delante.
 
 \subsection{Escalas, asimetrías y ángulos}
 \label{sec:escalas}
@@ -376,75 +369,48 @@ La regla que se siguió durante todo el preprocesado ha sido:
     \end{minipage}}
 \end{center}
 
-\begin{itemize}
-    \item \textbf{Partición temporal}: días $0$--$24$ para entrenar, $25$--$29$ para validar y $30$--$41$ para probar.
-    \item \textbf{Las filas}: \begin{itemize}
-        \item \textbf{No se imputa nada.}
-        \item \textbf{Los factores negativos se predicen, pero no se evalúan.} Son el $1{,}41$\,\%
-          de \texttt{train}.
-        \item \textbf{Los factores mayores que uno no se tocan.} Son el $7{,}85$\,\% de las
-          etiquetas y son representativos.
-        \item Los modelos tabulares ajustan \textbf{un modelo por observable} y eliminan las filas
-          sin etiqueta de ese observable; los modelos de grafos son \textbf{multi-salida} y se
-          queda con todas las etiquetas, tapando con una máscara las casillas que faltan.
-    \end{itemize}
-    
-    \item \textbf{Rama tabular:} \begin{itemize}
-        \item Se descartaron las 20 columnas seleccionadas redundantes (véase el resultado en Figura~\ref{fig:colinealidad_limpia})
+% 🔴 LO QUE ERA EXCLUSIVO DE CADA MODELO SE MOVIO AL CAPITULO 5 (sep-2026, indicacion
+%    del tutor): la rama tabular a §5.1 y la del grafo a §5.3, cada una con su modelo.
+%    Aqui se queda SOLO lo comun. La figura de colinealidad reducida y la tabla de poda
+%    se fueron con ellas. NO reponerlas: estarian en dos sitios.
+De esa regla salen dos ramas de preprocesado \textbf{independientes}: una para la matriz
+tabular que consumen Ridge y Random Forest, y otra para los grafos que consume la red. Ambas comparten la partición y el umbral, pero no comparten el tratamiento. Cada una se describe junto al modelo que la usa, en los apartados~\ref{sec:sol_ridge} y~\ref{sec:gnn}.
+
+% =====================================================================================
+% =====================================================================================
+
+\section{Estrategia de entrenamiento}
+\label{sec:entrenamiento}
+% =====================================================================================
+
+La estrategia del entrenamiento se compone de los seis peldaños de la
+Figura~\ref{fig:peldanos}. Cada uno añade una capacidad sobre el anterior, y la pregunta que
+lleva al lado es justamente lo que ese peldaño aísla: si al subirlo la métrica no se mueve,
+esa capacidad no aporta nada en este problema.
 
 % ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
-% Figura propia, de notebooks/01_eda/01g, copiada desde
-% figures/eda/entradas/02_colinealidad_limpia.pdf.
-% ⚠️ Es la version REDUCIDA, de 34 columnas. La de las 54 esta en §\ref{sec:colinealidad}:
-%    van separadas a proposito, para que se vea el antes y el despues del descarte.
+% Figura propia en TikZ. Fuente: figuras/cap06/peldanos_tikz.tex, que lleva dentro las
+% medidas y el aviso de que la segunda linea de cada bloque NO puede partirse.
+% ⚠️ Esta figura SUSTITUYO a la lista enumerada que habia aqui (sep-2026). No reponer la
+%    lista: dirian lo mismo dos veces.
 \begin{figure}[htbp]
     \centering
-    \caption{Correlación entre las $34$ variables que quedan tras el descarte.}
-    \label{fig:colinealidad_limpia}
+    \caption{Los seis peldaños de la estrategia de entrenamiento.}
+    \label{fig:peldanos}
 
-    \includegraphics[width=0.88\textwidth]{cap06/colinealidad_limpia}
+    \input{figuras/cap06/peldanos_tikz}
 
-    {\footnotesize Fuente: elaboración propia.}
+    {\footnotesize Fuente: Claude Code \cite{anthropic_claude}.}
 \end{figure}
 
-        \item Luego se aplicaron en este orden: una \textbf{transformación logarítmica} a todas las columnas con asimetría en modulo mayor que uno, y \textbf{escalado} (Nota: a Ranfom Rorest se aplicaron las mismas transformaciones, aunque no sirvieran, para entrenar en ambos modelo con el mismo conjunto de datos). 
-    \end{itemize}
-    \item \textbf{Rama de grafo:} \begin{itemize}
-        \item El vector nodo pasa de 25 dimensiones a 21.
-        \item La \textbf{poda de 5 dimensiones}, reflejado el motivo en la Tabla~\ref{tab:poda}.
-        \item \textbf{Los ceros:} En el $78{,}88$\,\% de los nodos las seis dimensiones del qubit objetivo valen cero porque no hay segundo qubit. Tras estandarizar valen distinto a cero e introduce información falsa. \textbf{Solución:} ajustar con los nodos de dos qubits y \textbf{después reimponer el cero exacto}. 
-        \item \textbf{El ángulo se sustituye por dos columnas:} seno y su coseno.
-        \item \textbf{Las constantes se congelan.} El resto se estandariza ajustando solo con el conjunto de entrenamiento,
-        y las constantes \textbf{se leen de un fichero}.
-    \end{itemize}
-\end{itemize}
+Los tres modelos que se comparan son los tres últimos peldaños y cada uno añade una capacidad sobre el anterior: Ridge es el
+\textbf{baseline} y fija el suelo, Random Forest añade no \textbf{linealidad} y está porque es el mejor modelo tabular de los que compara la referencia \cite{liao2024machine}. La red de grafos cambia la representación de los datos, y la diferencia entre ella y los dos primeros es \textbf{el valor de la
+estructura que la agregación descarta}.
+
+Cabe recalcar una asimetría presente. Ridge y la red de
+grafos se entrenan con una \textbf{pérdida de Huber}, que penaliza los errores grandes de forma lineal y evita que los factores de supervivencia extremos se sesgen el entrenamietno. Sin embargo, \textbf{Random Forest no la admite} y no se emplea.
 
 
-\begin{table}[htbp]
-    \centering
-    \caption{Las cinco dimensiones podadas del vector de nodo, y su motivo.}
-    \label{tab:poda}
-    {\footnotesize
-    \begin{tabular}{@{}lp{0.60\textwidth}@{}}
-        \toprule
-        \textbf{Dimensión} & \textbf{Motivo} \\
-        \midrule
-        tipo \texttt{id} & \textbf{Cero nodos} de este tipo \\
-        duración de medida (control) & \textbf{Constante} en $2{,}18$~$\mu$s \\
-        aridad & \textbf{Idéntica} a otra dimensión \\
-        duración de medida (objetivo) & \textbf{Redundante}\\
-        día & \textbf{Fuera del rango} de entrenamiento el $100$\,\% de las veces \\
-        \bottomrule
-    \end{tabular}}
-
-    {\footnotesize Fuente: elaboración propia.}
-\end{table}
-
-El preprocesado tabular y el del grafo son \textbf{independientes}. Comparten la partición y el umbral, pero no comparten el tratamiento.
-
-
-% =====================================================================================
-% =====================================================================================
 \section{Métricas y validación}
 \label{sec:criterios}
 % =====================================================================================
@@ -461,9 +427,8 @@ El preprocesado tabular y el del grafo son \textbf{independientes}. Comparten la
 %
 % Fuente: notebooks/05_comparativa/METRICAS_Y_EVALUACION.md · src/evaluacion.py
 % =====================================================================================
-
 El criterio general está fijado en los objetivos del capítulo~\ref{cap:objetivos}: \textbf{batir
-a no mitigar}, y hacerlo \textbf{fuera de la distribución de entrenamiento}. 
+a no mitigar}\footnote{Es decir, lograr que el error de la estimación cuántica corregida ($\langle O\rangle_{\text{mitigado}}$) sea estrictamente menor que el error de la ejecución ruidosa original ($\langle O\rangle_{\text{ruidoso}}$) obtenida directamente del procesador.}, y hacerlo \textbf{fuera de la distribución de entrenamiento}. 
 
 \label{sec:metrica_decide}%
 
@@ -477,20 +442,27 @@ a no mitigar}, y hacerlo \textbf{fuera de la distribución de entrenamiento}.
     \end{minipage}}
 \end{center}
 
-Además, para medir la fidelidad del valor mitigado se emplearán MAE y la `mejora relativa'.
+\begin{equation}
+\label{eq:metrica_r}
+R^2 = 1 - \frac{\sum_i (f_i - \hat f_i)^2}{\sum_i (f_i - \bar f)^2}.
+\end{equation}
+
+Además, para evaluar la desviación absoluta sobre la propia cantidad aprendida ($f$), se emplea el Error Absoluto Medio (MAE):
 
 \begin{equation}
-\label{eq:metricas}
-R^2 = 1 - \frac{\sum_i (f_i - \hat f_i)^2}{\sum_i (f_i - \bar f)^2} ,
-\qquad
-\text{MAE} = \frac{1}{n}\sum_i \left| f_i - \hat f_i \right| ,
+\label{eq:metrica_mae}
+\text{MAE}_f = \frac{1}{n}\sum_i \left| f_i - \hat f_i \right| .
 \end{equation}
+
+Finalmente, para medir la fidelidad del valor cuántico reconstruido y evaluar la utilidad práctica frente a la línea base del hardware, se utiliza la \textbf{mejora relativa}:
 
 \begin{equation}
 \label{eq:mejora_relativa}
-\text{mejora relativa} = 1 - \frac{\text{MAE}(\langle O\rangle_{\text{mitigado}})}
+\text{Mejora Relativa} = 1 - \frac{\text{MAE}(\langle O\rangle_{\text{mitigado}})}
                                   {\text{MAE}(\langle O\rangle_{\text{ruidoso}})} .
 \end{equation}
+
+Esta métrica es fundamental para evaluar hasta qué punto la mitigación ha sido efectiva. Un valor de $1$ corresponde al escenario ideal, en el que el error se corrige por completo. Los valores comprendidos entre $0$ y $1$ indican la proporción de error del hardware que se ha conseguido eliminar. Cuando la métrica toma el valor $0$, significa que el modelo no aporta ninguna mejora respecto a no aplicar mitigación. Por el contrario, los valores negativos revelan que la corrección resulta contraproducente, ya que introduce más error del que logra reducir.
 
 \label{sec:cota}%
 La evaluación aplica además la \textbf{cota inferior del factor} deducida en el
@@ -506,4 +478,4 @@ predicciones la tocó.
 
 \label{sec:reportar}%
 Por último, todo lo anterior se reporta \textbf{desglosado por los tres ejes de
-generalización} (tipo, tamaño y tiempo) descritos en el apartado~\ref{sec:composicion}. 
+generalización} (tipo, tamaño y tiempo) descritos en el apartado~\ref{sec:dataset}. 

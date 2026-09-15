@@ -25,38 +25,25 @@
 % =====================================================================================
 
 Para este trabajo se plantea un objetivo general, del que derivan objetivos
-específicos. Después de definir los objetivos explicaremos la metodología empleada
-para cumplirlos.
+específicos. Después de definir los objetivos, se explicará la metodología empleada para cumplirlos.
 
 \section{Objetivo general}
 \label{sec:objetivo_general}
 
-El objetivo de este trabajo es realizar un \textbf{análisis comparativo de tres
-técnicas de aprendizaje automático que predicen, antes de ejecutar un circuito cuántico y únicamente a
-partir de su estructura y de la calibración del procesador, la degradación que el
-ruido causará en sus resultados}. En dicho análisis se obtiene un conjunto de métricas
-estándar ($R^2$ y MAE), a través de las que se determina cuál de las técnicas ofrece la
-mejor solución, así como si estas técnicas superan una determinada «línea base».
+El objetivo de este trabajo es realizar un \textbf{análisis comparativo de soluciones de tres técnicas de aprendizaje automático que predicen, antes de ejecutar un circuito cuántico y únicamente a partir de su estructura y de la calibración del procesador, la degradación que el ruido causará en sus resultados}. En dicho análisis se obtiene un conjunto de métricas estándar ($R^2$, MAE y Mejora Relativa\footnote{La Mejora Relativa se calcula como $1 - (\text{MAE}_{\text{mitigado}} / \text{MAE}_{\text{ruidoso}})$. Representa la fracción del error cuántico original que el modelo ha conseguido eliminar, donde un valor mayor que cero indica que la predicción supera a la línea base de no mitigar.}), a través de las que se determina cuál de las técnicas ofrece la mejor solución, así como si estas técnicas superan una determinada «línea base».
 
 Esta definición cumple los criterios «SMART», ampliamente aceptados como buena práctica para la fijación de objetivos:
 
 \begin{itemize}
     \item \textbf{S: \textit{Specific}} (específico): comparar tres técnicas de aprendizaje automático (regresión Ridge y Random Forest y tres variantes de GNN) para predecir el \textbf{factor de supervivencia} de los observables tras la degradación por ruido sin ejecutar el circuito. Se observa además si superan la línea base.
-    \item \textbf{M: \textit{Measurable}} (medible): la comparativa se realiza a través de un
-          conjunto de métricas estándar (MAE, RMSE y $R^2$), desglosadas por los tres ejes de
-          generalización y por cada uno de los cincos observables. \textbf{La métrica de referencia que decide entre
-          los modelos es el $R^2$ sobre el factor de supervivencia}, medido sobre el conjunto
-          de prueba. Se toma esta y no la mejora sobre el resultado ya mitigado porque esta
-          última exige conocer el valor ruidoso, que solo existe después de ejecutar, y el
-          trabajo se define precisamente por no ejecutar.
-    \item \textbf{A: \textit{Attainable}} (alcanzable): se apoya en un estado del arte
-          desarrollado en el Capítulo~\ref{cap:sota}, en un conjunto de datos ya generado de
+      \item \textbf{M: \textit{Measurable}} (medible): la comparativa se realiza a través de un conjunto de métricas estándar (MAE, $R^2$ y Mejora Relativa), desglosadas por los tres ejes de generalización y por cada uno de los cincos observables. \textbf{La métrica de referencia que decide entre los modelos es el $R^2$ sobre el factor de supervivencia}, medido sobre el conjunto de prueba. Se toma esta, y no la \textbf{Mejora Relativa} sobre el resultado ya mitigado, porque esta última exige conocer el valor ruidoso (que solo existe después de ejecutar) y la utilidad del trabajo reside precisamente en la predicción pre-ejecución.
+    \item \textbf{A: \textit{Attainable}} (alcanzable): se apoya en el estado del arte
+          desarrollado en el Capítulo~\ref{cap:sota}, en un conjunto de datos (con tarea de generarlos) de
           veinte mil circuitos con calibración real, y en tres técnicas de modelado documentadas.
     \item \textbf{R: \textit{Relevant}} (relevante): tal y como se ha expuesto en el
           Capítulo~\ref{cap:intro}, poder anticipar la degradación permite decidir qué
           circuitos merece la pena ejecutar sin consumir tiempo de procesador cuántico, un recurso muy caro y escaso en la actualidad.
-    \item \textbf{T: \textit{Time-Related}} (con un tiempo determinado): se establece como
-          fecha fin el 9 de agosto de 2026.
+    \item \textbf{T: \textit{Time-Related}} (con un tiempo determinado): se desarrolla dentro del marco temporal establecido para la realización del Trabajo Fin de Máster durante el curso académico.
 \end{itemize}
 
 \section{Objetivos específicos}
@@ -65,12 +52,12 @@ Esta definición cumple los criterios «SMART», ampliamente aceptados como buen
 Los objetivos específicos de este trabajo son los siguientes:
 
 \begin{enumerate}
-    \item \textbf{Comprensión de los fundamentos de la computación cuántica}
+    \item \textbf{Análisis del estado del arte y contextualización del problema.}
     \item \textbf{Construcción del conjunto de datos}, con calibración real del procesador y
           tres ejes de generalización independientes (tipo de circuito, tamaño y tiempo).
-    \item \textbf{Planteamiento y análisis de la variable objetivo}, esto es, cómo representar el factor de degradación y comprobar si realmente es predecible antes de ejecutar, midiendo el $R^2$ en validación sobre cada candidato.
-    \item \textbf{Realización de la comparativa} entre los tres modelos bajo un mismo protocolo, y determinación de un posible modelo óptimo.
-    \item \textbf{Cuantificación del aporte de la estructura} del circuito frente a un resumen tabular.
+    \item \textbf{Desarrollar diferentes estrategias de representación de la información}, es decir, cómo representar el factor de degradación y comprobar si realmente es predecible antes de ejecutar, midiendo el $R^2$ en validación sobre cada candidato.
+    \item \textbf{Entrenar y validar modelos} de Ridge, Random Forest y grafos neuronales mediante un protocolo experimental homogéneo, y determinar un posible modelo óptimo.
+    \item \textbf{Comparar el rendimiento} de los distintos enfoques utilizando métricas objetivas.
 \end{enumerate}
 
 % ⚠️ Cada uno de estos objetivos debe cerrarse con una conclusion en el capitulo 11.
@@ -80,12 +67,7 @@ Los objetivos específicos de este trabajo son los siguientes:
 \section{Metodología de trabajo}
 \label{sec:metodologia}
 
-Se sigue una metodología \textbf{empírico-cuantitativa}. Tras haber planteado el problema y haber revisado la información que existe sobre este, se establece la hipótesis de la investigación, a la que puede darse la siguiente forma negativa, a modo de
-hipótesis nula: «\textit{ninguno de los modelos de la comparativa es capaz de predecir la
-degradación por ruido de un circuito cuántico antes de ejecutarlo mejor que los demás, ni de
-superar la línea base establecida por el valor medio de la variable objetivo}». Este estudio
-trata de probar la falsedad de dicha hipótesis.
-
+Se sigue una metodología \textbf{empírico-cuantitativa}. Tras haber planteado el problema y haber revisado la información que existe sobre este, se establece la hipótesis de la investigación, que puede formularse como sigue: «\textit{al menos uno de los modelos de la comparativa es capaz de predecir la degradación por ruido de un circuito cuántico antes de ejecutarlo mejor que los demás y de superar la línea base establecida por el valor medio de la variable objetivo}». Este estudio trata de comprobar la validez de dicha hipótesis.
 
 El desarrollo se estructura sobre \textbf{CRISP-DM} \cite{wirth2000crispdm}, el modelo de
 proceso de referencia en proyectos de minería de datos, que sigue siendo el marco más
@@ -142,7 +124,7 @@ A modo de listado, para alcanzar los objetivos propuestos se siguen los siguient
     \item \textbf{Entrenamiento y ajuste} de los modelos. La búsqueda de hiperparámetros se
           realiza contra un conjunto de validación \textbf{temporal}, formado por los últimos
           días de calibración del entrenamiento, y no por validación cruzada aleatoria: una división al azar mezclaría días entre ambos conjuntos, inflando los resultados y ocultando cómo rendirá el modelo ante futuros datos.
-    \item \textbf{Obtención de las métricas} de los distintos modelos: $R^2$ y MAE.
+    \item \textbf{Obtención de las métricas} de los distintos modelos ($R^2$, MAE y Mejora Relativa)
           desglosadas por eje de generalización y por observable.
     \item \textbf{Validación de los resultados} y contraste frente a la línea base.
     \item \textbf{Determinación de un posible modelo óptimo}, estrictamente mejor que el
@@ -150,31 +132,3 @@ A modo de listado, para alcanzar los objetivos propuestos se siguen los siguient
     \item \textbf{Elaboración de las conclusiones.}
 \end{enumerate}
 
-
-\subsection{Tipo de trabajo}
-\label{sec:tipo_trabajo}
-Comparativa de soluciones (tipo 3). Líneas de trabajo: aprendizaje automático (Ridge y Random
-Forest) y aprendizaje profundo (la red neuronal de grafos).
-
-\subsection{Herramientas empleadas}
-\label{sec:herramientas}
-
-La generación del conjunto de datos y la simulación del ruido se realizan con \textbf{Qiskit}
-y su simulador Aer \cite{javadi2024qiskit}. Los modelos tabulares se implementan con
-\textbf{scikit-learn} \cite{pedregosa2011scikit}, y la red neuronal de grafos con
-\textbf{PyTorch} \cite{paszke2019pytorch} y \textbf{PyTorch Geometric}
-\cite{fey2019pyg}. El seguimiento de los experimentos, con su semilla, la versión del código
-y la huella del conjunto de datos, se lleva con \textbf{Weights \& Biases}
-\cite{biewald2020wandb}.
-
-El cómputo se reparte entre la máquina de desarrollo y \textbf{Google Cloud}
-\cite{google2026cloud}. Esta última es una necesidad: las muestras de
-mayor tamaño exigen más memoria de la que tiene la máquina local, y el entrenamiento de la
-red de grafos requiere una unidad de procesamiento gráfico.
-
-\subsubsection{Declaración de uso de herramientas de inteligencia artificial}
-% El detalle NO se repite aqui: vive en el anexo, que es donde la norma espera encontrar
-% una declaracion formal. Aqui solo la mencion y el reenvio.
-El trabajo ha empleado herramientas de inteligencia artificial generativa en tareas concretas
-de programación, generación de figuras, redacción y búsqueda bibliográfica. El detalle
-completo, junto con las tareas que no se han delegado, se recoge en el Anexo~\ref{anexo:ia}.

@@ -1,4 +1,10 @@
-\chapter{La variable objetivo}
+\chapter{Planteamiento de la comparativa}
+\label{cap:planteamiento}
+
+En esta sección se repasarán las variables objetivo, las razones de su elección y su anatomía. A continuación, se detallará la construicción del conjunto de datos y se realizará su correspondiente análisis exploratorio. Finalmente, se cierra la sección mostrando los pasos del preprocesado que se han llevado a cabo, previo al entrenamiento de los modelos.
+
+
+\section{La variable objetivo}
 \label{cap:variable}
 
 % =====================================================================================
@@ -49,17 +55,17 @@
 % =====================================================================================
 
 En este capítulo se reproduce el razonamiento que se siguió para construir la variable
-objetivo, un proceso que supuso grandes desafíos. Se empieza introduciendo el concepto de los
+objetivo, un proceso que supuso grandes desafíos. Se comienza introduciendo el concepto de los
 observables y por qué se eligieron esos cinco. Después se listan las tres candidatas a variable
 objetivo, se mide cuál de ellas es aprendible y se explica cómo se reconstruye la degradación
 sin renunciar a predecir antes de ejecutar. A continuación se justifica el umbral por debajo
-del cual una muestra deja de tener señal que aprender y se dedica un par de páginas a describir
+del cual una muestra deja de tener señal que aprender y se dedica un pocas páginas a describir
 la anatomía de la elección y las decisiones que se tomaron respecto a su física. El capítulo
 cierra con las limitaciones de las decisiones tomadas.
 
 
 % =====================================================================================
-\section{Los observables}
+\subsection{Los observables}
 \label{sec:observables}
 % =====================================================================================
 % ⚠️ DECISION DE REDACCION: la seccion declara su fuente teorica UNA SOLA VEZ, en el
@@ -71,7 +77,7 @@ cierra con las limitaciones de las decisiones tomadas.
 Salvo que se indique lo contrario, la teoría de esta sección sale del mismo libro de cabecera del Capítulo~\ref{cap:fundamentos}: \textit{Quantum Computation and Quantum Information}, de \citeA{nielsen2010quantum}.
 
 
-\subsection{Definición y elección}
+\subsubsection{Definición y elección}
 \label{sec:cinco_observables}
 
 Un circuito acaba en un estado $\ket{\psi}$ que no se puede leer: al medir se obtiene una
@@ -105,7 +111,7 @@ valor esperado es un promedio de $+1$ y $-1$ y, por tanto, vive en $[-1,1]$ por 
 
     \input{figuras/cap05/pauli_tikz}
 
-    {\footnotesize Fuente: elaboración propia.}
+    {\footnotesize Fuente: Claude Code \cite{anthropic_claude}.}
 \end{figure}
 
 Con esas tres piezas se puede construir cualquier observable de Pauli. Los elegidos para este trabajo son los cinco que se muestran en la Tabla~\ref{tab:observables}: las tres bases de Pauli promediadas sobre todos
@@ -119,7 +125,7 @@ los qubits, y dos correladores, uno global y otro local. Con estos cinco cubrimo
     \caption{Los cinco observables objetivo y qué mide cada uno.}
     \label{tab:observables}
     {\footnotesize
-    \begin{tabular}{@{}llp{0.44\textwidth}@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}llp{0.44\textwidth}@{}}
         \toprule
         \textbf{Observable} & \textbf{Definición} & \textbf{Qué mide} \\
         \midrule
@@ -136,11 +142,9 @@ los qubits, y dos correladores, uno global y otro local. Con estos cinco cubrimo
             & Correlación \textbf{local}. \\
         \bottomrule
     \end{tabular}}
-
-    {\footnotesize Fuente: elaboración propia.}
 \end{table}
 
-\subsection{Impacto del ruido a un valor esperado}
+\subsubsection{Impacto del ruido a un valor esperado}
 \label{sec:ruido_observable}
 
 Los cinco observables están acotados en todo el intervalo $[-1,1]$, pero la mayor parte se acumula en un intervalo más reducido $[-0.5,\, 0.5]$, como se puede observar en el panel izquierdo de la Figura~\ref{fig:observables_ruido}. Además, ese mismo panel sugiere que los valores exactos tras la ejecución se reducen, ya que los rangos usuales de los valores ruidosos son menores. Sin embargo, como se muestra en el panel derecho de la Figura~\ref{fig:observables_ruido}, el ruido afecta de dos maneras:
@@ -172,11 +176,11 @@ Los cinco observables están acotados en todo el intervalo $[-1,1]$, pero la may
 Entonces el ruido puede amplificar y no es una anomalía de la simulación.
 
 % =====================================================================================
-\section{El factor de supervivencia}
+\subsection{El factor de supervivencia}
 \label{sec:factor}
 % =====================================================================================
 
-\subsection{Candidatas a variable objetivo y elección}
+\subsubsection{Candidatas a variable objetivo y elección}
 \label{sec:candidatas}
 
 La pregunta del trabajo, \emph{¿cuánto degrada el ruido?}, tuvo 3 opciones a poder responderlo:
@@ -217,7 +221,7 @@ modelos tabulares de la comparativa y se repitió todo con tres umbrales de señ
              es el recorrido sobre los cinco observables.}
     \label{tab:candidatas}
     {\footnotesize
-    \begin{tabular}{@{}lcc@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}lcc@{}}
         \toprule
         \textbf{Objetivo} & \textbf{Ridge} & \textbf{Random Forest} \\
         \midrule
@@ -228,7 +232,7 @@ modelos tabulares de la comparativa y se repitió todo con tres umbrales de señ
         \bottomrule
     \end{tabular}}
 
-    {\footnotesize Fuente: elaboración propia. Umbral de señal $0{,}01$.}
+    {\footnotesize Umbral de señal $0{,}01$.}
 \end{table}
 
 % ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
@@ -261,7 +265,7 @@ El resultado no admite matices de lectura:
     \item \textbf{El factor de supervivencia es el único aprendible de verdad}, y duplica a $|\Delta|$ en los dos modelos y en los tres umbrales.
 \end{itemize}
 
-\subsection{La reformulación}
+\subsubsection{La reformulación}
 \label{sec:reformulacion}
 
 De las tres candidatas, la única que el modelo puede aprender es el factor de supervivencia, y
@@ -277,7 +281,7 @@ reconstruye después, a partir del factor predicho y del valor medido tras ejecu
 %    un modelo PERFECTO duplicaria el error en vez de anularlo. Corregido en sep-2026;
 %    hasta entonces cinco documentos del repositorio ponian la resta.
 
-\textit{Una acalaración}: para reconstruir la degradación, en gran parte de la literatura \citeA{placidi2026deep} recurren al valor ruidoso $\langle O \rangle_{\text{ruidoso}}$ (obtenido tras ejecución en \textbf{hardware cuántico real} y costoso pero acanzable) y del valor $\langle O \rangle_{\text{exacto}}$ (obtenido tras ejecución en \textbf{hardware clásico} y costoso pero con alcance limitado, explicado en el Capítulo~\ref{sec:hardware})
+\textit{Una aclaración}: para reconstruir la degradación, en gran parte de la literatura \citeA{placidi2026deep} recurren al valor ruidoso $\langle O \rangle_{\text{ruidoso}}$ (obtenido tras ejecución en \textbf{hardware cuántico real} y costoso pero acanzable) y del valor $\langle O \rangle_{\text{exacto}}$ (obtenido tras ejecución en \textbf{hardware clásico} y costoso pero con alcance limitado, explicado en el Capítulo~\ref{sec:hardware})
 
 
 
@@ -298,10 +302,10 @@ A partir de la igualdad \ref{eq:reconstruccion}, obtenemos la reconstrucción de
   = \frac{\langle O \rangle_{\text{ruidoso}}}{\hat f} .
 \end{equation}
 
-Conviene profundizar en la idea propuesta, ya que este plantemaiento no rompe el \textbf{paradigma pre-ejecución}. Las razones son las siguientes:
+Conviene profundizar en la idea propuesta, ya que este planteamiento no rompe el \textbf{paradigma pre-ejecución}. Las razones son las siguientes:
 
 \begin{itemize}
-    \item \textbf{La entrada del modelo} es el circuito y la telemetría del chip, y nada más. El modelo \textbf{nunca ve} el resultado de la ejecución, ni al entrenar ni al predecir.
+    \item \textbf{La entrada del modelo} está compuesta únicamente por el circuito y la telemetría del chip. El modelo \textbf{nunca ve} el resultado de la ejecución, ni al entrenar ni al predecir.
     \item \textbf{El valor medido entra solo tras la predicción} para mitigar el ruido si corresponde la decisión.
     \item \textbf{Y la predicción sirve sin ejecutar nada.} El factor predicho es, por sí solo, la respuesta a la pregunta del apartado~\ref{sec:pregunta}: dice qué fracción de la señal sobrevivirá antes de gastar un ciclo de procesador. La reconstrucción es una aplicación posterior y opcional.
 \end{itemize}
@@ -313,12 +317,12 @@ Conviene profundizar en la idea propuesta, ya que este plantemaiento no rompe el
 
     \input{figuras/cap05/reconstruccion_tikz}
 
-    {\footnotesize Fuente: elaboración propia.}
+    {\footnotesize Fuente: Claude Code \cite{anthropic_claude}.}
 \end{figure}
 
 
 % =====================================================================================
-\section{El umbral de señal}
+\subsection{El umbral de señal}
 \label{sec:umbral}
 % =====================================================================================
 % 🔴 REGLA ANTI-FUGA. Todo este apartado esta medido SOLO sobre `train`. Una critica
@@ -345,7 +349,7 @@ Como se observan en la Tabla~\ref{tab:barrido} y la Figura~\ref{fig:umbral_barri
     \caption{El barrido del umbral de señal, medido sobre el conjunto de entrenamiento.}
     \label{tab:barrido}
     {\footnotesize
-    \begin{tabular}{@{}lrrrrrr@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrrr@{}}
         \toprule
         \textbf{Umbral} & \textbf{Etiquetas} & \textbf{Huérfanas}
             & \textbf{Huérf. $n{=}11$} & \textbf{$f<0$} & \textbf{$f>1$}
@@ -361,7 +365,7 @@ Como se observan en la Tabla~\ref{tab:barrido} y la Figura~\ref{fig:umbral_barri
         \bottomrule
     \end{tabular}}
 
-    {\footnotesize Fuente: elaboración propia. Sin umbral hay $66{.}720$ etiquetas. En negrita,
+    {\footnotesize Sin umbral hay $66{.}720$ etiquetas. En negrita,
     el umbral elegido.}
 \end{table}
 
@@ -396,11 +400,44 @@ El \textbf{umbral} fijado es $\bm{0{,}002}$, con sus consecuencias:
           prueba solo el $0{,}2$\,\%.
     \item \textbf{Limpia la mayor parte de los valores máximos altos}: los factores
           negativos bajan al $1{,}41$\,\% y la cola se recorta de un máximo de $16{,}45$ a uno
-          de $6{,}67$. Un factor negativo significa que el valor medido (el ruidoso) cambió de signo respecto
-          al exacto. Su justificación aparece en el siguiente anexo~\ref{anexo:factor_negativo}.
+          de $6{,}67$. Un factor negativo significa que el valor medido (el ruidoso) cambió de signo
+          respecto al exacto.
     \item \textbf{No penaliza a los circuitos grandes}: con este umbral el porcentaje de huérfanos es nulo en todos los tamaños.
     \item \textbf{Afecta de forma diferente a cada observable}
 \end{itemize}
+
+% =====================================================================================
+% 🔴 EL TERMINO AFIN — TRAIDO DESDE EL ANTIGUO ANEXO C (sep-2026, indicacion del tutor:
+%    «meterlo en la memoria pero mas resumido»). El anexo se RETIRO; este es ahora el
+%    unico sitio donde se desarrolla el modelo afin. No reponer el anexo.
+%
+% ⚠️ SE CONSERVA UNA SOLA ECUACION. El anexo tenia dos: la afin y el paso algebraico de
+%    dividir por `e` para llegar a `f + b/e`. Ese segundo paso se cuenta en prosa a
+%    proposito: es algebra elemental y, escrito, desvia el foco del apartado, que va de
+%    elegir un umbral. Criterio del tutor.
+%
+% ⚠️ VA AQUI Y NO EN §\ref{sec:reformulacion} porque es aqui donde el lector acaba de
+%    encontrarse los factores negativos. La explicacion al lado del fenomeno, sin saltos.
+%
+% Fuente de las cifras: doc/changes/2026-08_cambio_decisiones.md §1 y §3 (dataset v2,
+% ajuste sobre una submuestra de 3.000 circuitos). Citables.
+% =====================================================================================
+
+El factor negativo merece una explicación. El factor de supervivencia asume que el ruido es
+\textbf{multiplicativo puro}: que el valor medido es el exacto multiplicado por una fracción
+que sobrevive. Medido, no lo es del todo, y el modelo real es \textbf{afín}:
+
+\begin{equation}
+\label{eq:modelo_afin}
+\langle O \rangle_{\text{ruidoso}} = f \cdot \langle O \rangle_{\text{exacto}} + b .
+\end{equation}
+
+\noindent El término $b$ es un desplazamiento que \textbf{no depende de cuánta señal había}, sino una constante que reciben las medidas y que son empujadas al signo opuesto.
+
+
+\textbf{El término $b$ no se modela.} Se asume el factor multiplicativo puro por simplificar el
+trabajo, y la consecuencia queda declarada: los circuitos en los que el factor cambia de signo
+caen fuera de lo que esta variable objetivo puede representar.
 
 % ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
 % Figura propia. La genera nulos.dibujar_perfil_memoria() en el cuaderno
@@ -430,11 +467,11 @@ Aclaración importante:
 
 
 % =====================================================================================
-\section{Anatomía de la variable objetivo}
+\subsection{Anatomía}
 \label{sec:anatomia}
 % =====================================================================================
 
-\subsection{Rango}
+\subsubsection{Rango}
 \label{sec:rango}
 
 \begin{table}[htbp]
@@ -442,7 +479,7 @@ Aclaración importante:
     \caption{El factor de supervivencia por observable, con el umbral de $0{,}002$ aplicado.}
     \label{tab:anatomia}
     {\footnotesize
-    \begin{tabular}{@{}lrrrrrrr@{}}
+    Fuente: elaboración propia. \begin{tabular}{@{}lrrrrrrr@{}}
         \toprule
         \textbf{Observable} & \textbf{Etiquetas} & \textbf{Mín.} & \textbf{Q1}
             & \textbf{Mediana} & \textbf{Q3} & \textbf{Máx.} & \textbf{$f>1$} \\
@@ -455,7 +492,7 @@ Aclaración importante:
         \bottomrule
     \end{tabular}}
 
-    {\footnotesize Fuente: elaboración propia. Conjunto de entrenamiento.}
+    {\footnotesize Conjunto de entrenamiento.}
 \end{table}
 
 % ⚠️ FORMATO: titulo arriba y fuente abajo (Instrucciones §1.3, p. 6).
@@ -488,7 +525,7 @@ La paridad es la excepción, y en las cinco columnas de la tabla. Su mediana es 
 frente al $0{,}83$--$0{,}87$ del resto de observable y solo el
 $1{,}31$\,\% de sus etiquetas supera el uno, frente al $11$\,\% de la media de $Z$. Es decir, es el observable que más sufre y el que menos se amplifica.
 
-\subsection{Las dos cotas que impone la física}
+\subsubsection{Cotas físicas}
 \label{sec:cotas}
 % ⚠️ APARTADO BREVE A PROPOSITO: es una derivacion, no una discusion. Manda la formula.
 %    La regla que sale de la cota inferior y su aplicacion al predecir NO van aqui: son
@@ -531,7 +568,7 @@ constante, sino un suelo distinto para cada circuito y cada observable.
 
 La cota inferior debe aplicarse como un filtro sobre la \emph{predicción}, pues el modelo no garantiza resultados físicos: con $\langle O\rangle_{\text{ruidoso}} = 0{,}01$, predecir $0{,}05$ genera un valor razonable ($0{,}20$), pero $0{,}001$ da $10$, un absurdo físico (ya que deberia de estar contenido en el intervalo $[-1,1]$).
 
-\subsection{El factor de supervivencia frente al tamaño}
+\subsubsection{El factor de supervivencia frente al tamaño}
 \label{sec:f_tamano}
 
 El conjunto de prueba se plantea para extrapolar de once a quince qubits, así que interesa cómo se
@@ -559,7 +596,7 @@ mueve la etiqueta con el tamaño dentro del rango que sí se entrena
 
 La consecuencia de esto es que los cinco objetivos son muy distintos. Entonces, al describirlos y reportar resultados es necesario tratarlos de forma independiente.
 
-\subsection{Los cinco objetivos entre sí}
+\subsection{Correlación}
 \label{sec:correlacion_objetivos}
 
 Se planteó la siguiente pregunta: ¿un modelo por observable, o uno solo con cinco salidas? Un tronco compartido solo tiene sentido si los cinco tienen algún tipo de correlación.

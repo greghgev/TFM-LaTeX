@@ -1,0 +1,145 @@
+\chapter{Conclusiones y trabajo futuro}
+\label{cap:conclusiones}
+
+% =====================================================================================
+% ⚠️ EXIGENCIA EXPLICITA DE LA NORMA (Instrucciones seccion 2.7):
+%    «cada objetivo del trabajo se enlazara con una conclusion». Por eso §7.1 recorre los
+%    cinco especificos UNO A UNO y cierra con el general. NO fundirlos en un parrafo.
+%
+% 🔴 SOLO DOS SECCIONES NUMERADAS (decision del autor, sep-2026): 7.1 Conclusiones y
+%    7.2 Lineas de trabajo futuro. Los tres bloques de dentro de 7.1 van con
+%    \subsection* —SIN numerar y SIN entrar en el indice—, igual que en el capitulo 5.
+%    NO convertirlos en \section: el autor quiere dos entradas en el indice, no cuatro.
+%
+% 🔴 LOS CINCO OBJETIVOS SE ACTUALIZARON (sep-2026) al nuevo enunciado del
+%    apartado~\ref{sec:objetivos_especificos}. Cambiaron cuatro de los cinco:
+%      1. antes «fundamentos cuanticos»        -> ahora «estado del arte y contexto»
+%      3. antes «planteamiento de la variable» -> ahora «estrategias de representacion»
+%      4. antes «realizacion de la comparativa»-> ahora «entrenar y validar modelos»
+%      5. antes «aporte de la estructura»      -> ahora «comparar el rendimiento»
+%    ⚠️ El hallazgo del aporte de la estructura se conserva DENTRO del objetivo 5: es lo
+%       que salio de la comparacion. Si se vuelve a tocar el capitulo 3, revisar esto.
+%
+% ⚠️ TODAS LAS CIFRAS DE AQUI ESTAN MEDIDAS EN EL capitulo~\ref{cap:resultados}. Ninguna
+%    es nueva. Si se cambia una alli, hay que cambiarla aqui: estan duplicadas a
+%    proposito, porque un capitulo de conclusiones sin numeros no sostiene su veredicto.
+% =====================================================================================
+
+% =====================================================================================
+\section{Conclusiones}
+\label{sec:cumplimiento}
+% =====================================================================================
+
+\subsection*{Cumplimiento de los objetivos}
+
+Los cinco objetivos específicos del apartado~\ref{sec:objetivos_especificos} se cierran así:
+
+\begin{enumerate}
+    \item \textbf{Análisis del estado del arte y contextualización del problema.} Este objetivo quedó cubierto en el Capítulo~\ref{cap:sota}. La revisión realizada permitió identificar con claridad el espacio que pretende abordar este trabajo. Las técnicas de mitigación más utilizadas actúan \emph{después} de la medición y, por lo general, es necesario ejecutar el circuito un gran número de veces para corregir los efectos del ruido. Como consecuencia, el coste recae sobre el recurso más limitado en la computación cuántica actual: el tiempo de ejecución y la disponibilidad de mediciones. Sin embargo, en esta memoria se ha investigado la posibilidad de abordar el problema desde una perspectiva complementaria, es decir, anticipar la degradación \emph{antes} de consumir esos recursos. Sobre esta idea se construye la comparativa desarrollada en este trabajo.
+
+    \item \textbf{Construcción del conjunto de datos.} Cumplido. Veinte mil circuitos de cinco
+          a quince qubits, etiquetados con su degradación exacta sobre la calibración real de
+          un procesador de IBM a lo largo de cuarenta y dos días
+          (Capítulo~\ref{cap:planteamiento}). El conjunto de prueba está construido para obligar a generalizar en tres
+          ejes independientes: tipo, tamaño y tiempo.
+
+    \item \textbf{Estrategias de representación de la información.} Cumplido, y con un hallazgo
+          que reorientó el trabajo. La degradación con signo \textbf{no es predecible antes de
+          ejecutar}. Su reformulación como \textbf{factor de supervivencia} sí es aprendible
+          (apartado~\ref{sec:reformulacion}), y sobre ella se sostiene todo lo demás.
+
+    \item \textbf{Entrenar y validar los modelos con un protocolo homogéneo.} Cumplido: los
+          tres comparten partición, umbral de señal y métricas, y la diferencia entre ellos es
+          únicamente el modelo. Sobre el modelo óptimo que el objetivo pedía determinar, el
+          resultado obtenido: \textbf{no existe uno estrictamente
+          mejor}. Random Forest gana en validación en los cinco observables (entre $0{,}42$ y
+          $0{,}67$ de coeficiente de determinación) y es \textbf{el único que nunca empeora} el
+          observable al corregirlo, de $+0{,}01$ a $+0{,}81$ de mejora relativa. Pero gana por
+          centésimas, y en el eje temporal ningún modelo se distingue de los demás: los cinco
+          suben y bajan juntos a lo largo de los doce días (apartado~\ref{sec:res_tiempo}).
+
+    \item \textbf{Comparar el rendimiento con métricas objetivas.} Cumplido, y la comparación
+          deja dos respuestas que no coinciden.
+
+          La primera es \textbf{cuánto aporta la estructura del circuito}, que era la pregunta principal del trabajo, y la respuesta es en gran parte negativa: la representación en
+          grafo solo gana \textbf{al extrapolar en número de qubits}, donde saca a Random Forest
+          $0{,}21$ y $0{,}23$ puntos de coeficiente sobre la media de $X$ a catorce y quince
+          qubits (apartado~\ref{sec:res_tamano}). En el régimen conocido, treinta y cuatro
+          columnas agregadas bastan, y cuestan muchos menos parámetros.
+
+          La segunda es que \textbf{acertar sobre el factor no garantiza mitigar bien}. Ridge
+          tiene coeficiente positivo en los cinco observables y aun así, aplicado, empeora el
+          resultado en cuatro de ellos.
+
+\end{enumerate}
+
+El \textbf{objetivo general} (apartado~\ref{sec:objetivo_general}) se cumple: las tres técnicas
+resuelven el mismo problema bajo un protocolo idéntico y la comparativa se resuelve sobre
+métricas estándar, desglosadas por observable y por eje. La \textbf{hipótesis nula} se refuta en
+su segunda mitad (los cinco modelos baten con margen la línea base del factor constante, que
+se queda en un coeficiente de cero) y solo en parte en la primera: hay diferencias medibles
+entre modelos, pero ninguno domina los tres ejes a la vez.
+
+\subsection*{Aportaciones}
+
+\begin{enumerate}
+    \item \textbf{Un conjunto de datos que no existía.} El valor está en los tres ejes que permiten medir por separado tres formas distintas de fallar fuera
+          de distribución. Se mezclan estos tres ejes al final para evaluar el rendimiento de los modelos con el conjunto de prueba en su totalidad.
+
+    \item \textbf{La demostración medida de que el objetivo natural del problema no es
+          predecible antes de ejecutar}, con su explicación y su posterior reformulación.
+
+    \item \textbf{Una comparativa que separa dos preguntas}: cuánto
+          acierta un modelo sobre el factor, y cuánto mejora el observable al aplicarlo. La primera no implica la segunda. El caso de
+          Ridge lo demuestra.
+\end{enumerate}
+
+\subsection*{Limitaciones}
+% NO minimizarlas: declararlas hace creible el resto. Cada una lleva su CONSECUENCIA, que
+% es lo que las convierte en informacion util y no en una lista de descargos.
+
+\begin{itemize}
+    \item El modelo de ruido \textbf{no incluye crosstalk}. Las conclusiones son válidas dentro
+          de ese modelo, y un procesador donde el acoplamiento entre qubits vecinos pese más
+          podría alterarlas.
+    \item No hay validación en \textbf{hardware real}: el plan abierto de IBM da $10$ minutos de
+          QPU al mes \cite{ibm2026productos}, insuficiente para etiquetar un conjunto de este
+          tamaño. Todo lo medido procede del gemelo digital alimentado con calibración real.
+    \item El \textit{ground truth} exige simulación exacta, lo que \textbf{acota el tamaño} de
+          los circuitos a quince qubits. El eje de tamaño llega hasta donde llega la memoria de
+          la máquina, no hasta donde sería interesante.
+    \item El transpilador de Qiskit \textbf{no es determinista}, así que la reproducibilidad del
+          conjunto es del plan de generación.
+    \item El trabajo solo cubre los observables cuyo \textbf{valor exacto supera el umbral de
+          señal} de $0{,}002$ (apartado~\ref{sec:umbral}). Por debajo de esa cota el factor de
+          supervivencia es un cociente que se dispara, así que esas casillas se quedan sin
+          etiqueta y el modelo no predice nada sobre ellas: queda fuera el $6{,}9$\,\% de las
+          etiquetas. \textbf{Los observables de señal muy pequeña están, por tanto, fuera del
+          alcance de este trabajo}.
+    \item El ruido se modela como un factor multiplicativo puro, \textbf{sin término afín}
+          (apartado~\ref{sec:umbral}). Es una simplificación deliberada, y es la que explica
+          los factores de supervivencia negativos que el modelo no puede representar.
+\end{itemize}
+
+% =====================================================================================
+\section{Líneas de trabajo futuro}
+\label{sec:futuro}
+% Fuente: TFM-Quantum/IDEAS_FUTURAS.md
+% =====================================================================================
+
+Cada una de las cinco responde a una de las limitaciones del apartado anterior. La primera es la que decide si lo
+medido aquí sirve fuera del simulador, y las otras cuatro amplían el alcance dentro de él.
+
+\begin{itemize}
+    \item \textbf{Validación en hardware real.} Mientras no se haga, lo medido
+          vale dentro del modelo de ruido y no fuera de él.
+    \item \textbf{Incorporar el crosstalk} al modelo de ruido y volver a medir los tres ejes.
+          Interesa especialmente el eje de tamaño, donde más qubits significan más vecinos
+          acoplados y donde la degradación debería notarse antes.
+    \item \textbf{Modelar el término afín} en lugar de descartarlo, para cubrir los circuitos
+          en los que el factor cambia de signo, que hoy quedan fuera de lo que el modelo puede
+          representar.
+    \item \textbf{Ampliar la batería de observables}, hoy limitada a cinco.
+    \item \textbf{Buscar una formulación del objetivo que no sea un cociente}, para recuperar
+          las casillas de señal pequeña que hoy retira el umbral.
+\end{itemize}

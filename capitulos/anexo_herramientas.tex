@@ -1,0 +1,15 @@
+\chapter{Herramientas empleadas}
+\label{sec:herramientas}
+
+La generación del conjunto de datos y la simulación del ruido se realizan con \textbf{Qiskit}
+y su simulador Aer \cite{javadi2024qiskit}. Los modelos tabulares se implementan con
+\textbf{scikit-learn} \cite{pedregosa2011scikit}, y la red neuronal de grafos con
+\textbf{PyTorch} \cite{paszke2019pytorch} y \textbf{PyTorch Geometric}
+\cite{fey2019pyg}. El seguimiento de los experimentos, con su semilla, la versión del código
+y la huella del conjunto de datos, se lleva con \textbf{Weights \& Biases}
+\cite{biewald2020wandb}.
+
+El cómputo se reparte entre la máquina de desarrollo y \textbf{Google Cloud}
+\cite{google2026cloud}. Esta última es una necesidad: las muestras de
+mayor tamaño exigen más memoria de la que tiene la máquina local, y el entrenamiento de la
+red de grafos requiere una unidad de procesamiento gráfico.
